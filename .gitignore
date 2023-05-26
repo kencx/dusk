@@ -1,0 +1,10 @@
+*.db
+dusk
+
+cover.out
+
+# compiled output
+/dist
+
+# dependencies
+*/node_modules/**
