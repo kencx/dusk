@@ -2,8 +2,9 @@ package storage
 
 import (
 	"dusk"
-	"reflect"
 	"testing"
+
+	"github.com/matryer/is"
 )
 
 var (
@@ -23,13 +24,12 @@ var (
 )
 
 func TestGetTag(t *testing.T) {
+	is := is.New(t)
 	got, err := ts.GetTag(testTag1.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	want := testTag1
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
-	}
+	is.Equal(got, want)
 }
 
 func TestGetTagNotExists(t *testing.T) {
@@ -58,18 +58,12 @@ func TestGetTagNotExists(t *testing.T) {
 // }
 
 func TestGetAllTags(t *testing.T) {
+	is := is.New(t)
 	got, err := ts.GetAllTags()
-	checkErr(t, err)
+	is.NoErr(err)
 
 	want := allTestTags
-
-	if len(got) != len(want) {
-		t.Errorf("got %d books, want %d books", len(got), len(want))
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
-	}
+	is.Equal(got, want)
 }
 
 func TestGetAllTagEmpty(t *testing.T) {
@@ -95,26 +89,21 @@ func TestGetAllTagEmpty(t *testing.T) {
 }
 
 func TestCreateTag(t *testing.T) {
+	is := is.New(t)
 	want := &dusk.Tag{Name: "FooBar"}
 
 	got, err := ts.CreateTag(want)
-	checkErr(t, err)
-
-	if got.Name != want.Name {
-		t.Errorf("got %v, want %v", got.Name, want.Name)
-	}
+	is.NoErr(err)
+	is.Equal(got.Name, want.Name)
 }
 
 func TestCreateTagDuplicates(t *testing.T) {
+	is := is.New(t)
 	want := testTag3
 
 	got, err := ts.CreateTag(want)
-	checkErr(t, err)
-
-	// check returned tag is want
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	is.NoErr(err)
+	is.Equal(got, want)
 
 	// check for number of entries in tags
 	var dest []string
@@ -131,15 +120,13 @@ func TestCreateTagDuplicates(t *testing.T) {
 func TestUpdateTag(t *testing.T) {
 	defer resetDB()
 
+	is := is.New(t)
 	want := testTag1
 	want.Name = "New Tag"
 
 	got, err := ts.UpdateTag(want.ID, want)
-	checkErr(t, err)
-
-	if got.Name != want.Name {
-		t.Errorf("got %v, want %v", got.Name, want.Name)
-	}
+	is.NoErr(err)
+	is.Equal(got.Name, want.Name)
 }
 
 func TestUpdateTagExisting(t *testing.T) {
@@ -173,12 +160,12 @@ func TestDeleteTag(t *testing.T) {
 	}
 
 	// check books still exist without tag
-    got, err := ts.GetBook(testBook1.ID)
-    checkErr(t, err)
+	got, err := ts.GetBook(testBook1.ID)
+	checkErr(t, err)
 
-    if len(got.Tag) != 0 {
-        t.Errorf("book %d has incorrect number of tags", testBook1.ID)
-    }
+	if len(got.Tag) != 0 {
+		t.Errorf("book %d has incorrect number of tags", testBook1.ID)
+	}
 }
 
 func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
@@ -202,12 +189,12 @@ func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
 	}
 
 	// check books still exist without tag
-    got, err := ts.GetBook(testBook3.ID)
-    checkErr(t, err)
+	got, err := ts.GetBook(testBook3.ID)
+	checkErr(t, err)
 
-    if len(got.Tag) != 1 {
-        t.Errorf("book %d has incorrect number of tags", testBook3.ID)
-    }
+	if len(got.Tag) != 1 {
+		t.Errorf("book %d has incorrect number of tags", testBook3.ID)
+	}
 }
 
 func TestDeleteTagNotExists(t *testing.T) {

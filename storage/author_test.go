@@ -2,8 +2,9 @@ package storage
 
 import (
 	"dusk"
-	"reflect"
 	"testing"
+
+	"github.com/matryer/is"
 )
 
 var (
@@ -31,17 +32,17 @@ var (
 )
 
 func TestGetAuthor(t *testing.T) {
+	is := is.New(t)
 	got, err := ts.GetAuthor(testAuthor1.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	want := testAuthor1
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
-	}
+	is.Equal(got, want)
 }
 
 func TestGetAuthorNotExists(t *testing.T) {
-	result, err := ts.GetAuthor(-1)
+	is := is.New(t)
+	got, err := ts.GetAuthor(-1)
 	if err == nil {
 		t.Errorf("expected error: ErrDoesNotExist")
 	}
@@ -49,10 +50,7 @@ func TestGetAuthorNotExists(t *testing.T) {
 	if err != dusk.ErrDoesNotExist {
 		t.Errorf("unexpected error: %v", err)
 	}
-
-	if result != nil {
-		t.Errorf("got %v, want nil", result)
-	}
+	is.Equal(got, nil)
 }
 
 // func TestGetAuthorWithName(t *testing.T) {
@@ -66,18 +64,12 @@ func TestGetAuthorNotExists(t *testing.T) {
 // }
 
 func TestGetAllAuthors(t *testing.T) {
+	is := is.New(t)
 	got, err := ts.GetAllAuthors()
-	checkErr(t, err)
+	is.NoErr(err)
 
 	want := allTestAuthors
-
-	if len(got) != len(want) {
-		t.Errorf("got %d books, want %d books", len(got), len(want))
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
-	}
+	is.Equal(got, want)
 }
 
 func TestGetAllAuthorEmpty(t *testing.T) {
@@ -104,26 +96,22 @@ func TestGetAllAuthorEmpty(t *testing.T) {
 
 func TestCreateAuthor(t *testing.T) {
 	defer resetDB()
+
+	is := is.New(t)
 	want := &dusk.Author{Name: "FooBar"}
 
 	got, err := ts.CreateAuthor(want)
-	checkErr(t, err)
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	is.NoErr(err)
+	is.Equal(got, want)
 }
 
 func TestCreateAuthorDuplicates(t *testing.T) {
+	is := is.New(t)
 	want := testAuthor3
 
 	got, err := ts.CreateAuthor(want)
-	checkErr(t, err)
-
-	// check returned author is want
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	is.NoErr(err)
+	is.Equal(got, want)
 
 	// check for number of entries in authors
 	var dest []string
@@ -140,15 +128,13 @@ func TestCreateAuthorDuplicates(t *testing.T) {
 func TestUpdateAuthor(t *testing.T) {
 	defer resetDB()
 
+	is := is.New(t)
 	want := testAuthor1
 	want.Name = "Sherlock Holmes"
 
 	got, err := ts.UpdateAuthor(want.ID, want)
-	checkErr(t, err)
-
-	if got.Name != want.Name {
-		t.Errorf("got %v, want %v", got.Name, want.Name)
-	}
+	is.NoErr(err)
+	is.Equal(got.Name, want.Name)
 }
 
 func TestUpdateAuthorExisting(t *testing.T) {

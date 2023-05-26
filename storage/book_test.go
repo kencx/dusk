@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/matryer/is"
 )
 
 var (
@@ -86,20 +87,20 @@ func TestGetBook(t *testing.T) {
 }
 
 func TestGetAllBooks(t *testing.T) {
-    got, err := ts.GetAllBooks()
-    checkErr(t, err)
+	got, err := ts.GetAllBooks()
+	checkErr(t, err)
 
-    want := allTestBooks
+	want := allTestBooks
 
-    if len(got) != len(want) {
-        t.Errorf("got %d books, want %d books", len(got), len(want))
-    }
+	if len(got) != len(want) {
+		t.Errorf("got %d books, want %d books", len(got), len(want))
+	}
 
-    for i := 0; i < len(got); i++ {
-        if !assertBooksEqual(got[i], want[i]) {
-            t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
-        }
-    }
+	for i := 0; i < len(got); i++ {
+		if !assertBooksEqual(got[i], want[i]) {
+			t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+		}
+	}
 }
 
 func TestCreateBook(t *testing.T) {
@@ -166,7 +167,7 @@ func TestCreateBookExistingISBN(t *testing.T) {
 }
 
 func TestCreateBookExistingAuthor(t *testing.T) {
-    defer resetDB()
+	defer resetDB()
 	want := &dusk.Book{
 		Title:      "Morning Star",
 		ISBN:       "1004",
@@ -181,7 +182,7 @@ func TestCreateBookExistingAuthor(t *testing.T) {
 	assertAuthorsExist(t, want)
 	assertBookAuthorRelationship(t, got)
 
-    // TODO get authors related books
+	// TODO get authors related books
 }
 
 func TestCreateBookNewAndExistingAuthor(t *testing.T) {
@@ -200,11 +201,11 @@ func TestCreateBookNewAndExistingAuthor(t *testing.T) {
 	assertAuthorsExist(t, want)
 	assertBookAuthorRelationship(t, want)
 
-    // TODO get both authors related books
+	// TODO get both authors related books
 }
 
 func TestCreateBookExistingTag(t *testing.T) {
-    defer resetDB()
+	defer resetDB()
 	want := &dusk.Book{
 		Title:      "Dune",
 		ISBN:       "1008",
@@ -220,7 +221,7 @@ func TestCreateBookExistingTag(t *testing.T) {
 	assertTagsExist(t, want)
 	assertBookTagRelationship(t, want)
 
-    // TODO get tag's related books
+	// TODO get tag's related books
 }
 
 func TestCreateBookNewAndExistingTag(t *testing.T) {
@@ -240,7 +241,7 @@ func TestCreateBookNewAndExistingTag(t *testing.T) {
 	assertTagsExist(t, want)
 	assertBookTagRelationship(t, want)
 
-    // TODO get tag's related books
+	// TODO get tag's related books
 }
 
 func TestUpdateBookNoAuthorChange(t *testing.T) {
@@ -257,13 +258,13 @@ func TestUpdateBookNoAuthorChange(t *testing.T) {
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
 	}
-    // TODO get tag's related books
+	// TODO get tag's related books
 }
 
 func TestUpdateBookAddNewAuthor(t *testing.T) {
 	defer resetDB()
 
-    want := modifyAuthors(testBook1, append(testBook1.Author, "Ty Franck"))
+	want := modifyAuthors(testBook1, append(testBook1.Author, "Ty Franck"))
 	got, err := ts.UpdateBook(want.ID, want)
 	checkErr(t, err)
 
@@ -278,7 +279,7 @@ func TestUpdateBookAddNewAuthor(t *testing.T) {
 func TestUpdateBookAddExistingAuthor(t *testing.T) {
 	defer resetDB()
 
-    want := modifyAuthors(testBook1, append(testBook1.Author, testBook2.Author[0]))
+	want := modifyAuthors(testBook1, append(testBook1.Author, testBook2.Author[0]))
 	got, err := ts.UpdateBook(want.ID, want)
 	checkErr(t, err)
 
@@ -293,8 +294,8 @@ func TestUpdateBookAddExistingAuthor(t *testing.T) {
 func TestUpdateBookRemoveAuthor(t *testing.T) {
 	defer resetDB()
 
-    old := testBook3.Author
-    want := modifyAuthors(testBook3, testBook3.Author[:len(testBook3.Author)-1])
+	old := testBook3.Author
+	want := modifyAuthors(testBook3, testBook3.Author[:len(testBook3.Author)-1])
 	got, err := ts.UpdateBook(want.ID, want)
 	checkErr(t, err)
 
@@ -303,15 +304,15 @@ func TestUpdateBookRemoveAuthor(t *testing.T) {
 	}
 
 	// check removed author still exists
-    var dest []string
-    last := old[len(old)-1]
+	var dest []string
+	last := old[len(old)-1]
 	stmt := `SELECT name FROM author WHERE name=$1`
 	if err := ts.db.Select(&dest, stmt, last); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
-    if len(dest) == 0 {
-        t.Errorf("author %s missing", last)
-    }
+	if len(dest) == 0 {
+		t.Errorf("author %s missing", last)
+	}
 
 	// check relationship with previous author dropped
 	assertBookAuthorRelationship(t, want)
@@ -320,8 +321,8 @@ func TestUpdateBookRemoveAuthor(t *testing.T) {
 func TestUpdateBookRemoveAuthorCompletely(t *testing.T) {
 	defer resetDB()
 
-    old := testBook2.Author[0]
-    want := modifyAuthors(testBook2, testBook1.Author)
+	old := testBook2.Author[0]
+	want := modifyAuthors(testBook2, testBook1.Author)
 	got, err := ts.UpdateBook(want.ID, want)
 	checkErr(t, err)
 
@@ -330,14 +331,14 @@ func TestUpdateBookRemoveAuthorCompletely(t *testing.T) {
 	}
 
 	// check author removed permanently
-    var dest []string
+	var dest []string
 	stmt := `SELECT name FROM author WHERE name=$1`
 	if err := ts.db.Select(&dest, stmt, old); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
-    if len(dest) != 0 {
-        t.Errorf("author %s still exists", old)
-    }
+	if len(dest) != 0 {
+		t.Errorf("author %s still exists", old)
+	}
 
 	// check relationship with previous author dropped
 	assertBookAuthorRelationship(t, want)
@@ -346,8 +347,8 @@ func TestUpdateBookRemoveAuthorCompletely(t *testing.T) {
 func TestUpdateBookRenameAuthor(t *testing.T) {
 	defer resetDB()
 
-    old := testBook4.Author[0]
-    want := modifyAuthors(testBook4, []string{"Daniel Foo"})
+	old := testBook4.Author[0]
+	want := modifyAuthors(testBook4, []string{"Daniel Foo"})
 	got, err := ts.UpdateBook(want.ID, want)
 	checkErr(t, err)
 
@@ -358,14 +359,14 @@ func TestUpdateBookRenameAuthor(t *testing.T) {
 	assertAuthorsExist(t, want)
 
 	// check author still exists
-    var dest []string
+	var dest []string
 	stmt := `SELECT name FROM author WHERE name=$1`
 	if err := ts.db.Select(&dest, stmt, old); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
-    if len(dest) == 0 {
-        t.Errorf("author %s does not exist", old)
-    }
+	if len(dest) == 0 {
+		t.Errorf("author %s does not exist", old)
+	}
 
 	// relationship with previous author dropped
 	// new relationship formed
@@ -388,7 +389,6 @@ func TestUpdateBookISBNConstraint(t *testing.T) {
 		t.Errorf("expected error: unique constraint ISBN")
 	}
 }
-
 
 func TestDeleteBook(t *testing.T) {
 	defer resetDB()
@@ -487,56 +487,46 @@ func TestDeleteBookNotExists(t *testing.T) {
 }
 
 func modifyAuthors(testBook *dusk.Book, new []string) *dusk.Book {
-    newBook := *testBook
-    newBook.Author = new
-    return &newBook
+	newBook := *testBook
+	newBook.Author = new
+	return &newBook
 }
 
 func assertAuthorsExist(t *testing.T, want *dusk.Book) {
 	t.Helper()
 	Tx(ts.db, func(tx *sqlx.Tx) (any, error) {
-        authors, err := getAuthorsFromBook(tx, want.ID)
-        checkErr(t, err)
+		is := is.New(t)
+		authors, err := getAuthorsFromBook(tx, want.ID)
+		is.NoErr(err)
 
-        util.Sort(want.Author)
-        if !reflect.DeepEqual(authors, want.Author) {
-            t.Errorf("got %v, want %v", authors, want.Author)
-        }
-        return nil, nil
-    })
+		util.Sort(want.Author)
+		is.Equal(authors, want.Author)
+		return nil, nil
+	})
 }
 
 func assertTagsExist(t *testing.T, want *dusk.Book) {
 	t.Helper()
 	Tx(ts.db, func(tx *sqlx.Tx) (any, error) {
-        tags, err := getTagsFromBook(tx, want.ID)
-        checkErr(t, err)
+		is := is.New(t)
+		tags, err := getTagsFromBook(tx, want.ID)
+		is.NoErr(err)
 
-        util.Sort(want.Tag)
-        if !reflect.DeepEqual(tags, want.Tag) {
-            t.Errorf("got %v, want %v", tag, want.Tag)
-        }
-        return nil, nil
-    })
+		util.Sort(want.Tag)
+		is.Equal(tags, want.Tag)
+		return nil, nil
+	})
 }
 
 func assertBookAuthorRelationship(t *testing.T, book *dusk.Book) {
 	t.Helper()
 	Tx(ts.db, func(tx *sqlx.Tx) (any, error) {
-		// get book's related authors
+		is := is.New(t)
 		authors, err := getModelsFromBook(tx, book.ID, author)
-		checkErr(t, err)
-
-		if len(authors) != len(book.Author) {
-			t.Errorf("book has wrong number of authors in books_authors table")
-		}
+		is.NoErr(err)
 
 		util.Sort(book.Author)
-
-		// author must exist in book's related authors
-		if !reflect.DeepEqual(authors, book.Author) {
-			t.Errorf("got %v, want %v", authors, book.Author)
-		}
+		is.Equal(authors, book.Author)
 		return nil, nil
 	})
 }
@@ -544,20 +534,12 @@ func assertBookAuthorRelationship(t *testing.T, book *dusk.Book) {
 func assertBookTagRelationship(t *testing.T, book *dusk.Book) {
 	t.Helper()
 	Tx(ts.db, func(tx *sqlx.Tx) (any, error) {
-		// get book's related tags
+		is := is.New(t)
 		tags, err := getModelsFromBook(tx, book.ID, tag)
-		checkErr(t, err)
-
-		if len(tags) != len(book.Tag) {
-			t.Errorf("book has wrong number of tags in books_tags table")
-		}
+		is.NoErr(err)
 
 		util.Sort(book.Author)
-
-		// tag must exist in book's related tags
-		if !reflect.DeepEqual(tags, book.Tag) {
-			t.Errorf("got %v, want %v", tags, book.Tag)
-		}
+		is.Equal(tags, book.Tag)
 		return nil, nil
 	})
 }
