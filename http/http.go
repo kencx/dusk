@@ -84,4 +84,6 @@ func (s *Server) RegisterRoutes() {
 
 	api := router.PathPrefix("/api").Subrouter()
 	_ = api.PathPrefix("/books/").Subrouter()
+	_ = api.PathPrefix("/authors/").Subrouter()
+	_ = api.PathPrefix("/tags/").Subrouter()
 }

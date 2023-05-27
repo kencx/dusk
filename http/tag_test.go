@@ -12,82 +12,82 @@ import (
 )
 
 var (
-	testAuthor1 = &dusk.Author{
-		Name: "Author 1",
+	testTag1 = &dusk.Tag{
+		Name: "Tag 1",
 	}
-	testAuthor2 = &dusk.Author{
-		Name: "Author 2",
+	testTag2 = &dusk.Tag{
+		Name: "Tag 2",
 	}
-	testAuthors = []*dusk.Author{testAuthor1, testAuthor2}
+	testTags = []*dusk.Tag{testTag1, testTag2}
 )
 
-func TestGetAuthor(t *testing.T) {
+func TestGetTag(t *testing.T) {
 	is := is.New(t)
 	testServer.db = &mock.Store{
-		GetAuthorFn: func(id int64) (*dusk.Author, error) {
-			return testAuthor1, nil
+		GetTagFn: func(id int64) (*dusk.Tag, error) {
+			return testTag1, nil
 		},
 	}
 
 	tc := &testCase{
 		method: http.MethodGet,
-		url:    "/api/authors/1",
+		url:    "/api/tags/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.GetAuthor,
+		fn:     testServer.GetTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
 
-	var env map[string]*dusk.Author
+	var env map[string]*dusk.Tag
 	err = json.NewDecoder(w.Body).Decode(&env)
 	is.NoErr(err)
 
-	got := env["authors"]
-	is.Equal(got.Name, testAuthor1.Name)
+	got := env["tags"]
+	is.Equal(got.Name, testTag1.Name)
 	is.Equal(w.Code, http.StatusOK)
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
-func TestGetAllAuthors(t *testing.T) {
+func TestGetAllTags(t *testing.T) {
 	is := is.New(t)
 	testServer.db = &mock.Store{
-		GetAllAuthorsFn: func() (dusk.Authors, error) {
-			return testAuthors, nil
+		GetAllTagsFn: func() (dusk.Tags, error) {
+			return testTags, nil
 		},
 	}
 
 	tc := &testCase{
 		method: http.MethodGet,
-		url:    "/api/authors/",
-		fn:     testServer.GetAllAuthors,
+		url:    "/api/tags/",
+		fn:     testServer.GetAllTags,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
 
-	var env map[string][]*dusk.Author
+	var env map[string][]*dusk.Tag
 	err = json.NewDecoder(w.Body).Decode(&env)
 	is.NoErr(err)
 
-	got := env["authors"]
+	got := env["tags"]
 	for i, v := range got {
-		is.Equal(v.Name, testAuthors[i].Name)
+		is.Equal(v.Name, testTags[i].Name)
 	}
 	is.Equal(w.Code, http.StatusOK)
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
-func TestGetAllAuthorsNil(t *testing.T) {
+func TestGetAllTagsNil(t *testing.T) {
 	is := is.New(t)
 	testServer.db = &mock.Store{
-		GetAllAuthorsFn: func() (dusk.Authors, error) {
+		GetAllTagsFn: func() (dusk.Tags, error) {
 			return nil, dusk.ErrNoRows
 		},
 	}
 
 	tc := &testCase{
 		method: http.MethodGet,
-		url:    "/api/authors/",
-		fn:     testServer.GetAllAuthors,
+		url:    "/api/tags/",
+		fn:     testServer.GetAllTags,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -96,80 +96,80 @@ func TestGetAllAuthorsNil(t *testing.T) {
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
-func TestAddAuthor(t *testing.T) {
+func TestAddTag(t *testing.T) {
 	is := is.New(t)
-	want, err := util.ToJSON(testAuthor1)
+	want, err := util.ToJSON(testTag1)
 	is.NoErr(err)
 
 	testServer.db = &mock.Store{
-		CreateAuthorFn: func(a *dusk.Author) (*dusk.Author, error) {
-			return testAuthor1, nil
+		CreateTagFn: func(a *dusk.Tag) (*dusk.Tag, error) {
+			return testTag1, nil
 		},
 	}
 
 	tc := &testCase{
 		method: http.MethodPost,
-		url:    "/api/authors/",
+		url:    "/api/tags/",
 		data:   want,
-		fn:     testServer.AddAuthor,
+		fn:     testServer.AddTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
 
-	var env map[string]*dusk.Author
+	var env map[string]*dusk.Tag
 	err = json.NewDecoder(w.Body).Decode(&env)
 	is.NoErr(err)
 
-	got := env["authors"]
-	is.Equal(got.Name, testAuthor1.Name)
+	got := env["tags"]
+	is.Equal(got.Name, testTag1.Name)
 	is.Equal(w.Code, http.StatusCreated)
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
-func TestUpdateAuthor(t *testing.T) {
+func TestUpdateTag(t *testing.T) {
 	is := is.New(t)
-	want, err := util.ToJSON(testAuthor2)
+	want, err := util.ToJSON(testTag2)
 	is.NoErr(err)
 
 	testServer.db = &mock.Store{
-		UpdateAuthorFn: func(id int64, a *dusk.Author) (*dusk.Author, error) {
-			return testAuthor2, nil
+		UpdateTagFn: func(id int64, a *dusk.Tag) (*dusk.Tag, error) {
+			return testTag2, nil
 		},
 	}
 
 	tc := &testCase{
 		method: http.MethodPut,
-		url:    "/api/authors/1",
+		url:    "/api/tags/1",
 		data:   want,
 		params: map[string]string{"id": "1"},
-		fn:     testServer.UpdateAuthor,
+		fn:     testServer.UpdateTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
 
-	var env map[string]*dusk.Author
+	var env map[string]*dusk.Tag
 	err = json.NewDecoder(w.Body).Decode(&env)
 	is.NoErr(err)
 
-	got := env["authors"]
-	is.Equal(got.Name, testAuthor2.Name)
+	got := env["tags"]
+	is.Equal(got.Name, testTag2.Name)
 	is.Equal(w.Code, http.StatusOK)
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
-func TestDeleteAuthor(t *testing.T) {
+func TestDeleteTag(t *testing.T) {
 	is := is.New(t)
 	testServer.db = &mock.Store{
-		DeleteAuthorFn: func(id int64) error {
+		DeleteTagFn: func(id int64) error {
 			return nil
 		},
 	}
 
 	tc := &testCase{
 		method: http.MethodDelete,
-		url:    "/api/authors/1",
+		url:    "/api/tags/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.DeleteAuthor,
+		fn:     testServer.DeleteTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)

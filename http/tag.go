@@ -8,15 +8,15 @@ import (
 	"net/http"
 )
 
-func (s *Server) GetBook(rw http.ResponseWriter, r *http.Request) {
+func (s *Server) GetTag(rw http.ResponseWriter, r *http.Request) {
 	id := HandleInt64("id", rw, r)
 	if id == -1 {
 		return
 	}
 
-	b, err := s.db.GetBook(id)
+	a, err := s.db.GetTag(id)
 	if err == dusk.ErrDoesNotExist {
-		s.InfoLog.Printf("Book %d does not exist", id)
+		s.InfoLog.Printf("Tag %d does not exist", id)
 		response.NotFound(rw, r, err)
 		return
 
@@ -26,21 +26,22 @@ func (s *Server) GetBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := util.ToJSON(response.Envelope{"books": b})
+	res, err := util.ToJSON(response.Envelope{"tags": a})
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	s.InfoLog.Printf("Book %d retrieved: %v", id, b)
+	s.InfoLog.Printf("Tag %d retrieved: %v", id, a)
 	response.OK(rw, r, res)
 }
 
-func (s *Server) GetAllBooks(rw http.ResponseWriter, r *http.Request) {
-	b, err := s.db.GetAllBooks()
+func (s *Server) GetAllTags(rw http.ResponseWriter, r *http.Request) {
+
+	a, err := s.db.GetAllTags()
 	if err == dusk.ErrNoRows {
-		s.InfoLog.Println("No books retrieved")
+		s.InfoLog.Println("No tags retrieved")
 		response.NoContent(rw, r)
 		return
 
@@ -50,64 +51,65 @@ func (s *Server) GetAllBooks(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := util.ToJSON(response.Envelope{"books": b})
+	res, err := util.ToJSON(response.Envelope{"tags": a})
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	s.InfoLog.Printf("%d books retrieved: %v", len(b), b)
+	// s.InfoLog.Printf("%d tags retrieved: %v", len(a), a)
 	response.OK(rw, r, res)
 }
 
-func (s *Server) AddBook(rw http.ResponseWriter, r *http.Request) {
+func (s *Server) AddTag(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
-	var book dusk.Book
-	err := request.Read(rw, r, &book)
+	var tag dusk.Tag
+	err := request.Read(rw, r, &tag)
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.BadRequest(rw, r, err)
 		return
 	}
 
-	result, err := s.db.CreateBook(&book)
+	result, err := s.db.CreateTag(&tag)
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
-		response.BadRequest(rw, r, err)
-		return
-	}
-
-	body, err := util.ToJSON(response.Envelope{"books": result})
-	if err != nil {
-		s.ErrorLog.Println(err)
 		response.InternalServerError(rw, r, err)
 		return
 	}
-	s.InfoLog.Printf("New book created: %v", result)
+
+	body, err := util.ToJSON(response.Envelope{"tags": result})
+	if err != nil {
+		s.ErrorLog.Printf("err: %v", err)
+		response.InternalServerError(rw, r, err)
+		return
+	}
+	s.InfoLog.Printf("New tag created: %v", result)
 	response.Created(rw, r, body)
 }
 
-func (s *Server) UpdateBook(rw http.ResponseWriter, r *http.Request) {
+func (s *Server) UpdateTag(rw http.ResponseWriter, r *http.Request) {
 	id := HandleInt64("id", rw, r)
 	if id == -1 {
 		return
 	}
 
 	// marshal payload to struct
-	var book dusk.Book
-	err := request.Read(rw, r, &book)
+	var tag dusk.Tag
+	err := request.Read(rw, r, &tag)
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.BadRequest(rw, r, err)
 		return
 	}
 
-	result, err := s.db.UpdateBook(id, &book)
+
+	result, err := s.db.UpdateTag(id, &tag)
 	if err == dusk.ErrDoesNotExist {
-		s.InfoLog.Printf("Book %d does not exist", id)
-		response.NotFound(rw, r, err)
+		s.InfoLog.Printf("Tag %d does not exist", id)
+		response.InternalServerError(rw, r, err)
 		return
 	}
 	if err != nil {
@@ -116,26 +118,26 @@ func (s *Server) UpdateBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := util.ToJSON(response.Envelope{"books": result})
+	body, err := util.ToJSON(response.Envelope{"tags": result})
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	s.InfoLog.Printf("Book %d updated: %v", id, result)
+	s.InfoLog.Printf("Tag %d updated: %v", id, result)
 	response.OK(rw, r, body)
 }
 
-func (s *Server) DeleteBook(rw http.ResponseWriter, r *http.Request) {
+func (s *Server) DeleteTag(rw http.ResponseWriter, r *http.Request) {
 	id := HandleInt64("id", rw, r)
 	if id == -1 {
 		return
 	}
 
-	err := s.db.DeleteBook(id)
+	err := s.db.DeleteTag(id)
 	if err == dusk.ErrDoesNotExist {
-		s.InfoLog.Printf("Book %d does not exist", id)
+		s.InfoLog.Printf("Tag %d does not exist", id)
 		response.NotFound(rw, r, err)
 		return
 	}
@@ -146,6 +148,6 @@ func (s *Server) DeleteBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.InfoLog.Printf("Book %d deleted", id)
+	s.InfoLog.Printf("Tag %d deleted", id)
 	response.OK(rw, r, nil)
 }
