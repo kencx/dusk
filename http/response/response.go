@@ -91,6 +91,12 @@ func Unauthorized(rw http.ResponseWriter, r *http.Request, err error) {
 	res.Write()
 }
 
+func ValidationError(rw http.ResponseWriter, r *http.Request, err map[string]string) {
+	res := newError(rw, r, err)
+	res.statusCode = http.StatusUnprocessableEntity
+	res.Write()
+}
+
 func (r *response) Write() {
 	for k, v := range r.headers {
 		r.rw.Header().Set(k, v)

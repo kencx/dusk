@@ -5,6 +5,7 @@ import (
 	"dusk/http/request"
 	"dusk/http/response"
 	"dusk/util"
+	"dusk/validator"
 	"net/http"
 )
 
@@ -73,6 +74,14 @@ func (s *Server) AddTag(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// validate payload
+	v := validator.New()
+	tag.Validate(v)
+	if !v.Valid() {
+		response.ValidationError(rw, r, v.Errors)
+		return
+	}
+
 	result, err := s.db.CreateTag(&tag)
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
@@ -105,6 +114,14 @@ func (s *Server) UpdateTag(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// validate payload
+	// PUT should require all fields
+	v := validator.New()
+	tag.Validate(v)
+	if !v.Valid() {
+		response.ValidationError(rw, r, v.Errors)
+		return
+	}
 
 	result, err := s.db.UpdateTag(id, &tag)
 	if err == dusk.ErrDoesNotExist {

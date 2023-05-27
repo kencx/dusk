@@ -83,20 +83,20 @@ func (s *Server) Close() error {
 func (s *Server) RegisterRoutes() {
 	r := s.router
 	r.Use(middleware.Logger)
-    r.Use(middleware.Recoverer)
-    r.Use(middleware.StripSlashes)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.StripSlashes)
 
-    api := chi.NewRouter()
-    r.Mount("/api", api)
+	api := chi.NewRouter()
+	r.Mount("/api", api)
 
-    api.Route("/books", func(r chi.Router) {
-        r.Get("/{id:[0-9]+}", s.GetBook)
-        r.Get("/", s.GetAllBooks)
-        r.Post("/", s.AddBook)
-        r.Put("/{id:[0-9]+}", s.UpdateBook)
-        r.Delete("/{id:[0-9]+}", s.DeleteBook)
-    })
+	api.Route("/books", func(r chi.Router) {
+		r.Get("/{id:[0-9]+}", s.GetBook)
+		r.Get("/", s.GetAllBooks)
+		r.Post("/", s.AddBook)
+		r.Put("/{id:[0-9]+}", s.UpdateBook)
+		r.Delete("/{id:[0-9]+}", s.DeleteBook)
+	})
 
-    api.Route("/authors", func(r chi.Router) {})
-    api.Route("/tags", func(r chi.Router) {})
+	api.Route("/authors", func(r chi.Router) {})
+	api.Route("/tags", func(r chi.Router) {})
 }

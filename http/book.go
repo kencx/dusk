@@ -5,6 +5,7 @@ import (
 	"dusk/http/request"
 	"dusk/http/response"
 	"dusk/util"
+	"dusk/validator"
 	"net/http"
 )
 
@@ -72,6 +73,13 @@ func (s *Server) AddBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v := validator.New()
+	book.Validate(v)
+	if !v.Valid() {
+		response.ValidationError(rw, r, v.Errors)
+		return
+	}
+
 	result, err := s.db.CreateBook(&book)
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
@@ -101,6 +109,15 @@ func (s *Server) UpdateBook(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.BadRequest(rw, r, err)
+		return
+	}
+
+	// validate payload
+	// PUT should require all fields
+	v := validator.New()
+	book.Validate(v)
+	if !v.Valid() {
+		response.ValidationError(rw, r, v.Errors)
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"dusk/http/request"
 	"dusk/http/response"
 	"dusk/util"
+	"dusk/validator"
 	"net/http"
 )
 
@@ -73,6 +74,13 @@ func (s *Server) AddAuthor(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// validate payload
+	v := validator.New()
+	author.Validate(v)
+	if !v.Valid() {
+		response.ValidationError(rw, r, v.Errors)
+		return
+	}
 
 	result, err := s.db.CreateAuthor(&author)
 	if err != nil {
@@ -103,6 +111,15 @@ func (s *Server) UpdateAuthor(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.ErrorLog.Printf("err: %v", err)
 		response.BadRequest(rw, r, err)
+		return
+	}
+
+	// validate payload
+	// PUT should require all fields
+	v := validator.New()
+	author.Validate(v)
+	if !v.Valid() {
+		response.ValidationError(rw, r, v.Errors)
 		return
 	}
 

@@ -126,6 +126,29 @@ func TestAddTag(t *testing.T) {
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
+func TestAddTagFailValidation(t *testing.T) {
+    is := is.New(t)
+	failTag := &dusk.Tag{Name: ""}
+	want, err := util.ToJSON(failTag)
+	is.NoErr(err)
+
+	testServer.db = &mock.Store{
+		CreateTagFn: func(a *dusk.Tag) (*dusk.Tag, error) {
+			return testTag1, nil
+		},
+	}
+
+	tc := &testCase{
+		method: http.MethodPost,
+		url:    "/api/tags/",
+		data:   want,
+		fn:     testServer.AddTag,
+	}
+	w, err := testResponse(t, tc)
+	is.NoErr(err)
+	assertValidationError(t, w, "name", "value is missing")
+}
+
 func TestUpdateTag(t *testing.T) {
 	is := is.New(t)
 	want, err := util.ToJSON(testTag2)

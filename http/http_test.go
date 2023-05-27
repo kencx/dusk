@@ -53,6 +53,25 @@ func assertResponseError(t *testing.T, w *httptest.ResponseRecorder, status int,
 	is.Equal(got, message)
 }
 
+func assertValidationError(t *testing.T, w *httptest.ResponseRecorder, key, message string) {
+	t.Helper()
+	is := is.New(t)
+
+	var env map[string]map[string]string
+	err := json.NewDecoder(w.Body).Decode(&env)
+	is.NoErr(err)
+
+	got := env["error"]
+	is.Equal(w.Code, http.StatusUnprocessableEntity)
+	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+
+	val, ok := got[key]
+	if !ok {
+		t.Errorf("validation error field %q not present", key)
+	}
+	is.Equal(val, message)
+}
+
 func addTestParams(t *testing.T, r *http.Request, params map[string]string) *http.Request {
     t.Helper()
 

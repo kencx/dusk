@@ -163,6 +163,34 @@ func TestAddBook(t *testing.T) {
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
+func TestAddBookFailValidation(t *testing.T) {
+    is := is.New(t)
+	failBook := &dusk.Book{
+		Title:  "",
+		Author: []string{"John Doe"},
+		ISBN:   "12345",
+	}
+	want, err := util.ToJSON(failBook)
+	is.NoErr(err)
+
+	testServer.db = &mock.Store{
+		CreateBookFn: func(b *dusk.Book) (*dusk.Book, error) {
+			return failBook, nil
+		},
+	}
+
+	tc := &testCase{
+		method: http.MethodPost,
+		url:    "/api/books",
+		data:   want,
+		fn:     testServer.AddBook,
+	}
+
+	w, err := testResponse(t, tc)
+	is.NoErr(err)
+	assertValidationError(t, w, "title", "value is missing")
+}
+
 func TestUpdateBook(t *testing.T) {
 	is := is.New(t)
 	want, err := util.ToJSON(testBook2)
@@ -220,6 +248,36 @@ func TestUpdateBookNil(t *testing.T) {
 	is.NoErr(err)
 	assertResponseError(t, w, http.StatusNotFound, "the item does not exist")
 }
+
+func TestUpdateBookFailValidation(t *testing.T) {
+    is := is.New(t)
+	failBook := &dusk.Book{
+		Title:  "",
+		Author: []string{"John Doe"},
+		ISBN:   "12345",
+	}
+	want, err := util.ToJSON(failBook)
+	is.NoErr(err)
+
+	testServer.db = &mock.Store{
+		UpdateBookFn: func(id int64, b *dusk.Book) (*dusk.Book, error) {
+			return failBook, nil
+		},
+	}
+
+	tc := &testCase{
+		method: http.MethodPut,
+		url:    "/api/books/1",
+		data:   want,
+		params: map[string]string{"id": "1"},
+		fn:     testServer.UpdateBook,
+	}
+
+	w, err := testResponse(t, tc)
+	is.NoErr(err)
+	assertValidationError(t, w, "title", "value is missing")
+}
+
 
 func TestDeleteBook(t *testing.T) {
 	is := is.New(t)

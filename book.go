@@ -3,6 +3,8 @@ package dusk
 import (
 	"database/sql"
 	"dusk/util"
+	"dusk/validator"
+	"regexp"
 )
 
 type Book struct {
@@ -25,3 +27,19 @@ type Book struct {
 }
 
 type Books []*Book
+
+var isbnRgx = regexp.MustCompile(`[0-9]+`)
+
+func (b *Book) Validate(v *validator.Validator) {
+	v.Check(b.Title != "", "title", "value is missing")
+
+	v.Check(len(b.Author) != 0, "author", "value is missing")
+
+	v.Check(b.ISBN != "", "isbn", "value is missing")
+	v.Check(validator.Matches(b.ISBN, isbnRgx), "isbn", "incorrect format")
+
+	v.Check(b.NumOfPages >= 0, "numOfPages", "must be >= 0")
+
+	v.Check(b.Rating >= 0, "rating", "must be >= 0")
+	v.Check(b.Rating <= 10, "rating", "must be <= 10")
+}

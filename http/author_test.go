@@ -126,6 +126,29 @@ func TestAddAuthor(t *testing.T) {
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 }
 
+func TestAddAuthorFailValidation(t *testing.T) {
+    is := is.New(t)
+	failAuthor := &dusk.Author{Name: ""}
+	want, err := util.ToJSON(failAuthor)
+	is.NoErr(err)
+
+	testServer.db = &mock.Store{
+		CreateAuthorFn: func(a *dusk.Author) (*dusk.Author, error) {
+			return testAuthor1, nil
+		},
+	}
+
+	tc := &testCase{
+		method: http.MethodPost,
+		url:    "/api/authors/",
+		data:   want,
+		fn:     testServer.AddAuthor,
+	}
+	w, err := testResponse(t, tc)
+	is.NoErr(err)
+	assertValidationError(t, w, "name", "value is missing")
+}
+
 func TestUpdateAuthor(t *testing.T) {
 	is := is.New(t)
 	want, err := util.ToJSON(testAuthor2)
