@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+    "context"
 	"encoding/json"
 	"io"
 	"log"
@@ -9,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/matryer/is"
 )
 
@@ -32,9 +33,7 @@ func testResponse(t *testing.T, tc *testCase) (*httptest.ResponseRecorder, error
 
 	req := httptest.NewRequest(tc.method, tc.url, bytes.NewReader(tc.data))
 	rw := httptest.NewRecorder()
-	if tc.params != nil {
-		req = mux.SetURLVars(req, tc.params)
-	}
+    req = addTestParams(t, req, tc.params)
 
 	http.HandlerFunc(tc.fn).ServeHTTP(rw, req)
 	return rw, nil
@@ -52,4 +51,16 @@ func assertResponseError(t *testing.T, w *httptest.ResponseRecorder, status int,
 	is.Equal(w.Code, status)
 	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
 	is.Equal(got, message)
+}
+
+func addTestParams(t *testing.T, r *http.Request, params map[string]string) *http.Request {
+    t.Helper()
+
+    x := chi.NewRouteContext()
+    routeParams := chi.RouteParams{}
+    for k, v := range params {
+        routeParams.Add(k, v)
+    }
+    x.URLParams = routeParams
+    return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, x))
 }

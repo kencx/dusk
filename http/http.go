@@ -9,7 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 var (
@@ -41,13 +42,13 @@ type Store interface {
 type Server struct {
 	*http.Server
 	db       Store
-	router   *mux.Router
+	router   *chi.Mux
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
 }
 
 func New(db *storage.Store) *Server {
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
@@ -80,10 +81,22 @@ func (s *Server) Close() error {
 }
 
 func (s *Server) RegisterRoutes() {
-	router := s.router
+	r := s.router
+	r.Use(middleware.Logger)
+    r.Use(middleware.Recoverer)
+    r.Use(middleware.StripSlashes)
 
-	api := router.PathPrefix("/api").Subrouter()
-	_ = api.PathPrefix("/books/").Subrouter()
-	_ = api.PathPrefix("/authors/").Subrouter()
-	_ = api.PathPrefix("/tags/").Subrouter()
+    api := chi.NewRouter()
+    r.Mount("/api", api)
+
+    api.Route("/books", func(r chi.Router) {
+        r.Get("/{id:[0-9]+}", s.GetBook)
+        r.Get("/", s.GetAllBooks)
+        r.Post("/", s.AddBook)
+        r.Put("/{id:[0-9]+}", s.UpdateBook)
+        r.Delete("/{id:[0-9]+}", s.DeleteBook)
+    })
+
+    api.Route("/authors", func(r chi.Router) {})
+    api.Route("/tags", func(r chi.Router) {})
 }
