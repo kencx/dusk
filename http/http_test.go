@@ -2,7 +2,7 @@ package http
 
 import (
 	"bytes"
-    "context"
+	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -33,7 +33,7 @@ func testResponse(t *testing.T, tc *testCase) (*httptest.ResponseRecorder, error
 
 	req := httptest.NewRequest(tc.method, tc.url, bytes.NewReader(tc.data))
 	rw := httptest.NewRecorder()
-    req = addTestParams(t, req, tc.params)
+	req = addTestParams(t, req, tc.params)
 
 	http.HandlerFunc(tc.fn).ServeHTTP(rw, req)
 	return rw, nil
@@ -73,13 +73,13 @@ func assertValidationError(t *testing.T, w *httptest.ResponseRecorder, key, mess
 }
 
 func addTestParams(t *testing.T, r *http.Request, params map[string]string) *http.Request {
-    t.Helper()
+	t.Helper()
 
-    x := chi.NewRouteContext()
-    routeParams := chi.RouteParams{}
-    for k, v := range params {
-        routeParams.Add(k, v)
-    }
-    x.URLParams = routeParams
-    return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, x))
+	x := chi.NewRouteContext()
+	routeParams := chi.RouteParams{}
+	for k, v := range params {
+		routeParams.Add(k, v)
+	}
+	x.URLParams = routeParams
+	return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, x))
 }

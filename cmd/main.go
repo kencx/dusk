@@ -14,8 +14,10 @@ import (
 )
 
 type config struct {
-	port int
-	dsn  string
+	port     int
+	dsn      string
+	tls_cert string
+	tls_key  string
 }
 
 func main() {
@@ -23,6 +25,8 @@ func main() {
 
 	flag.IntVar(&config.port, "port", 9090, "Server Port")
 	flag.StringVar(&config.dsn, "dsn", "library.db", "sqlite DSN")
+	flag.StringVar(&config.tls_cert, "TLS cert", "", "TLS Certificate path")
+	flag.StringVar(&config.tls_key, "TLS key", "", "TLS Key path")
 	flag.Parse()
 
 	db, err := storage.Open(config.dsn)
@@ -39,7 +43,7 @@ func main() {
 	srv := dhttp.New(store)
 	go func() error {
 		srv.InfoLog.Printf("Starting server on :%d", config.port)
-		err := srv.Run(fmt.Sprintf(":%d", config.port))
+		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tls_cert, config.tls_key)
 		if !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}

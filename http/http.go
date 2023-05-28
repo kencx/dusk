@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	idleTimeout      = 60 * time.Second
+	idleTimeout      = time.Minute
 	readWriteTimeout = 3 * time.Second
 	closeTimeout     = 5 * time.Second
 )
@@ -42,21 +42,18 @@ type Store interface {
 type Server struct {
 	*http.Server
 	db       Store
-	router   *chi.Mux
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
 }
 
 func New(db *storage.Store) *Server {
-	r := chi.NewRouter()
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
 			ReadTimeout:  readWriteTimeout,
 			WriteTimeout: readWriteTimeout,
-			Handler:      r,
+			Handler:      chi.NewRouter(),
 		},
-		router:   r,
 		db:       db,
 		InfoLog:  log.New(os.Stdout, "INFO ", log.LstdFlags),
 		ErrorLog: log.New(os.Stderr, "ERROR ", log.LstdFlags),
@@ -65,9 +62,15 @@ func New(db *storage.Store) *Server {
 	return s
 }
 
-func (s *Server) Run(port string) error {
+func (s *Server) Run(port, tlsCert, tlsKey string) error {
 	s.Addr = port
-	err := s.ListenAndServe()
+
+	var err error
+	if tlsCert != "" && tlsKey != "" {
+		err = s.ListenAndServeTLS(tlsCert, tlsKey)
+	} else {
+		err = s.ListenAndServe()
+	}
 	if err != nil {
 		return err
 	}
@@ -81,7 +84,7 @@ func (s *Server) Close() error {
 }
 
 func (s *Server) RegisterRoutes() {
-	r := s.router
+	r := s.Handler.(*chi.Mux)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
