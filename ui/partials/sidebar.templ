@@ -2,6 +2,10 @@ package partials
 
 templ Sidebar() {
     <aside class="sidebar">
+        <button onclick="document.getElementsByClassName('sidebar')[0].classList.toggle('collapsed')">X</button>
+        <div class="sidebar__icon">
+            <h1>D</h1>
+        </div>
         <div class="sidebar__title">
             <a href="/">
                 <h1>Dusk</h1>

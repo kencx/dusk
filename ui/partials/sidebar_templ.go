@@ -37,6 +37,63 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Element (standard)
+		_, err = templBuffer.WriteString("<button")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" onclick=\"document.getElementsByClassName(&#39;sidebar&#39;)[0].classList.toggle(&#39;collapsed&#39;)\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_2 := `X`
+		_, err = templBuffer.WriteString(var_2)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</button>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"sidebar__icon\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_3 := `D`
+		_, err = templBuffer.WriteString(var_3)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {
 			return err
@@ -70,8 +127,8 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_2 := `Dusk`
-		_, err = templBuffer.WriteString(var_2)
+		var_4 := `Dusk`
+		_, err = templBuffer.WriteString(var_4)
 		if err != nil {
 			return err
 		}
@@ -112,55 +169,7 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_3 := `Library`
-		_, err = templBuffer.WriteString(var_3)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" href=\"\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_4 := `Add Books`
-		_, err = templBuffer.WriteString(var_4)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" href=\"\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_5 := `Authors`
+		var_5 := `Library`
 		_, err = templBuffer.WriteString(var_5)
 		if err != nil {
 			return err
@@ -184,35 +193,12 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_6 := `Publishers`
+		var_6 := `Add Books`
 		_, err = templBuffer.WriteString(var_6)
 		if err != nil {
 			return err
 		}
 		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</li>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</ul>")
-		if err != nil {
-			return err
-		}
-		// Element (void)
-		_, err = templBuffer.WriteString("<hr>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<ul>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<li>")
 		if err != nil {
 			return err
 		}
@@ -231,7 +217,7 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_7 := `Currently Reading`
+		var_7 := `Authors`
 		_, err = templBuffer.WriteString(var_7)
 		if err != nil {
 			return err
@@ -255,32 +241,8 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_8 := `Unread`
+		var_8 := `Publishers`
 		_, err = templBuffer.WriteString(var_8)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" href=\"\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_9 := `Starred`
-		_, err = templBuffer.WriteString(var_9)
 		if err != nil {
 			return err
 		}
@@ -326,7 +288,31 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_10 := `Options`
+		var_9 := `Currently Reading`
+		_, err = templBuffer.WriteString(var_9)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" href=\"\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_10 := `Unread`
 		_, err = templBuffer.WriteString(var_10)
 		if err != nil {
 			return err
@@ -350,8 +336,79 @@ func Sidebar() templ.Component {
 			return err
 		}
 		// Text
-		var_11 := `Logout`
+		var_11 := `Starred`
 		_, err = templBuffer.WriteString(var_11)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</ul>")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<hr>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<ul>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" href=\"\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_12 := `Options`
+		_, err = templBuffer.WriteString(var_12)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" href=\"\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_13 := `Logout`
+		_, err = templBuffer.WriteString(var_13)
 		if err != nil {
 			return err
 		}

@@ -7,30 +7,33 @@ body {
   height: 100vh;
 }
 
-main {
-  overflow-y: auto;
-  min-width: 85%;
-}
-
-.container {
-  margin-left: 10%;
-}
-
-/* SIDEBAR */
-/* https://www.freecodecamp.org/news/fixed-side-and-bottom-navbar-with-css-flexbox/ */
-
 .wrapper {
   display: flex;
   height: 100%;
 }
 
+main {
+  overflow-y: auto;
+  flex: 1 90%;
+}
+
+.container {
+  margin-left: 5%;
+  width: unset;
+  max-width: unset;
+  padding-right: 10rem;
+}
+
+/* SIDEBAR */
+/* https://www.freecodecamp.org/news/fixed-side-and-bottom-navbar-with-css-flexbox/ */
 .sidebar {
-  flex: 1 0 10%;
+  flex: 1 0 15%;
   z-index: 999;
   padding: 3rem;
   font-size: 1em;
   background: #2e3538;
   color: #fff;
+  transition: all .1s;
 }
 
 .sidebar__title {
@@ -59,6 +62,21 @@ main {
     margin-bottom: 2rem;
 }
 
+.sidebar.collapsed {
+  max-width: 0;
+  overflow: hidden;
+}
+
+.sidebar__icon {
+  opacity: 0;
+}
+.sidebar.collapsed .sidebar__icon {
+  opacity: 1;
+}
+.sidebar.collapsed .sidebar__title {
+  opacity: 0;
+}
+
 /* OPTIONS */
 
 .options {
@@ -83,20 +101,9 @@ main {
 /* LIBRARY CARD VIEW */
 
 .library__card-view {
-
-  /* auto scaling grid with max num of columns and min width*/
-  /* https://css-tricks.com/an-auto-filling-css-grid-with-max-columns/ */
-  --grid-layout-gap: 4rem;
-  --grid-column-count: 5;
-  --grid-item--min-width: 140px;
-
-  --gap-count: calc(var(--grid-column-count) - 1);
-  --total-gap-width: calc(var(--gap-count) * var(--grid-layout-gap));
-  --grid-item--max-width: calc((100% - var(--total-gap-width)) / var(--grid-column-count));
-
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
-  grid-gap: var(--grid-layout-gap);
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 4rem;
 }
 
 .library__book-card {
