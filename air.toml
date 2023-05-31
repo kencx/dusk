@@ -1,0 +1,22 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "make build"
+bin = "cmd/dusk"
+include_ext = ["go", "templ", "css"]
+exclude_dir = ["storage/migrations", ".git", "tmp"]
+include_dir = []
+exclude_regex = ["_test\\.go", "\\.db", "\\.json", "_templ\\.go"]
+exclude_unchanged = true
+follow_symlink = true
+
+delay = 1000
+stop_on_error = true
+send_interrupt = true
+kill_delay = 500
+rerun = false
+rerun_delay = 500
+
+[misc]
+clean_on_exit = true
