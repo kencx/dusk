@@ -36,7 +36,7 @@ func bookCard(b *dusk.Book) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"book-card\"")
+		_, err = templBuffer.WriteString(" class=\"library__book-card\"")
 		if err != nil {
 			return err
 		}

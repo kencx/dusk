@@ -1,8 +1,10 @@
 package common
 
+import "dusk/ui/partials"
+
 templ Base() {
     <!DOCTYPE html>
-        <html lang="en" class="h-full">
+        <html lang="en">
         <head>
             <meta charset="UTF-8"/>
             <title>Hello</title>
@@ -12,7 +14,14 @@ templ Base() {
             <link rel="stylesheet" href="/static/custom.css"/>
         </head>
         <body>
-            { children... }
+            <div class="wrapper">
+                @partials.Sidebar()
+                <main>
+                    <section class="container">
+                        {children... }
+                    </section>
+                </main>
+            </div>
         </body>
     </html>
 }

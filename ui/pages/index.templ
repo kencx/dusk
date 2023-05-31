@@ -8,16 +8,12 @@ import (
 
 templ Index(books dusk.Books) {
     @common.Base() {
-        <main class="container">
-            <section>
-                <hgroup>
-                <h1>Library</h1>
-                <h4>Books Read</h4>
-                </hgroup>
-                <div>
-                    @partials.Library(books)
-                </div>
-            </section>
-        </main>
+        <hgroup>
+            <h1>Library</h1>
+            <h4>Books Read</h4>
+        </hgroup>
+        <div>
+            @partials.Library(books)
+        </div>
     }
 }

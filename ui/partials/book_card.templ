@@ -8,7 +8,7 @@ import (
 )
 
 templ bookCard(b *dusk.Book) {
-    <div class="book-card">
+    <div class="library__book-card">
         <div class="cover">
             <a href={ templ.SafeURL(path.Join("book", strconv.Itoa(int(b.ID)))) }>
                 <img alt="" src="/static/red-rising.jpg"/>

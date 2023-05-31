@@ -37,25 +37,6 @@ func Index(books dusk.Books) templ.Component {
 				defer templ.ReleaseBuffer(templBuffer)
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<main")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"container\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<section>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
 			_, err = templBuffer.WriteString("<hgroup>")
 			if err != nil {
 				return err
@@ -94,6 +75,11 @@ func Index(books dusk.Books) templ.Component {
 			if err != nil {
 				return err
 			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
 			// Element (standard)
 			_, err = templBuffer.WriteString("<div>")
 			if err != nil {
@@ -105,14 +91,6 @@ func Index(books dusk.Books) templ.Component {
 				return err
 			}
 			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</section>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</main>")
 			if err != nil {
 				return err
 			}

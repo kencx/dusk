@@ -37,36 +37,12 @@ func BookPage(b *dusk.Book) templ.Component {
 				defer templ.ReleaseBuffer(templBuffer)
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<main")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"container\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<section>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
 			_, err = templBuffer.WriteString("<div")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"info\"")
+			_, err = templBuffer.WriteString(" class=\"book__details\"")
 			if err != nil {
 				return err
 			}
@@ -95,7 +71,7 @@ func BookPage(b *dusk.Book) templ.Component {
 				return err
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<h2>")
+			_, err = templBuffer.WriteString("<h3>")
 			if err != nil {
 				return err
 			}
@@ -105,7 +81,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</h2>")
+			_, err = templBuffer.WriteString("</h3>")
 			if err != nil {
 				return err
 			}
@@ -451,6 +427,11 @@ func BookPage(b *dusk.Book) templ.Component {
 			if err != nil {
 				return err
 			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
 			// Element (standard)
 			_, err = templBuffer.WriteString("<div>")
 			if err != nil {
@@ -781,19 +762,337 @@ func BookPage(b *dusk.Book) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</div>")
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_46 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			_, err = templBuffer.WriteString(var_46)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_47 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat`
+			_, err = templBuffer.WriteString(var_47)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_48 := `excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate`
+			_, err = templBuffer.WriteString(var_48)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_49 := `voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure`
+			_, err = templBuffer.WriteString(var_49)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_50 := `elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis`
+			_, err = templBuffer.WriteString(var_50)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_51 := `laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex`
+			_, err = templBuffer.WriteString(var_51)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_52 := `in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis`
+			_, err = templBuffer.WriteString(var_52)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_53 := `sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa`
+			_, err = templBuffer.WriteString(var_53)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_54 := `et culpa duis.`
+			_, err = templBuffer.WriteString(var_54)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_55 := `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem`
+			_, err = templBuffer.WriteString(var_55)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_56 := `quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,`
+			_, err = templBuffer.WriteString(var_56)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_57 := `saepe porro aperiam dolorem similique ab reiciendis. Ad.`
+			_, err = templBuffer.WriteString(var_57)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_58 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			_, err = templBuffer.WriteString(var_58)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_59 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
+			_, err = templBuffer.WriteString(var_59)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_60 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
+			_, err = templBuffer.WriteString(var_60)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_61 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
+			_, err = templBuffer.WriteString(var_61)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_62 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
+			_, err = templBuffer.WriteString(var_62)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_63 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
+			_, err = templBuffer.WriteString(var_63)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_64 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
+			_, err = templBuffer.WriteString(var_64)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_65 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
+			_, err = templBuffer.WriteString(var_65)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_66 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			_, err = templBuffer.WriteString(var_66)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_67 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			_, err = templBuffer.WriteString(var_67)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_68 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
+			_, err = templBuffer.WriteString(var_68)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_69 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
+			_, err = templBuffer.WriteString(var_69)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_70 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
+			_, err = templBuffer.WriteString(var_70)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_71 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
+			_, err = templBuffer.WriteString(var_71)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_72 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
+			_, err = templBuffer.WriteString(var_72)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_73 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
+			_, err = templBuffer.WriteString(var_73)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_74 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
+			_, err = templBuffer.WriteString(var_74)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_75 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			_, err = templBuffer.WriteString(var_75)
 			if err != nil {
 				return err
 			}
 			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</section>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</main>")
 			if err != nil {
 				return err
 			}

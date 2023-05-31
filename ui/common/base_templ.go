@@ -9,6 +9,9 @@ import "context"
 import "io"
 import "bytes"
 
+// GoExpression
+import "dusk/ui/partials"
+
 func Base() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
@@ -34,10 +37,6 @@ func Base() templ.Component {
 		}
 		// Element Attributes
 		_, err = templBuffer.WriteString(" lang=\"en\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" class=\"h-full\"")
 		if err != nil {
 			return err
 		}
@@ -160,8 +159,58 @@ func Base() templ.Component {
 		if err != nil {
 			return err
 		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"wrapper\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// TemplElement
+		err = partials.Sidebar().Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<main>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<section")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"container\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
 		// Children
 		err = var_1.Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</section>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</main>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}

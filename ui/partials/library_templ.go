@@ -31,7 +31,7 @@ func Library(books dusk.Books) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"card-view\"")
+		_, err = templBuffer.WriteString(" class=\"library__card-view\"")
 		if err != nil {
 			return err
 		}
