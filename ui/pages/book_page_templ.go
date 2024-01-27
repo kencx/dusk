@@ -110,8 +110,17 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var8 := `: 1223456`
+			templ_7745c5c3_Var8 := `: `
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(b.ISBN)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/book_page.templ`, Line: 30, Col: 42}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,8 +128,8 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var9 := `,`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			templ_7745c5c3_Var10 := `,`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -128,8 +137,8 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var10 := `ISBN13`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			templ_7745c5c3_Var11 := `ISBN13`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -137,8 +146,8 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var11 := `: 131233548`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			templ_7745c5c3_Var12 := `: 131233548`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -146,8 +155,8 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var12 := `Del Ray Books`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			templ_7745c5c3_Var13 := `Del Ray Books`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -155,8 +164,8 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var13 := `,`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			templ_7745c5c3_Var14 := `,`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -164,8 +173,8 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var14 := `2014-01-28`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			templ_7745c5c3_Var15 := `2014-01-28`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -186,12 +195,12 @@ func BookPage(b *dusk.Book) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var15 string
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(tag)
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(tag)
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/book_page.templ`, Line: 39, Col: 39}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -204,16 +213,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var16 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Var17 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat`
+			templ_7745c5c3_Var17 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -222,7 +222,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var18 := `excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate`
+			templ_7745c5c3_Var18 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -231,7 +231,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var19 := `voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure`
+			templ_7745c5c3_Var19 := `excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -240,7 +240,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var20 := `elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis`
+			templ_7745c5c3_Var20 := `voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -249,7 +249,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var21 := `laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex`
+			templ_7745c5c3_Var21 := `elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -258,7 +258,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var22 := `in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis`
+			templ_7745c5c3_Var22 := `laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -267,7 +267,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var23 := `sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa`
+			templ_7745c5c3_Var23 := `in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -276,7 +276,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var24 := `et culpa duis.`
+			templ_7745c5c3_Var24 := `sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -285,7 +285,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var25 := `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem`
+			templ_7745c5c3_Var25 := `et culpa duis.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -294,7 +294,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var26 := `quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,`
+			templ_7745c5c3_Var26 := `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -303,7 +303,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var27 := `saepe porro aperiam dolorem similique ab reiciendis. Ad.`
+			templ_7745c5c3_Var27 := `quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -312,7 +312,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var28 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			templ_7745c5c3_Var28 := `saepe porro aperiam dolorem similique ab reiciendis. Ad.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -321,7 +321,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var29 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
+			templ_7745c5c3_Var29 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -330,7 +330,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var30 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
+			templ_7745c5c3_Var30 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -339,7 +339,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var31 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
+			templ_7745c5c3_Var31 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -348,7 +348,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var32 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
+			templ_7745c5c3_Var32 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -357,7 +357,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var33 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
+			templ_7745c5c3_Var33 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -366,7 +366,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var34 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
+			templ_7745c5c3_Var34 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -375,7 +375,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var35 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
+			templ_7745c5c3_Var35 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -384,7 +384,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var36 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			templ_7745c5c3_Var36 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -393,7 +393,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var37 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			templ_7745c5c3_Var37 := `ullamco ut ea consectetur et est culpa et culpa duis.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -402,7 +402,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var38 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
+			templ_7745c5c3_Var38 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -411,7 +411,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var39 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
+			templ_7745c5c3_Var39 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -420,7 +420,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var40 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
+			templ_7745c5c3_Var40 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -429,7 +429,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var41 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
+			templ_7745c5c3_Var41 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -438,7 +438,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var42 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
+			templ_7745c5c3_Var42 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -447,7 +447,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var43 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
+			templ_7745c5c3_Var43 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -456,7 +456,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var44 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
+			templ_7745c5c3_Var44 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -465,7 +465,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var45 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			templ_7745c5c3_Var45 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -474,7 +474,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var46 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			templ_7745c5c3_Var46 := `ullamco ut ea consectetur et est culpa et culpa duis.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -483,7 +483,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var47 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat`
+			templ_7745c5c3_Var47 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -492,7 +492,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var48 := `excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate`
+			templ_7745c5c3_Var48 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -501,7 +501,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var49 := `voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure`
+			templ_7745c5c3_Var49 := `excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var49)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -510,7 +510,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var50 := `elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis`
+			templ_7745c5c3_Var50 := `voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -519,7 +519,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var51 := `laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex`
+			templ_7745c5c3_Var51 := `elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -528,7 +528,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var52 := `in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis`
+			templ_7745c5c3_Var52 := `laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -537,7 +537,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var53 := `sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa`
+			templ_7745c5c3_Var53 := `in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -546,7 +546,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var54 := `et culpa duis.`
+			templ_7745c5c3_Var54 := `sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -555,7 +555,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var55 := `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem`
+			templ_7745c5c3_Var55 := `et culpa duis.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -564,7 +564,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var56 := `quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,`
+			templ_7745c5c3_Var56 := `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var56)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -573,7 +573,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var57 := `saepe porro aperiam dolorem similique ab reiciendis. Ad.`
+			templ_7745c5c3_Var57 := `quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -582,7 +582,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var58 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			templ_7745c5c3_Var58 := `saepe porro aperiam dolorem similique ab reiciendis. Ad.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var58)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -591,7 +591,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var59 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
+			templ_7745c5c3_Var59 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var59)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -600,7 +600,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var60 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
+			templ_7745c5c3_Var60 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -609,7 +609,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var61 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
+			templ_7745c5c3_Var61 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var61)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -618,7 +618,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var62 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
+			templ_7745c5c3_Var62 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var62)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -627,7 +627,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var63 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
+			templ_7745c5c3_Var63 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var63)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -636,7 +636,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var64 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
+			templ_7745c5c3_Var64 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var64)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -645,7 +645,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var65 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
+			templ_7745c5c3_Var65 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var65)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -654,7 +654,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var66 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			templ_7745c5c3_Var66 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var66)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -663,7 +663,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var67 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
+			templ_7745c5c3_Var67 := `ullamco ut ea consectetur et est culpa et culpa duis.`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var67)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -672,7 +672,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var68 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
+			templ_7745c5c3_Var68 := `Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var68)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -681,7 +681,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var69 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
+			templ_7745c5c3_Var69 := `culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var69)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -690,7 +690,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var70 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
+			templ_7745c5c3_Var70 := `cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var70)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -699,7 +699,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var71 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
+			templ_7745c5c3_Var71 := `amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var71)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -708,7 +708,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var72 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
+			templ_7745c5c3_Var72 := `officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var72)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -717,7 +717,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var73 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
+			templ_7745c5c3_Var73 := `dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var73)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -726,7 +726,7 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var74 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
+			templ_7745c5c3_Var74 := `nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var74)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -735,8 +735,17 @@ func BookPage(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var75 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			templ_7745c5c3_Var75 := `commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var75)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var76 := `ullamco ut ea consectetur et est culpa et culpa duis.`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var76)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

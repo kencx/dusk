@@ -260,7 +260,7 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 }
 
 func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
-
+	b.ID = id
 	stmt := `UPDATE book
 		SET title=:title,
 			isbn=:isbn,

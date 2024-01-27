@@ -102,6 +102,7 @@ func (s *Server) RegisterRoutes() {
 		r.Get("/{id:[0-9]+}", s.GetBook)
 		r.Get("/", s.GetAllBooks)
 		r.Post("/", s.AddBook)
+		r.Post("/{id:[0-9]+}", s.ImportMetadata)
 		r.Put("/{id:[0-9]+}", s.UpdateBook)
 		r.Delete("/{id:[0-9]+}", s.DeleteBook)
 	})
