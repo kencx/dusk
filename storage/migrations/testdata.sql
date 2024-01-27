@@ -10,8 +10,8 @@ INSERT INTO tag (
 ) VALUES ('testTag'), ('Favourites'), ('Starred');
 
 INSERT INTO book (
-	title, isbn, numOfPages, rating, state
-) VALUES ('Book 1', '1', 250, 5, 'read');
+	title, isbn, numOfPages, rating
+) VALUES ('Book 1', '1', 250, 5);
 
 INSERT INTO book_author_link (
 	book, author
@@ -28,8 +28,8 @@ INSERT INTO book_tag_link (
 );
 
 INSERT INTO book (
-	title, isbn, numOfPages, rating, state
-) VALUES ('Book 2', '2', 900, 4, 'unread');
+	title, isbn, numOfPages, rating
+) VALUES ('Book 2', '2', 900, 4);
 
 INSERT INTO book_author_link (
 	book, author

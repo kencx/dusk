@@ -3,10 +3,8 @@ package dusk
 import "dusk/validator"
 
 type Tag struct {
-	ID          int64  `json:"id"`
-	Name        string `json:"name"`
-	DateAdded   string `json:"-"`
-	DateUpdated string `json:"-"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type Tags []*Tag

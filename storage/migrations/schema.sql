@@ -6,16 +6,12 @@ CREATE TABLE IF NOT EXISTS book (
     isbn          TEXT NOT NULL UNIQUE,
     numOfPages    INTEGER DEFAULT 0,
     rating        INTEGER DEFAULT 0,
-    state         TEXT NOT NULL DEFAULT "unread",
     description   TEXT,
     notes         TEXT,
-    series        TEXT,
     dateAdded     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateUpdated   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateCompleted TIMESTAMP
 );
-
--- create state enum
 
 CREATE TABLE IF NOT EXISTS author (
 	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
