@@ -49,7 +49,7 @@ func assertResponseError(t *testing.T, w *httptest.ResponseRecorder, status int,
 
 	got := env["error"]
 	is.Equal(w.Code, status)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 	is.Equal(got, message)
 }
 
@@ -63,7 +63,7 @@ func assertValidationError(t *testing.T, w *httptest.ResponseRecorder, key, mess
 
 	got := env["error"]
 	is.Equal(w.Code, http.StatusUnprocessableEntity)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 
 	val, ok := got[key]
 	if !ok {

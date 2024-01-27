@@ -56,7 +56,7 @@ func TestGetBook(t *testing.T) {
 	is.Equal(got.Author[0], testBook1.Author[0])
 	is.Equal(got.ISBN, testBook1.ISBN)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestGetBookNil(t *testing.T) {
@@ -108,7 +108,7 @@ func TestGetAllBooks(t *testing.T) {
 			is.Equal(v.ISBN, testBooks[i].ISBN)
 		}
 		is.Equal(w.Code, http.StatusOK)
-		is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+		is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 	})
 
 	t.Run("no content", func(t *testing.T) {
@@ -160,11 +160,11 @@ func TestAddBook(t *testing.T) {
 	is.Equal(got.Author[0], testBook1.Author[0])
 	is.Equal(got.ISBN, testBook1.ISBN)
 	is.Equal(w.Code, http.StatusCreated)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestAddBookFailValidation(t *testing.T) {
-    is := is.New(t)
+	is := is.New(t)
 	failBook := &dusk.Book{
 		Title:  "",
 		Author: []string{"John Doe"},
@@ -222,7 +222,7 @@ func TestUpdateBook(t *testing.T) {
 	is.Equal(got.Author[0], testBook2.Author[0])
 	is.Equal(got.ISBN, testBook2.ISBN)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestUpdateBookNil(t *testing.T) {
@@ -250,7 +250,7 @@ func TestUpdateBookNil(t *testing.T) {
 }
 
 func TestUpdateBookFailValidation(t *testing.T) {
-    is := is.New(t)
+	is := is.New(t)
 	failBook := &dusk.Book{
 		Title:  "",
 		Author: []string{"John Doe"},
@@ -277,7 +277,6 @@ func TestUpdateBookFailValidation(t *testing.T) {
 	is.NoErr(err)
 	assertValidationError(t, w, "title", "value is missing")
 }
-
 
 func TestDeleteBook(t *testing.T) {
 	is := is.New(t)

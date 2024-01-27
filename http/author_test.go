@@ -45,7 +45,7 @@ func TestGetAuthor(t *testing.T) {
 	got := env["authors"]
 	is.Equal(got.Name, testAuthor1.Name)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestGetAllAuthors(t *testing.T) {
@@ -73,7 +73,7 @@ func TestGetAllAuthors(t *testing.T) {
 		is.Equal(v.Name, testAuthors[i].Name)
 	}
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestGetAllAuthorsNil(t *testing.T) {
@@ -93,7 +93,7 @@ func TestGetAllAuthorsNil(t *testing.T) {
 	is.NoErr(err)
 
 	is.Equal(w.Code, http.StatusNoContent)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestAddAuthor(t *testing.T) {
@@ -123,11 +123,11 @@ func TestAddAuthor(t *testing.T) {
 	got := env["authors"]
 	is.Equal(got.Name, testAuthor1.Name)
 	is.Equal(w.Code, http.StatusCreated)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestAddAuthorFailValidation(t *testing.T) {
-    is := is.New(t)
+	is := is.New(t)
 	failAuthor := &dusk.Author{Name: ""}
 	want, err := util.ToJSON(failAuthor)
 	is.NoErr(err)
@@ -177,7 +177,7 @@ func TestUpdateAuthor(t *testing.T) {
 	got := env["authors"]
 	is.Equal(got.Name, testAuthor2.Name)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestDeleteAuthor(t *testing.T) {

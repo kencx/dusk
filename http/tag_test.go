@@ -45,7 +45,7 @@ func TestGetTag(t *testing.T) {
 	got := env["tags"]
 	is.Equal(got.Name, testTag1.Name)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestGetAllTags(t *testing.T) {
@@ -73,7 +73,7 @@ func TestGetAllTags(t *testing.T) {
 		is.Equal(v.Name, testTags[i].Name)
 	}
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestGetAllTagsNil(t *testing.T) {
@@ -93,7 +93,7 @@ func TestGetAllTagsNil(t *testing.T) {
 	is.NoErr(err)
 
 	is.Equal(w.Code, http.StatusNoContent)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestAddTag(t *testing.T) {
@@ -123,11 +123,11 @@ func TestAddTag(t *testing.T) {
 	got := env["tags"]
 	is.Equal(got.Name, testTag1.Name)
 	is.Equal(w.Code, http.StatusCreated)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestAddTagFailValidation(t *testing.T) {
-    is := is.New(t)
+	is := is.New(t)
 	failTag := &dusk.Tag{Name: ""}
 	want, err := util.ToJSON(failTag)
 	is.NoErr(err)
@@ -177,7 +177,7 @@ func TestUpdateTag(t *testing.T) {
 	got := env["tags"]
 	is.Equal(got.Name, testTag2.Name)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.HeaderMap.Get("Content-Type"), "application/json")
+	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
 
 func TestDeleteTag(t *testing.T) {
