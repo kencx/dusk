@@ -2,8 +2,8 @@ package storage
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -42,7 +42,7 @@ func (s *Store) Close() error {
 }
 
 func (s *Store) MigrateUp(filePath string) error {
-	schema, err := ioutil.ReadFile(filePath)
+	schema, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("db: cannot read sql file %q: %v", filePath, err)
 	}

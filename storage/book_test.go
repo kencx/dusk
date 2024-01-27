@@ -17,7 +17,6 @@ var (
 		ISBN:       "1",
 		NumOfPages: 250,
 		Rating:     5,
-		State:      "read",
 		Author:     []string{testAuthor1.Name},
 		Tag:        []string{testTag1.Name},
 	}
@@ -27,14 +26,12 @@ var (
 		ISBN:       "2",
 		NumOfPages: 900,
 		Rating:     4,
-		State:      "unread",
 		Author:     []string{testAuthor2.Name},
 	}
 	testBook3 = &dusk.Book{
 		ID:     3,
 		Title:  "Many Authors",
 		ISBN:   "3",
-		State:  "unread",
 		Author: []string{testAuthor3.Name, testAuthor4.Name, testAuthor5.Name},
 		Tag:    []string{testTag2.Name, testTag3.Name},
 	}
@@ -42,7 +39,6 @@ var (
 		ID:     4,
 		Title:  "Book 4",
 		ISBN:   "4",
-		State:  "unread",
 		Author: []string{testAuthor5.Name},
 	}
 	allTestBooks = dusk.Books{testBook1, testBook2, testBook3, testBook4}
@@ -87,8 +83,9 @@ func TestGetBook(t *testing.T) {
 }
 
 func TestGetAllBooks(t *testing.T) {
+	is := is.New(t)
 	got, err := ts.GetAllBooks()
-	checkErr(t, err)
+	is.NoErr(err)
 
 	want := allTestBooks
 
@@ -122,7 +119,6 @@ func TestCreateBook(t *testing.T) {
 			Author:     []string{"Max Brooks"},
 			NumOfPages: 100,
 			Rating:     10,
-			State:      "read",
 			Tag:        []string{"Zombies"},
 		},
 	}, {
@@ -133,18 +129,18 @@ func TestCreateBook(t *testing.T) {
 			Author:     []string{"Scott Chacon", "Ben Straub"},
 			NumOfPages: 100,
 			Rating:     10,
-			State:      "read",
 		},
 	}}
 
 	defer resetDB()
+	is := is.New(t)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			b, err := ts.CreateBook(tt.want)
-			checkErr(t, err)
+			is.NoErr(err)
 
 			got, err := ts.GetBook(b.ID)
-			checkErr(t, err)
+			is.NoErr(err)
 
 			if !assertBooksEqual(got, tt.want) {
 				t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(tt.want))
@@ -174,10 +170,10 @@ func TestCreateBookExistingAuthor(t *testing.T) {
 		Author:     []string{"John Adams"},
 		NumOfPages: 100,
 		Rating:     10,
-		State:      "unread",
 	}
+	is := is.New(t)
 	got, err := ts.CreateBook(want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	assertAuthorsExist(t, want)
 	assertBookAuthorRelationship(t, got)
@@ -193,10 +189,10 @@ func TestCreateBookNewAndExistingAuthor(t *testing.T) {
 		Author:     []string{"John Adams", "Daniel Abrahams"},
 		NumOfPages: 100,
 		Rating:     10,
-		State:      "unread",
 	}
+	is := is.New(t)
 	_, err := ts.CreateBook(want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	assertAuthorsExist(t, want)
 	assertBookAuthorRelationship(t, want)
@@ -212,11 +208,11 @@ func TestCreateBookExistingTag(t *testing.T) {
 		Author:     []string{"Frank Herbert"},
 		NumOfPages: 100,
 		Rating:     10,
-		State:      "unread",
 		Tag:        []string{"Starred"},
 	}
+	is := is.New(t)
 	_, err := ts.CreateBook(want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	assertTagsExist(t, want)
 	assertBookTagRelationship(t, want)
@@ -232,11 +228,11 @@ func TestCreateBookNewAndExistingTag(t *testing.T) {
 		Author:     []string{"Isaac Asimov"},
 		NumOfPages: 100,
 		Rating:     10,
-		State:      "unread",
 		Tag:        []string{"New", "Starred"},
 	}
+	is := is.New(t)
 	_, err := ts.CreateBook(want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	assertTagsExist(t, want)
 	assertBookTagRelationship(t, want)
@@ -250,10 +246,10 @@ func TestUpdateBookNoAuthorChange(t *testing.T) {
 	want := testBook1
 	want.NumOfPages = 999
 	want.Rating = 1
-	want.State = "unread"
 
+	is := is.New(t)
 	got, err := ts.UpdateBook(want.ID, want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
@@ -265,8 +261,9 @@ func TestUpdateBookAddNewAuthor(t *testing.T) {
 	defer resetDB()
 
 	want := modifyAuthors(testBook1, append(testBook1.Author, "Ty Franck"))
+	is := is.New(t)
 	got, err := ts.UpdateBook(want.ID, want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
@@ -280,8 +277,9 @@ func TestUpdateBookAddExistingAuthor(t *testing.T) {
 	defer resetDB()
 
 	want := modifyAuthors(testBook1, append(testBook1.Author, testBook2.Author[0]))
+	is := is.New(t)
 	got, err := ts.UpdateBook(want.ID, want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
@@ -296,8 +294,9 @@ func TestUpdateBookRemoveAuthor(t *testing.T) {
 
 	old := testBook3.Author
 	want := modifyAuthors(testBook3, testBook3.Author[:len(testBook3.Author)-1])
+	is := is.New(t)
 	got, err := ts.UpdateBook(want.ID, want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
@@ -323,8 +322,9 @@ func TestUpdateBookRemoveAuthorCompletely(t *testing.T) {
 
 	old := testBook2.Author[0]
 	want := modifyAuthors(testBook2, testBook1.Author)
+	is := is.New(t)
 	got, err := ts.UpdateBook(want.ID, want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
@@ -349,8 +349,9 @@ func TestUpdateBookRenameAuthor(t *testing.T) {
 
 	old := testBook4.Author[0]
 	want := modifyAuthors(testBook4, []string{"Daniel Foo"})
+	is := is.New(t)
 	got, err := ts.UpdateBook(want.ID, want)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if !assertBooksEqual(got, want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
@@ -392,8 +393,9 @@ func TestUpdateBookISBNConstraint(t *testing.T) {
 
 func TestDeleteBook(t *testing.T) {
 	defer resetDB()
+	is := is.New(t)
 	err := ts.DeleteBook(testBook1.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	_, err = ts.GetBook(testBook1.ID)
 	if err == nil {
@@ -426,8 +428,9 @@ func TestDeleteBook(t *testing.T) {
 func TestDeleteBookEnsureAuthorRemainsForExistingBooks(t *testing.T) {
 	defer resetDB()
 
+	is := is.New(t)
 	err := ts.DeleteBook(testBook3.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	// check delete cascaded to book_author_link
 	var dest []int
@@ -442,7 +445,7 @@ func TestDeleteBookEnsureAuthorRemainsForExistingBooks(t *testing.T) {
 
 	// check author still exists in authors table
 	query, args, err := sqlx.In("SELECT id FROM author WHERE name IN (?);", testBook3.Author)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	var count []int
 	query = ts.db.Rebind(query)
@@ -460,7 +463,7 @@ func TestDeleteBookEnsureAuthorRemainsForExistingBooks(t *testing.T) {
             JOIN author a ON a.id=ba.author
 		WHERE a.name IN (?);`
 	query, args, err = sqlx.In(stmt, testBook3.Author)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	var bookID []int
 	query = ts.db.Rebind(query)
@@ -473,7 +476,7 @@ func TestDeleteBookEnsureAuthorRemainsForExistingBooks(t *testing.T) {
 	}
 
 	got, err := ts.GetBook(testBook4.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 	if !assertBooksEqual(got, testBook4) {
 		t.Errorf("got %v, want %v", got, testBook4)
 	}
@@ -554,7 +557,6 @@ func assertBooksEqual(a, b *dusk.Book) bool {
 		return (a.Title == b.Title &&
 			a.ISBN == b.ISBN &&
 			a.NumOfPages == b.NumOfPages &&
-			a.State == b.State &&
 			a.Rating == b.Rating &&
 			authorEqual &&
 			tagEqual)

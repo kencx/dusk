@@ -132,58 +132,58 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			return nil, err
 		}
 
-        current_authors, err := getAuthorsFromBook(tx, b.ID)
-        if err != nil {
-            return nil, err
-        }
+		current_authors, err := getAuthorsFromBook(tx, b.ID)
+		if err != nil {
+			return nil, err
+		}
 
-        util.Sort(b.Author)
-        if !reflect.DeepEqual(current_authors, b.Author) {
+		util.Sort(b.Author)
+		if !reflect.DeepEqual(current_authors, b.Author) {
 
-            // Renaming an author should not update the same author row for other books
-            // Always create a new author row, never update the original in this case
-            authorIDs, err := insertAuthors(tx, b.Author)
-            if err != nil {
-                return nil, err
-            }
+			// Renaming an author should not update the same author row for other books
+			// Always create a new author row, never update the original in this case
+			authorIDs, err := insertAuthors(tx, b.Author)
+			if err != nil {
+				return nil, err
+			}
 
-            if err := linkBookToAuthors(tx, id, authorIDs); err != nil {
-                return nil, err
-            }
-            if err := unlinkBookFromAuthors(tx, id, authorIDs); err != nil {
-                return nil, err
-            }
-        }
+			if err := linkBookToAuthors(tx, id, authorIDs); err != nil {
+				return nil, err
+			}
+			if err := unlinkBookFromAuthors(tx, id, authorIDs); err != nil {
+				return nil, err
+			}
+		}
 
-        current_tags, err := getTagsFromBook(tx, b.ID)
-        if err != nil {
-            return nil, err
-        }
+		current_tags, err := getTagsFromBook(tx, b.ID)
+		if err != nil {
+			return nil, err
+		}
 
-        util.Sort(b.Tag)
-        if !reflect.DeepEqual(current_tags, b.Tag) {
+		util.Sort(b.Tag)
+		if !reflect.DeepEqual(current_tags, b.Tag) {
 
-            // Renaming a tag should not update the same tag row for other books
-            // Always create a new tag row, never update the original in this case
-            tagIDs, err := insertTags(tx, b.Tag)
-            if err != nil {
-                return nil, err
-            }
+			// Renaming a tag should not update the same tag row for other books
+			// Always create a new tag row, never update the original in this case
+			tagIDs, err := insertTags(tx, b.Tag)
+			if err != nil {
+				return nil, err
+			}
 
-            if err := linkBookToTags(tx, id, tagIDs); err != nil {
-                return nil, err
-            }
-            if err := unlinkBookFromTags(tx, id, tagIDs); err != nil {
-                return nil, err
-            }
-        }
+			if err := linkBookToTags(tx, id, tagIDs); err != nil {
+				return nil, err
+			}
+			if err := unlinkBookFromTags(tx, id, tagIDs); err != nil {
+				return nil, err
+			}
+		}
 
-        if err := deleteAuthorsWithNoBooks(tx); err != nil {
-            return nil, err
-        }
-        if err := deleteTagsWithNoBooks(tx); err != nil {
-            return nil, err
-        }
+		if err := deleteAuthorsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteTagsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
 
 		return b, nil
 	})
@@ -228,17 +228,12 @@ func (s *Store) DeleteBooks(ids []int64) error {
 
 // insert book entry to books table
 func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
-	if b.State == "" {
-		b.State = "unread"
-	}
-
-	stmt := `INSERT INTO book (title, isbn, numOfPages, rating, state, description, notes, dateAdded, dateUpdated, dateCompleted)
+	stmt := `INSERT INTO book (title, isbn, numOfPages, rating, description, notes, dateAdded, dateUpdated, dateCompleted)
             VALUES (
             :title,
 			:isbn,
 			:numOfPages,
             :rating,
-            :state,
             :description,
             :notes,
             :dateAdded,
@@ -271,7 +266,6 @@ func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
 			isbn=:isbn,
 			numOfPages=:numOfPages,
 			rating=:rating,
-			state=:state,
 			description=:description,
 			notes=:notes,
 			dateAdded=:dateAdded,

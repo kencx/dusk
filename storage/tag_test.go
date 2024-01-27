@@ -140,8 +140,9 @@ func TestUpdateTagExisting(t *testing.T) {
 }
 
 func TestDeleteTag(t *testing.T) {
+	is := is.New(t)
 	err := ts.DeleteTag(testTag1.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	_, err = ts.GetTag(testTag1.ID)
 	if err == nil {
@@ -161,7 +162,7 @@ func TestDeleteTag(t *testing.T) {
 
 	// check books still exist without tag
 	got, err := ts.GetBook(testBook1.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if len(got.Tag) != 0 {
 		t.Errorf("book %d has incorrect number of tags", testBook1.ID)
@@ -169,8 +170,9 @@ func TestDeleteTag(t *testing.T) {
 }
 
 func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
+	is := is.New(t)
 	err := ts.DeleteTag(testTag3.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	_, err = ts.GetTag(testTag3.ID)
 	if err == nil {
@@ -190,7 +192,7 @@ func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
 
 	// check books still exist without tag
 	got, err := ts.GetBook(testBook3.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	if len(got.Tag) != 1 {
 		t.Errorf("book %d has incorrect number of tags", testBook3.ID)

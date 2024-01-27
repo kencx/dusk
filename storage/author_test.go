@@ -150,6 +150,7 @@ func TestUpdateAuthorExisting(t *testing.T) {
 func TestDeleteAuthor(t *testing.T) {
 	defer resetDB()
 
+	is := is.New(t)
 	// delete book first to circumvent foreign key constraint
 	stmt := `DELETE from book WHERE id=$1;`
 	_, err := ts.db.Exec(stmt, testBook1.ID)
@@ -158,7 +159,7 @@ func TestDeleteAuthor(t *testing.T) {
 	}
 
 	err = ts.DeleteAuthor(testAuthor1.ID)
-	checkErr(t, err)
+	is.NoErr(err)
 
 	_, err = ts.GetAuthor(testAuthor1.ID)
 	if err == nil {

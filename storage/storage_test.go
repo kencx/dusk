@@ -80,13 +80,6 @@ func resetDB() {
 	}
 }
 
-func checkErr(t *testing.T, err error) {
-	t.Helper()
-	if err != nil {
-		t.Fatalf("unexpected err: %v", err)
-	}
-}
-
 // pretty prints structs for readability
 func prettyPrint(i interface{}) string {
 	s, _ := json.MarshalIndent(i, "", "\t")
