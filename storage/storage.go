@@ -1,15 +1,16 @@
 package storage
 
 import (
+	"embed"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const SQLITE = "sqlite3"
+//go:embed migrations/*.sql
+var migrationFs embed.FS
 
 type Store struct {
 	db *sqlx.DB
@@ -20,7 +21,7 @@ func Open(path string) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("db: connection string required")
 	}
 
-	db, err := sqlx.Open(SQLITE, path)
+	db, err := sqlx.Open("sqlite3", path)
 	if err != nil {
 		return nil, fmt.Errorf("db: failed to open: %w", err)
 	}
@@ -42,7 +43,7 @@ func (s *Store) Close() error {
 }
 
 func (s *Store) MigrateUp(filePath string) error {
-	schema, err := os.ReadFile(filePath)
+	schema, err := migrationFs.ReadFile(fmt.Sprintf("migrations/%s", filePath))
 	if err != nil {
 		return fmt.Errorf("db: cannot read sql file %q: %v", filePath, err)
 	}

@@ -35,14 +35,14 @@ func main() {
 	}
 
 	store := storage.New(db)
-	err = store.MigrateUp("../storage/migrations/schema.sql")
+	err = store.MigrateUp("schema.sql")
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = store.MigrateUp("../storage/migrations/testdata.sql")
-	// if err != nil {
-	// 	log.Printf("%w", err)
-	// }
+	err = store.MigrateUp("testdata.sql")
+	if err != nil {
+		log.Print(err)
+	}
 
 	srv := dhttp.New(store)
 	go func() error {
