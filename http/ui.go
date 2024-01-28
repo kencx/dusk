@@ -3,7 +3,9 @@ package http
 import (
 	"dusk"
 	"dusk/http/response"
+	"dusk/metadata"
 	"dusk/ui/pages"
+	"dusk/validator"
 	"errors"
 	"net/http"
 )
@@ -49,4 +51,41 @@ func (s *Server) authorPageHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	pages.AuthorPage(author).Render(r.Context(), rw)
+}
+
+func (s *Server) importPageHandler(rw http.ResponseWriter, r *http.Request) {
+
+	if r.Method == http.MethodGet {
+		pages.Import().Render(r.Context(), rw)
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		isbn := r.FormValue("openlibrary")
+		m, err := metadata.Fetch(isbn)
+		if err != nil {
+			s.ErrorLog.Printf("err: %v", err)
+			response.InternalServerError(rw, r, err)
+			return
+		}
+
+		b := m.ToBook()
+
+		v := validator.New()
+		b.Validate(v)
+		if !v.Valid() {
+			response.ValidationError(rw, r, v.Errors)
+			return
+		}
+
+		result, err := s.db.CreateBook(b)
+		if err != nil {
+			s.ErrorLog.Printf("err: %v", err)
+			response.BadRequest(rw, r, err)
+			return
+		}
+
+		s.InfoLog.Printf("New book created: %v", result)
+		http.Redirect(rw, r, "/", http.StatusFound)
+	}
 }

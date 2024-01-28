@@ -94,6 +94,7 @@ func (s *Server) RegisterRoutes() {
 	r.HandleFunc("/", s.rootHandler)
 	r.HandleFunc("/book/{id:[0-9]+}", s.bookPageHandler)
 	r.HandleFunc("/author/{id:[0-9]+}", s.authorPageHandler)
+	r.HandleFunc("/import", s.importPageHandler)
 
 	api := chi.NewRouter()
 	r.Mount("/api", api)
@@ -103,6 +104,7 @@ func (s *Server) RegisterRoutes() {
 		r.Get("/", s.GetAllBooks)
 		r.Post("/", s.AddBook)
 		r.Post("/{id:[0-9]+}", s.ImportMetadata)
+		r.Post("/import", s.ImportBook)
 		r.Put("/{id:[0-9]+}", s.UpdateBook)
 		r.Delete("/{id:[0-9]+}", s.DeleteBook)
 	})

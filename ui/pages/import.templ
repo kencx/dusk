@@ -1,0 +1,18 @@
+package pages
+
+import (
+    "dusk/ui/common"
+)
+
+templ Import() {
+    @common.Base() {
+        <h2>Import Book</h2>
+
+        <form action="/import" method="POST">
+            <input id="openlibrary" name="openlibrary" required />
+            <small>Import from OpenLibrary</small>
+            <br/>
+            <button type="submit">Submit</button>
+        </form>
+    }
+}
