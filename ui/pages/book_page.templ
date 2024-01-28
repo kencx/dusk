@@ -1,0 +1,116 @@
+package pages
+
+import (
+    "dusk"
+    "path"
+    "dusk/ui/common"
+)
+
+templ BookPage(b *dusk.Book) {
+    @common.Base() {
+        <div class="book__details">
+            <hgroup>
+                <h1>{b.Title}</h1>
+                <h3>Subtitle</h3>
+                <h4>
+                for _, author := range b.Author {
+                    <span class="author">
+                        <a href={ templ.SafeURL(path.Join("author", author)) } tt={author}>
+                            {author}
+                        </a>
+                    </span>
+                }
+                </h4>
+            </hgroup>
+
+            <div class="cover">
+            <img alt="" src="../static/red-rising.jpg"/>
+            </div>
+
+            <div class="metadata">
+                <span><b>ISBN</b>: 1223456</span>,
+                <span><b>ISBN13</b>: 131233548</span>
+                <br/>
+                <span>Del Ray Books</span>,
+                <span>2014-01-28</span>
+                <br/>
+                <div class="tags">
+                for _, tag := range b.Tag {
+                    <tag tt={tag}>
+                        <a href="">{tag}</a>
+                    </tag>
+                }
+                </div>
+            </div>
+        </div>
+        <div>
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
+            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat
+            excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
+            voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure
+            elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis
+            laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex
+            in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis
+            sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa
+            et culpa duis.
+
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem
+            quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,
+            saepe porro aperiam dolorem similique ab reiciendis. Ad.
+
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
+            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
+            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
+            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
+            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
+            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
+            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
+            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
+            ullamco ut ea consectetur et est culpa et culpa duis.
+
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
+            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
+            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
+            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
+            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
+            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
+            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
+            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
+            ullamco ut ea consectetur et est culpa et culpa duis.
+
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
+            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat
+            excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
+            voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure
+            elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis
+            laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex
+            in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis
+            sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa
+            et culpa duis.
+
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem
+            quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,
+            saepe porro aperiam dolorem similique ab reiciendis. Ad.
+
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
+            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
+            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
+            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
+            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
+            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
+            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
+            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
+            ullamco ut ea consectetur et est culpa et culpa duis.
+
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
+            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
+            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
+            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
+            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
+            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
+            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
+            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
+            ullamco ut ea consectetur et est culpa et culpa duis.
+        </div>
+    }
+}

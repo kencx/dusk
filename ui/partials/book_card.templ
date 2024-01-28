@@ -1,0 +1,24 @@
+package partials
+
+import (
+    "dusk"
+    "path"
+    "strconv"
+    "strings"
+)
+
+templ bookCard(b *dusk.Book) {
+    <div class="library__book-card">
+        <div class="cover">
+            <a href={ templ.SafeURL(path.Join("book", strconv.Itoa(int(b.ID)))) }>
+                <img alt="" src="/static/red-rising.jpg"/>
+            </a>
+        </div>
+        <div>
+            <p style="margin-bottom: 0px;">{b.Title}</p>
+            <p style="font-size: 1.25rem;">
+                { strings.Join(b.Author, ", ") }
+            </p>
+        </div>
+    </div>
+}

@@ -1,0 +1,11 @@
+package partials
+
+import "dusk"
+
+templ Library(books dusk.Books) {
+    <div class="library__card-view">
+    for _, book := range books {
+        @bookCard(book)
+    }
+    </div>
+}

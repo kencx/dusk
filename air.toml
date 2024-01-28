@@ -1,0 +1,24 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+pre_cmd = ["templ generate"]
+cmd = "go build -v -o tmp/dusk ./cmd"
+bin = "tmp/dusk"
+full_bin = "./tmp/dusk -dsn ./tmp/library.db"
+include_ext = ["go", "templ", "css"]
+exclude_dir = ["storage/migrations", ".git", "tmp"]
+include_dir = []
+exclude_regex = ["_test\\.go", "\\.db", "\\.json", "_templ\\.go"]
+exclude_unchanged = true
+follow_symlink = true
+
+delay = 1000
+stop_on_error = true
+send_interrupt = true
+kill_delay = 500
+rerun = false
+rerun_delay = 500
+
+[misc]
+clean_on_exit = true

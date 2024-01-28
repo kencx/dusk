@@ -39,6 +39,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = store.MigrateUp("../storage/migrations/testdata.sql")
+	if err != nil {
+		log.Printf("%w", err)
+	}
 
 	srv := dhttp.New(store)
 	go func() error {

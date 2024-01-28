@@ -1,0 +1,18 @@
+package pages
+
+import (
+    "dusk"
+    "dusk/ui/common"
+    "dusk/ui/partials"
+)
+
+templ Index(books dusk.Books) {
+    @common.Base() {
+        <hgroup>
+            <h1>dusk</h1>
+        </hgroup>
+        <div>
+            @partials.Library(books)
+        </div>
+    }
+}

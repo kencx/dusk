@@ -89,6 +89,12 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
 
+	fs := http.FileServer(http.Dir("./ui/static"))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+	r.HandleFunc("/", s.rootHandler)
+	r.HandleFunc("/book/{id:[0-9]+}", s.bookPageHandler)
+	r.HandleFunc("/author/{id:[0-9]+}", s.authorPageHandler)
+
 	api := chi.NewRouter()
 	r.Mount("/api", api)
 

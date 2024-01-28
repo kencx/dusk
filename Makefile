@@ -1,12 +1,16 @@
 binary = dusk
 
-.PHONY: help build run clean cover test
+.PHONY: help air build run clean cover test
 
 default: help
 
 help:
 	@echo 'Usage:'
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' | sed -e 's/^/ /'
+
+## air: build and run with air
+air:
+	air -c air.toml
 
 ## build: build binary
 build:

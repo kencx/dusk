@@ -1,0 +1,22 @@
+package common
+
+templ Base() {
+    <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8"/>
+            <title>dusk</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <meta name="language" content="English"/>
+            <link rel="stylesheet" href="/static/bare.css"/>
+            <link rel="stylesheet" href="/static/custom.css"/>
+        </head>
+        <body>
+			<main>
+				<section>
+					{children... }
+				</section>
+			</main>
+        </body>
+    </html>
+}
