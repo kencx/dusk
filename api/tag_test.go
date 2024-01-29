@@ -1,4 +1,4 @@
-package http
+package api
 
 import (
 	"dusk"
@@ -23,7 +23,7 @@ var (
 
 func TestGetTag(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetTagFn: func(id int64) (*dusk.Tag, error) {
 			return testTag1, nil
 		},
@@ -33,7 +33,7 @@ func TestGetTag(t *testing.T) {
 		method: http.MethodGet,
 		url:    "/api/tags/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.GetTag,
+		fn:     testHandler.GetTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -50,7 +50,7 @@ func TestGetTag(t *testing.T) {
 
 func TestGetAllTags(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetAllTagsFn: func() (dusk.Tags, error) {
 			return testTags, nil
 		},
@@ -59,7 +59,7 @@ func TestGetAllTags(t *testing.T) {
 	tc := &testCase{
 		method: http.MethodGet,
 		url:    "/api/tags/",
-		fn:     testServer.GetAllTags,
+		fn:     testHandler.GetAllTags,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -78,7 +78,7 @@ func TestGetAllTags(t *testing.T) {
 
 func TestGetAllTagsNil(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetAllTagsFn: func() (dusk.Tags, error) {
 			return nil, dusk.ErrNoRows
 		},
@@ -87,7 +87,7 @@ func TestGetAllTagsNil(t *testing.T) {
 	tc := &testCase{
 		method: http.MethodGet,
 		url:    "/api/tags/",
-		fn:     testServer.GetAllTags,
+		fn:     testHandler.GetAllTags,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -101,7 +101,7 @@ func TestAddTag(t *testing.T) {
 	want, err := util.ToJSON(testTag1)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		CreateTagFn: func(a *dusk.Tag) (*dusk.Tag, error) {
 			return testTag1, nil
 		},
@@ -111,7 +111,7 @@ func TestAddTag(t *testing.T) {
 		method: http.MethodPost,
 		url:    "/api/tags/",
 		data:   want,
-		fn:     testServer.AddTag,
+		fn:     testHandler.AddTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -132,7 +132,7 @@ func TestAddTagFailValidation(t *testing.T) {
 	want, err := util.ToJSON(failTag)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		CreateTagFn: func(a *dusk.Tag) (*dusk.Tag, error) {
 			return testTag1, nil
 		},
@@ -142,7 +142,7 @@ func TestAddTagFailValidation(t *testing.T) {
 		method: http.MethodPost,
 		url:    "/api/tags/",
 		data:   want,
-		fn:     testServer.AddTag,
+		fn:     testHandler.AddTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -154,7 +154,7 @@ func TestUpdateTag(t *testing.T) {
 	want, err := util.ToJSON(testTag2)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		UpdateTagFn: func(id int64, a *dusk.Tag) (*dusk.Tag, error) {
 			return testTag2, nil
 		},
@@ -165,7 +165,7 @@ func TestUpdateTag(t *testing.T) {
 		url:    "/api/tags/1",
 		data:   want,
 		params: map[string]string{"id": "1"},
-		fn:     testServer.UpdateTag,
+		fn:     testHandler.UpdateTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -182,7 +182,7 @@ func TestUpdateTag(t *testing.T) {
 
 func TestDeleteTag(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		DeleteTagFn: func(id int64) error {
 			return nil
 		},
@@ -192,7 +192,7 @@ func TestDeleteTag(t *testing.T) {
 		method: http.MethodDelete,
 		url:    "/api/tags/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.DeleteTag,
+		fn:     testHandler.DeleteTag,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)

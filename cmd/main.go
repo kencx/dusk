@@ -40,13 +40,13 @@ func main() {
 		log.Fatal(err)
 	}
 	err = store.MigrateUp("../storage/migrations/testdata.sql")
-	if err != nil {
-		log.Printf("%w", err)
-	}
+	// if err != nil {
+	// 	log.Printf("%w", err)
+	// }
 
 	srv := dhttp.New(store)
 	go func() error {
-		srv.InfoLog.Printf("Starting server on :%d", config.port)
+		// srv.InfoLog.Printf("Starting server on :%d", config.port)
 		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tls_cert, config.tls_key)
 		if !errors.Is(err, http.ErrServerClosed) {
 			return err
@@ -56,19 +56,19 @@ func main() {
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	s := <-sig
-	srv.InfoLog.Printf("Received signal %s, shutting down...", s.String())
+	_ = <-sig
+	// srv.InfoLog.Printf("Received signal %s, shutting down...", s.String())
 
 	if err := db.Close(); err != nil {
 		log.Fatal(err)
 	}
-	srv.InfoLog.Println("Database connection closed")
+	// srv.InfoLog.Println("Database connection closed")
 
 	if srv != nil {
 		if err := srv.Close(); err != nil {
 			log.Fatal(err)
 		}
-		srv.InfoLog.Println("Server connection closed")
+		// srv.InfoLog.Println("Server connection closed")
 	}
-	srv.InfoLog.Println("Application gracefully stopped")
+	// srv.InfoLog.Println("Application gracefully stopped")
 }

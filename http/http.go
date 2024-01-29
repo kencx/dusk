@@ -3,10 +3,10 @@ package http
 import (
 	"context"
 	"dusk"
+	"dusk/api"
 	"dusk/storage"
-	"log"
+	"dusk/ui"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -41,9 +41,9 @@ type Store interface {
 
 type Server struct {
 	*http.Server
-	db       Store
-	InfoLog  *log.Logger
-	ErrorLog *log.Logger
+	db Store
+	// InfoLog  *log.Logger
+	// ErrorLog *log.Logger
 }
 
 func New(db *storage.Store) *Server {
@@ -54,9 +54,9 @@ func New(db *storage.Store) *Server {
 			WriteTimeout: readWriteTimeout,
 			Handler:      chi.NewRouter(),
 		},
-		db:       db,
-		InfoLog:  log.New(os.Stdout, "INFO ", log.LstdFlags),
-		ErrorLog: log.New(os.Stderr, "ERROR ", log.LstdFlags),
+		db: db,
+		// InfoLog:  log.New(os.Stdout, "INFO ", log.LstdFlags),
+		// ErrorLog: log.New(os.Stderr, "ERROR ", log.LstdFlags),
 	}
 	s.RegisterRoutes()
 	return s
@@ -89,43 +89,6 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
 
-	fs := http.FileServer(http.Dir("./ui/static"))
-	r.Handle("/static/*", http.StripPrefix("/static/", fs))
-
-	r.HandleFunc("/", s.indexView)
-
-	r.Route("/import", func(c chi.Router) {
-		c.Get("/", s.importView)
-		c.Post("/openlibrary", s.importOpenLibrary)
-		// c.Post("/goodreads", s.importGoodreads)
-		// c.Post("/calibre", s.importCalibre)
-	})
-
-	r.Route("/book", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.bookView)
-		// c.Post("/{id[0-9]+}", s.formAddBook)
-		// c.Put("/{id[0-9]+}", s.formUpdateBook)
-		// c.Delete("/{id[0-9]+}", s.formDeleteBook)
-	})
-
-	r.Route("/author", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.authorView)
-		// c.Post("/{id[0-9]+}", s.formAddAuthor)
-		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
-		// c.Delete("/{id[0-9]+}", s.formDeleteAuthor)
-	})
-
-	api := chi.NewRouter()
-	r.Mount("/api", api)
-
-	api.Route("/books", func(r chi.Router) {
-		r.Get("/{id:[0-9]+}", s.GetBook)
-		r.Get("/", s.GetAllBooks)
-		r.Post("/", s.AddBook)
-		r.Put("/{id:[0-9]+}", s.UpdateBook)
-		r.Delete("/{id:[0-9]+}", s.DeleteBook)
-	})
-
-	api.Route("/authors", func(r chi.Router) {})
-	api.Route("/tags", func(r chi.Router) {})
+	r.Mount("/api", api.Routes(s.db))
+	r.Mount("/", ui.Routes(s.db))
 }

@@ -1,4 +1,4 @@
-package http
+package api
 
 import (
 	"dusk"
@@ -23,7 +23,7 @@ var (
 
 func TestGetAuthor(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetAuthorFn: func(id int64) (*dusk.Author, error) {
 			return testAuthor1, nil
 		},
@@ -33,7 +33,7 @@ func TestGetAuthor(t *testing.T) {
 		method: http.MethodGet,
 		url:    "/api/authors/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.GetAuthor,
+		fn:     testHandler.GetAuthor,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -50,7 +50,7 @@ func TestGetAuthor(t *testing.T) {
 
 func TestGetAllAuthors(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetAllAuthorsFn: func() (dusk.Authors, error) {
 			return testAuthors, nil
 		},
@@ -59,7 +59,7 @@ func TestGetAllAuthors(t *testing.T) {
 	tc := &testCase{
 		method: http.MethodGet,
 		url:    "/api/authors/",
-		fn:     testServer.GetAllAuthors,
+		fn:     testHandler.GetAllAuthors,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -78,7 +78,7 @@ func TestGetAllAuthors(t *testing.T) {
 
 func TestGetAllAuthorsNil(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetAllAuthorsFn: func() (dusk.Authors, error) {
 			return nil, dusk.ErrNoRows
 		},
@@ -87,7 +87,7 @@ func TestGetAllAuthorsNil(t *testing.T) {
 	tc := &testCase{
 		method: http.MethodGet,
 		url:    "/api/authors/",
-		fn:     testServer.GetAllAuthors,
+		fn:     testHandler.GetAllAuthors,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -101,7 +101,7 @@ func TestAddAuthor(t *testing.T) {
 	want, err := util.ToJSON(testAuthor1)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		CreateAuthorFn: func(a *dusk.Author) (*dusk.Author, error) {
 			return testAuthor1, nil
 		},
@@ -111,7 +111,7 @@ func TestAddAuthor(t *testing.T) {
 		method: http.MethodPost,
 		url:    "/api/authors/",
 		data:   want,
-		fn:     testServer.AddAuthor,
+		fn:     testHandler.AddAuthor,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -132,7 +132,7 @@ func TestAddAuthorFailValidation(t *testing.T) {
 	want, err := util.ToJSON(failAuthor)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		CreateAuthorFn: func(a *dusk.Author) (*dusk.Author, error) {
 			return testAuthor1, nil
 		},
@@ -142,7 +142,7 @@ func TestAddAuthorFailValidation(t *testing.T) {
 		method: http.MethodPost,
 		url:    "/api/authors/",
 		data:   want,
-		fn:     testServer.AddAuthor,
+		fn:     testHandler.AddAuthor,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -154,7 +154,7 @@ func TestUpdateAuthor(t *testing.T) {
 	want, err := util.ToJSON(testAuthor2)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		UpdateAuthorFn: func(id int64, a *dusk.Author) (*dusk.Author, error) {
 			return testAuthor2, nil
 		},
@@ -165,7 +165,7 @@ func TestUpdateAuthor(t *testing.T) {
 		url:    "/api/authors/1",
 		data:   want,
 		params: map[string]string{"id": "1"},
-		fn:     testServer.UpdateAuthor,
+		fn:     testHandler.UpdateAuthor,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -182,7 +182,7 @@ func TestUpdateAuthor(t *testing.T) {
 
 func TestDeleteAuthor(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		DeleteAuthorFn: func(id int64) error {
 			return nil
 		},
@@ -192,7 +192,7 @@ func TestDeleteAuthor(t *testing.T) {
 		method: http.MethodDelete,
 		url:    "/api/authors/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.DeleteAuthor,
+		fn:     testHandler.DeleteAuthor,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)

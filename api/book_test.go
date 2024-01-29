@@ -1,4 +1,4 @@
-package http
+package api
 
 import (
 	"dusk"
@@ -32,7 +32,7 @@ var (
 
 func TestGetBook(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetBookFn: func(id int64) (*dusk.Book, error) {
 			return testBook1, nil
 		},
@@ -42,7 +42,7 @@ func TestGetBook(t *testing.T) {
 		method: http.MethodGet,
 		url:    "/api/books/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.GetBook,
+		fn:     testHandler.GetBook,
 	}
 	w, err := testResponse(t, tc)
 	is.NoErr(err)
@@ -61,7 +61,7 @@ func TestGetBook(t *testing.T) {
 
 func TestGetBookNil(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		GetBookFn: func(id int64) (*dusk.Book, error) {
 			return nil, dusk.ErrDoesNotExist
 		},
@@ -71,7 +71,7 @@ func TestGetBookNil(t *testing.T) {
 		method: http.MethodGet,
 		url:    "/api/books/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.GetBook,
+		fn:     testHandler.GetBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -82,7 +82,7 @@ func TestGetBookNil(t *testing.T) {
 func TestGetAllBooks(t *testing.T) {
 	is := is.New(t)
 	t.Run("success", func(t *testing.T) {
-		testServer.db = &mock.Store{
+		testHandler.db = &mock.Store{
 			GetAllBooksFn: func() (dusk.Books, error) {
 				return testBooks, nil
 			},
@@ -91,7 +91,7 @@ func TestGetAllBooks(t *testing.T) {
 		tc := &testCase{
 			method: http.MethodGet,
 			url:    "/api/books/",
-			fn:     testServer.GetAllBooks,
+			fn:     testHandler.GetAllBooks,
 		}
 
 		w, err := testResponse(t, tc)
@@ -112,7 +112,7 @@ func TestGetAllBooks(t *testing.T) {
 	})
 
 	t.Run("no content", func(t *testing.T) {
-		testServer.db = &mock.Store{
+		testHandler.db = &mock.Store{
 			GetAllBooksFn: func() (dusk.Books, error) {
 				return nil, dusk.ErrNoRows
 			},
@@ -121,7 +121,7 @@ func TestGetAllBooks(t *testing.T) {
 		tc := &testCase{
 			method: http.MethodGet,
 			url:    "/api/books/",
-			fn:     testServer.GetAllBooks,
+			fn:     testHandler.GetAllBooks,
 		}
 
 		w, err := testResponse(t, tc)
@@ -135,7 +135,7 @@ func TestAddBook(t *testing.T) {
 	want, err := util.ToJSON(testBook1)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		CreateBookFn: func(b *dusk.Book) (*dusk.Book, error) {
 			return testBook1, nil
 		},
@@ -145,7 +145,7 @@ func TestAddBook(t *testing.T) {
 		method: http.MethodPost,
 		url:    "/api/books",
 		data:   want,
-		fn:     testServer.AddBook,
+		fn:     testHandler.AddBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -173,7 +173,7 @@ func TestAddBookFailValidation(t *testing.T) {
 	want, err := util.ToJSON(failBook)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		CreateBookFn: func(b *dusk.Book) (*dusk.Book, error) {
 			return failBook, nil
 		},
@@ -183,7 +183,7 @@ func TestAddBookFailValidation(t *testing.T) {
 		method: http.MethodPost,
 		url:    "/api/books",
 		data:   want,
-		fn:     testServer.AddBook,
+		fn:     testHandler.AddBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -196,7 +196,7 @@ func TestUpdateBook(t *testing.T) {
 	want, err := util.ToJSON(testBook2)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		UpdateBookFn: func(id int64, b *dusk.Book) (*dusk.Book, error) {
 			return testBook2, nil
 		},
@@ -207,7 +207,7 @@ func TestUpdateBook(t *testing.T) {
 		url:    "/api/books/1",
 		data:   want,
 		params: map[string]string{"id": "1"},
-		fn:     testServer.UpdateBook,
+		fn:     testHandler.UpdateBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -230,7 +230,7 @@ func TestUpdateBookNil(t *testing.T) {
 	want, err := util.ToJSON(testBook2)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		UpdateBookFn: func(id int64, b *dusk.Book) (*dusk.Book, error) {
 			return nil, dusk.ErrDoesNotExist
 		},
@@ -241,7 +241,7 @@ func TestUpdateBookNil(t *testing.T) {
 		url:    "/api/books/10",
 		data:   want,
 		params: map[string]string{"id": "10"},
-		fn:     testServer.UpdateBook,
+		fn:     testHandler.UpdateBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -259,7 +259,7 @@ func TestUpdateBookFailValidation(t *testing.T) {
 	want, err := util.ToJSON(failBook)
 	is.NoErr(err)
 
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		UpdateBookFn: func(id int64, b *dusk.Book) (*dusk.Book, error) {
 			return failBook, nil
 		},
@@ -270,7 +270,7 @@ func TestUpdateBookFailValidation(t *testing.T) {
 		url:    "/api/books/1",
 		data:   want,
 		params: map[string]string{"id": "1"},
-		fn:     testServer.UpdateBook,
+		fn:     testHandler.UpdateBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -280,7 +280,7 @@ func TestUpdateBookFailValidation(t *testing.T) {
 
 func TestDeleteBook(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		DeleteBookFn: func(id int64) error {
 			return nil
 		},
@@ -290,7 +290,7 @@ func TestDeleteBook(t *testing.T) {
 		method: http.MethodDelete,
 		url:    "/api/books/1",
 		params: map[string]string{"id": "1"},
-		fn:     testServer.DeleteBook,
+		fn:     testHandler.DeleteBook,
 	}
 
 	w, err := testResponse(t, tc)
@@ -300,7 +300,7 @@ func TestDeleteBook(t *testing.T) {
 
 func TestDeleteBookNil(t *testing.T) {
 	is := is.New(t)
-	testServer.db = &mock.Store{
+	testHandler.db = &mock.Store{
 		DeleteBookFn: func(id int64) error {
 			return dusk.ErrDoesNotExist
 		},
@@ -310,7 +310,7 @@ func TestDeleteBookNil(t *testing.T) {
 		method: http.MethodDelete,
 		url:    "/api/books/10",
 		params: map[string]string{"id": "10"},
-		fn:     testServer.DeleteBook,
+		fn:     testHandler.DeleteBook,
 	}
 
 	w, err := testResponse(t, tc)

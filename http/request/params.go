@@ -1,4 +1,4 @@
-package http
+package request
 
 import (
 	"dusk/http/response"
@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// handle int64 path parameter
 func HandleInt64(key string, rw http.ResponseWriter, r *http.Request) int64 {
 	param := chi.URLParam(r, key)
 

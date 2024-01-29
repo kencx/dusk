@@ -1,11 +1,9 @@
-package http
+package api
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,10 +12,7 @@ import (
 	"github.com/matryer/is"
 )
 
-var testServer = Server{
-	InfoLog:  log.New(io.Discard, "", log.LstdFlags),
-	ErrorLog: log.New(io.Discard, "", log.LstdFlags),
-}
+var testHandler = Handler{}
 
 type testCase struct {
 	url     string
