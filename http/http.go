@@ -91,10 +91,29 @@ func (s *Server) RegisterRoutes() {
 
 	fs := http.FileServer(http.Dir("./ui/static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
-	r.HandleFunc("/", s.rootHandler)
-	r.HandleFunc("/book/{id:[0-9]+}", s.bookPageHandler)
-	r.HandleFunc("/author/{id:[0-9]+}", s.authorPageHandler)
-	r.HandleFunc("/import", s.importPageHandler)
+
+	r.HandleFunc("/", s.indexView)
+
+	r.Route("/import", func(c chi.Router) {
+		c.Get("/", s.importView)
+		c.Post("/openlibrary", s.importOpenLibrary)
+		// c.Post("/goodreads", s.importGoodreads)
+		// c.Post("/calibre", s.importCalibre)
+	})
+
+	r.Route("/book", func(c chi.Router) {
+		c.Get("/{id:[0-9]+}", s.bookView)
+		// c.Post("/{id[0-9]+}", s.formAddBook)
+		// c.Put("/{id[0-9]+}", s.formUpdateBook)
+		// c.Delete("/{id[0-9]+}", s.formDeleteBook)
+	})
+
+	r.Route("/author", func(c chi.Router) {
+		c.Get("/{id:[0-9]+}", s.authorView)
+		// c.Post("/{id[0-9]+}", s.formAddAuthor)
+		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
+		// c.Delete("/{id[0-9]+}", s.formDeleteAuthor)
+	})
 
 	api := chi.NewRouter()
 	r.Mount("/api", api)
@@ -103,8 +122,6 @@ func (s *Server) RegisterRoutes() {
 		r.Get("/{id:[0-9]+}", s.GetBook)
 		r.Get("/", s.GetAllBooks)
 		r.Post("/", s.AddBook)
-		r.Post("/{id:[0-9]+}", s.ImportMetadata)
-		r.Post("/import", s.ImportBook)
 		r.Put("/{id:[0-9]+}", s.UpdateBook)
 		r.Delete("/{id:[0-9]+}", s.DeleteBook)
 	})

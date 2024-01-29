@@ -6,13 +6,10 @@ import (
     "dusk/ui/partials"
 )
 
-templ Index(books dusk.Books) {
+templ Index(books dusk.Books, err string) {
     @common.Base() {
-        <hgroup>
-            <h1>dusk</h1>
-        </hgroup>
         <div>
-            @partials.Library(books)
+            @partials.Library(books, err)
         </div>
     }
 }
