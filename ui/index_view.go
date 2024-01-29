@@ -8,21 +8,23 @@ import (
 )
 
 func (s *Handler) indexView(rw http.ResponseWriter, r *http.Request) {
-	var errMsg string
+	m := pages.NewIndexViewModel(nil, nil)
 
 	books, err := s.db.GetAllBooks()
 	if err != nil {
 		switch {
 		case errors.Is(err, dusk.ErrNoRows):
-			errMsg = dusk.ErrNoRows.Error()
+			// TODO set custom message
+			m.RenderError(rw, r, err)
 		default:
-			errMsg = "Something went wrong."
+			m.RenderError(rw, r, err)
 		}
+		return
 	}
 
 	if books == nil {
 		books = dusk.Books{}
 	}
-
-	pages.Index(books, errMsg).Render(r.Context(), rw)
+	m.Books = books
+	m.Render(rw, r)
 }

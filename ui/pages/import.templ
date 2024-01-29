@@ -2,7 +2,28 @@ package pages
 
 import (
     "dusk/ui/common"
+	"net/http"
 )
+
+type ImportViewModel struct {
+	Tab string
+	ViewModel
+}
+
+func NewImportViewModel(tab string, err error) ImportViewModel {
+	return ImportViewModel{Tab: tab, ViewModel: NewViewModel(err)}
+}
+
+func (m ImportViewModel) Render(rw http.ResponseWriter, r *http.Request) {
+	m.Html().Render(r.Context(), rw)
+}
+
+func (m ImportViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
+	if err != nil {
+		m.ErrorMessage = err.Error()
+	}
+	m.Html().Render(r.Context(), rw)
+}
 
 templ Tab(tab string) {
     switch tab {
@@ -56,16 +77,16 @@ templ Tab(tab string) {
     }
 }
 
-templ Import(tab, message string) {
+templ (m ImportViewModel) Html() {
     @common.Base() {
         <h2>Import Book</h2>
 
-		if message != "" {
-			<p>{message}</p>
+		if m.ErrorMessage != "" {
+			<p>{m.ErrorMessage}</p>
 		}
 
         <div id="tabs" hx-target="this" hx-swap="innerHTML">
-            @Tab(tab)
+            @Tab(m.Tab)
         </div>
     }
 }

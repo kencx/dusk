@@ -12,7 +12,28 @@ import "bytes"
 
 import (
 	"dusk/ui/common"
+	"net/http"
 )
+
+type ImportViewModel struct {
+	Tab string
+	ViewModel
+}
+
+func NewImportViewModel(tab string, err error) ImportViewModel {
+	return ImportViewModel{Tab: tab, ViewModel: NewViewModel(err)}
+}
+
+func (m ImportViewModel) Render(rw http.ResponseWriter, r *http.Request) {
+	m.Html().Render(r.Context(), rw)
+}
+
+func (m ImportViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
+	if err != nil {
+		m.ErrorMessage = err.Error()
+	}
+	m.Html().Render(r.Context(), rw)
+}
 
 func Tab(tab string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -186,7 +207,7 @@ func Tab(tab string) templ.Component {
 	})
 }
 
-func Import(tab, message string) templ.Component {
+func (m ImportViewModel) Html() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -218,15 +239,15 @@ func Import(tab, message string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if message != "" {
+			if m.ErrorMessage != "" {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(message)
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(m.ErrorMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/import.templ`, Line: 63, Col: 14}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/import.templ`, Line: 84, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -241,7 +262,7 @@ func Import(tab, message string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = Tab(tab).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = Tab(m.Tab).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

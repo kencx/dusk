@@ -60,6 +60,7 @@ type MetadataJson struct {
 }
 
 func Fetch(isbn string) (*Metadata, error) {
+	// TODO add error types
 
 	bibKey := fmt.Sprintf(isbnString, isbn)
 	url := fmt.Sprintf(openLibraryApiURL, bibKey)

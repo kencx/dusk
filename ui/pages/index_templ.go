@@ -14,9 +14,30 @@ import (
 	"dusk"
 	"dusk/ui/common"
 	"dusk/ui/partials"
+	"net/http"
 )
 
-func Index(books dusk.Books, err string) templ.Component {
+type IndexViewModel struct {
+	Books dusk.Books
+	ViewModel
+}
+
+func NewIndexViewModel(books dusk.Books, err error) IndexViewModel {
+	return IndexViewModel{Books: books, ViewModel: NewViewModel(err)}
+}
+
+func (m IndexViewModel) Render(rw http.ResponseWriter, r *http.Request) {
+	m.Html().Render(r.Context(), rw)
+}
+
+func (m IndexViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
+	if err != nil {
+		m.ErrorMessage = err.Error()
+	}
+	m.Html().Render(r.Context(), rw)
+}
+
+func (m IndexViewModel) Html() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -39,7 +60,7 @@ func Index(books dusk.Books, err string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = partials.Library(books, err).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = partials.Library(m.Books, m.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
