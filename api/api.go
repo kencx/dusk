@@ -2,6 +2,10 @@ package api
 
 import (
 	"dusk"
+	"dusk/http/response"
+	"dusk/util"
+	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -34,6 +38,8 @@ func Routes(db Store) chi.Router {
 	s := Handler{db: db}
 	api := chi.NewRouter()
 
+	api.Get("/ping", s.Healthcheck)
+
 	api.Route("/books", func(r chi.Router) {
 		r.Get("/{id:[0-9]+}", s.GetBook)
 		r.Get("/", s.GetAllBooks)
@@ -45,4 +51,17 @@ func Routes(db Store) chi.Router {
 	api.Route("/authors", func(r chi.Router) {})
 	api.Route("/tags", func(r chi.Router) {})
 	return api
+}
+
+func (s *Handler) Healthcheck(rw http.ResponseWriter, r *http.Request) {
+	res, err := util.ToJSON(response.Envelope{
+		"timestamp": time.Now().Unix(),
+		"message":   "pong",
+	})
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	response.OK(rw, r, res)
 }
