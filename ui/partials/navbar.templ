@@ -1,15 +1,18 @@
 package partials
 
 templ Navbar() {
-    <nav fx="">
-        <label>
-            <input type="checkbox"/>
-            <header><a href="/">dusk</a></header>
-            <ul>
-                <li><a href="/authors">Authors</a></li>
-                <li><a href="/import">Add</a></li>
-                <li><a href="">Options</a></li>
-            </ul>
-        </label>
-    </nav>
+    <header class="sticky topbar">
+        <a class="logo" href="/">dusk</a>
+        <span class="right">
+            <a class="button" href="/">
+                <span class="icon-user"></span>
+            </a>
+            <a class="button" href="/import">
+                <span class="icon-add-box"></span>
+            </a>
+            <a class="button" href="/">
+                <span class="icon-settings"></span>
+            </a>
+        </span>
+    </header>
 }

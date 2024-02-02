@@ -14,11 +14,14 @@ templ bookCard(b *dusk.Book) {
                 <img alt="" src="/static/red-rising.jpg"/>
             </a>
         </div>
-        <div>
-            <p style="margin-bottom: 0px;">{b.Title}</p>
-            <p style="font-size: 1.25rem;">
+
+        <div class="details">
+            <a href="/">
+                <h4 class="title">{b.Title}</h4>
+            </a>
+            <a href="/" class="author">
                 { strings.Join(b.Author, ", ") }
-            </p>
+            </a>
         </div>
     </div>
 }

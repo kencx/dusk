@@ -2,78 +2,69 @@ package pages
 
 import (
     "dusk/ui/common"
-	"net/http"
+    "net/http"
 )
 
 type ImportViewModel struct {
-	Tab string
-	ViewModel
+    Tab string
+    ViewModel
 }
 
 func NewImportViewModel(tab string, err error) ImportViewModel {
-	return ImportViewModel{Tab: tab, ViewModel: NewViewModel(err)}
+    return ImportViewModel{Tab: tab, ViewModel: NewViewModel(err)}
 }
 
 func (m ImportViewModel) Render(rw http.ResponseWriter, r *http.Request) {
-	m.Html().Render(r.Context(), rw)
+    m.Html().Render(r.Context(), rw)
 }
 
 func (m ImportViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
-	if err != nil {
-		m.ErrorMessage = err.Error()
-	}
-	m.Html().Render(r.Context(), rw)
+    if err != nil {
+        m.ErrorMessage = err.Error()
+    }
+    m.Html().Render(r.Context(), rw)
 }
 
 templ Tab(tab string) {
     switch tab {
         case "openlibrary":
-            <div class="tab-list" role="tablist">
+            <div class="import__tabs tab-list" role="tablist">
                 <button hx-get="/import?tab=openlibrary" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">OpenLibrary</button>
                 <button hx-get="/import?tab=goodreads" role="tab" aria-selected="false" aria-controls="tab-content">Goodreads</button>
                 <button hx-get="/import?tab=calibre" role="tab" aria-selected="false" aria-controls="tab-content">Calibre</button>
             </div>
 
-            <div id="tab-content" role="tabpanel" class="tab-content">
-                <form action="/import/openlibrary" method="POST">
-                <input id="openlibrary" name="openlibrary" required />
-                <small>Import from OpenLibrary</small>
-                <br/>
-                <button type="submit">Submit</button>
-                </form>
-            </div>
+            <form action="/import/openlibrary" method="POST">
+                <input id="search" name="openlibrary" placeholder="ISBN" required />
+                <button class="small" type="submit">Submit</button>
+            </form>
 
         case "goodreads":
-            <div class="tab-list" role="tablist">
+            <div class="import__tabs tab-list" role="tablist">
                 <button hx-get="/import?tab=openlibrary" role="tab" aria-selected="false" aria-controls="tab-content">OpenLibrary</button>
                 <button hx-get="/import?tab=goodreads" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">Goodreads</button>
                 <button hx-get="/import?tab=calibre" role="tab" aria-selected="false" aria-controls="tab-content">Calibre</button>
             </div>
 
-            <div id="tab-content" role="tabpanel" class="tab-content">
-                <form action="/import/goodreads" method="POST">
-                <input id="goodreads" name="goodreads" required />
-                <small>Import from Goodreads</small>
-                <br/>
-                <button type="submit">Submit</button>
-                </form>
-            </div>
+            <form class="goodreads-form" action="/import/goodreads" method="POST">
+              <div class="input-group vertical">
+                <label class="goodreads" for="goodreads">Choose a Goodreads csv file:</label>
+                <input type="file" name="goodreads" accept=".csv" required />
+              </div>
+              <button class="small" type="submit">Submit</button>
+            </form>
 
         case "calibre":
-            <div class="tab-list" role="tablist">
+            <div class="import__tabs tab-list" role="tablist">
                 <button hx-get="/import?tab=openlibrary" role="tab" aria-selected="false" aria-controls="tab-content">OpenLibrary</button>
                 <button hx-get="/import?tab=goodreads" role="tab" aria-selected="false" aria-controls="tab-content">Goodreads</button>
                 <button hx-get="/import?tab=calibre" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">Calibre</button>
             </div>
 
-            <div id="tab-content" role="tabpanel" class="tab-content">
-                <form action="/import/calibre" method="POST">
-                    <input id="calibre" name="calibre" required />
-                    <small>Import from Calibre</small>
-                    <br/>
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
+            <form action="/import/calibre" method="POST">
+                <input id="calibre" name="calibre" required />
+                <button type="submit">Submit</button>
+            </form>
     }
 }
 
@@ -81,12 +72,14 @@ templ (m ImportViewModel) Html() {
     @common.Base() {
         <h2>Import Book</h2>
 
-		if m.ErrorMessage != "" {
-			<p>{m.ErrorMessage}</p>
-		}
+        if m.ErrorMessage != "" {
+            <p>{m.ErrorMessage}</p>
+        }
 
-        <div id="tabs" hx-target="this" hx-swap="innerHTML">
-            @Tab(m.Tab)
+        <div id="tab-content" role="tabpanel" class="tab-content import__search">
+            <div id="tabs" hx-target="this" hx-swap="innerHTML">
+                @Tab(m.Tab)
+            </div>
         </div>
     }
 }

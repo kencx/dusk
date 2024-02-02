@@ -12,17 +12,18 @@ templ Base() {
             <title>dusk</title>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
             <meta name="language" content="English"/>
-            <link rel="stylesheet" href="/static/bare.min.css"/>
-            <link rel="stylesheet" href="/static/custom.css"/>
-            <script src="/static/htmx.min.js"></script>
+            <link rel="stylesheet" href="../static/mini-default.css"/>
+            <link rel="stylesheet" href="../static/custom.css"/>
+            <script src="../static/htmx.min.js"></script>
         </head>
         <body>
-			<main>
+            <main>
                 @partials.Navbar()
-				<section style="padding-top: 12rem">
-					{children... }
-				</section>
-			</main>
+                <div class="body container">
+                    {children... }
+                </div>
+                @partials.Footer()
+            </main>
         </body>
     </html>
 }
