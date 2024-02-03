@@ -2,13 +2,13 @@ package ui
 
 import (
 	"dusk"
-	"dusk/ui/pages"
+	"dusk/ui/views"
 	"errors"
 	"net/http"
 )
 
-func (s *Handler) indexView(rw http.ResponseWriter, r *http.Request) {
-	m := pages.NewIndexViewModel(nil, nil)
+func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
+	m := views.NewIndexViewModel(nil, nil)
 
 	books, err := s.db.GetAllBooks()
 	if err != nil {

@@ -1,0 +1,17 @@
+package views
+
+import (
+	"dusk"
+	"dusk/ui/shared"
+	"dusk/ui/partials"
+	"strconv"
+)
+
+templ AuthorList(authors dusk.Authors) {
+	@shared.Base() {
+		<h1>Authors ({ strconv.Itoa(len(authors)) })</h1>
+		<div>
+			@partials.List(authors)
+		</div>
+	}
+}

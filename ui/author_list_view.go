@@ -2,14 +2,14 @@ package ui
 
 import (
 	"dusk"
-	"dusk/ui/pages"
+	"dusk/ui/views"
 	"errors"
 	"log"
 	"net/http"
 )
 
-func (s *Handler) authorListView(rw http.ResponseWriter, r *http.Request) {
-	// m := pages.NewAuthorListViewModel(nil, nil)
+func (s *Handler) authorList(rw http.ResponseWriter, r *http.Request) {
+	// m := views.NewAuthorListViewModel(nil, nil)
 
 	authors, err := s.db.GetAllAuthors()
 	if err != nil {
@@ -29,7 +29,7 @@ func (s *Handler) authorListView(rw http.ResponseWriter, r *http.Request) {
 		authors = dusk.Authors{}
 	}
 
-	pages.AuthorList(authors).Render(r.Context(), rw)
+	views.AuthorList(authors).Render(r.Context(), rw)
 	// m.Authors = authors
 	// m.Render(rw, r)
 }

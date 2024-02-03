@@ -1,17 +1,17 @@
 package partials
 
 import (
-    "dusk"
+	"dusk"
 )
 
 templ Library(books dusk.Books, errorMessage string) {
-    <div class="library__card-view">
-    if len(books) <= 0 {
-        <p>{errorMessage}</p>
-    } else {
-        for _, book := range books {
-            @bookCard(book)
-        }
-    }
-    </div>
+	<div class="library__card-view">
+		if len(books) <= 0 {
+			<p>{ errorMessage }</p>
+		} else {
+			for _, book := range books {
+				@bookCard(book)
+			}
+		}
+	</div>
 }

@@ -39,32 +39,32 @@ func Routes(db Store) chi.Router {
 	fs := http.FileServer(http.Dir("./ui/static"))
 	ui.Handle("/static/*", http.StripPrefix("/static/", fs))
 
-	ui.HandleFunc("/", s.indexView)
+	ui.HandleFunc("/", s.index)
 	ui.Route("/book", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.bookView)
+		c.Get("/{id:[0-9]+}", s.bookPage)
 		// c.Post("/{id[0-9]+}", s.formAddBook)
 		// c.Put("/{id[0-9]+}", s.formUpdateBook)
 		// c.Delete("/{id[0-9]+}", s.formDeleteBook)
 	})
 
 	ui.Route("/import", func(c chi.Router) {
-		c.Get("/", s.importView)
+		c.Get("/", s.importPage)
 		c.Post("/openlibrary", s.importOpenLibrary)
 		// c.Post("/goodreads", s.importGoodreads)
 		// c.Post("/calibre", s.importCalibre)
 	})
 
-	ui.HandleFunc("/authors", s.authorListView)
+	ui.HandleFunc("/authors", s.authorList)
 	ui.Route("/author", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.authorView)
+		c.Get("/{id:[0-9]+}", s.authorPage)
 		// c.Post("/{id[0-9]+}", s.formAddAuthor)
 		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
 		// c.Delete("/{id[0-9]+}", s.formDeleteAuthor)
 	})
 
-	ui.HandleFunc("/tags", s.tagListView)
+	ui.HandleFunc("/tags", s.tagList)
 	ui.Route("/tag", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.tagView)
+		c.Get("/{id:[0-9]+}", s.tagPage)
 		// c.Post("/{id[0-9]+}", s.formAddtag)
 		// c.Put("/{id[0-9]+}", s.formUpdatetag)
 		// c.Delete("/{id[0-9]+}", s.formDeletetag)

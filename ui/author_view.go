@@ -2,12 +2,12 @@ package ui
 
 import (
 	"dusk/http/request"
-	"dusk/ui/pages"
+	"dusk/ui/views"
 	"log"
 	"net/http"
 )
 
-func (s *Handler) authorView(rw http.ResponseWriter, r *http.Request) {
+func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
 	id := request.HandleInt64("id", rw, r)
 	if id == -1 {
 		return
@@ -25,5 +25,5 @@ func (s *Handler) authorView(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pages.AuthorPage(author, books, "").Render(r.Context(), rw)
+	views.AuthorPage(author, books, "").Render(r.Context(), rw)
 }

@@ -2,7 +2,7 @@ package ui
 
 import (
 	"dusk/metadata"
-	"dusk/ui/pages"
+	"dusk/ui/views"
 	"dusk/validator"
 	"errors"
 	"net/http"
@@ -14,13 +14,13 @@ const (
 	CALIBRE     = "calibre"
 )
 
-func (s *Handler) importView(rw http.ResponseWriter, r *http.Request) {
-	m := pages.NewImportViewModel(OPENLIBRARY, nil)
+func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
+	m := views.NewImportViewModel(OPENLIBRARY, nil)
 
 	// handle tabs
 	if r.URL.Query().Has("tab") {
 		tab := r.URL.Query().Get("tab")
-		pages.Tab(tab).Render(r.Context(), rw)
+		views.Tab(tab).Render(r.Context(), rw)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (s *Handler) importView(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 	// TODO add clearer error messages
 
-	m := pages.NewImportViewModel(OPENLIBRARY, nil)
+	m := views.NewImportViewModel(OPENLIBRARY, nil)
 
 	isbn := r.FormValue("openlibrary")
 	metadata, err := metadata.Fetch(isbn)

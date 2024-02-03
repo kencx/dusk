@@ -1,4 +1,4 @@
-package pages
+package views
 
 import "net/http"
 
