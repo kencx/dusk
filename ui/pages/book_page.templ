@@ -3,6 +3,8 @@ package pages
 import (
     "dusk"
     "dusk/ui/common"
+    "path"
+    "strconv"
 )
 
 templ BookPage(book *dusk.Book) {
@@ -14,39 +16,41 @@ templ BookPage(book *dusk.Book) {
 
           <div class="header">
             <h1>
-              Sixteen Ways to Defend a Walled City
+              {book.Title}
               <small>Very long subtitle here</small>
             </h1>
 
             <h4>
-              <span class="author"><a href="#" tt="John Adams">Pierce Brown</a></span>
+              for _, author := range book.Author {
+                  <span class="author"><a href={ templ.URL(path.Join("author", author)) }>{author}</a></span>
+              }
             </h4>
           </div>
 
           <div class="secondary">
             <div class="tags">
-              <a href="#" tt="test">Science Fiction</a>
-              <a href="#" tt="test">Space Opera</a>
-              <a href="#" tt="test">Red Rising Saga</a>
+			  for _, tag := range book.Tag {
+				<a href={ templ.URL(path.Join("tag", tag)) } tt={tag}>{tag}</a>
+			  }
             </div>
 
             <div class="footer">
               <div>
-                <span>220 pages</span> •
-                <span>4.5 / 5</span>
+                <span>{strconv.Itoa(book.NumOfPages)} pages</span> •
+                <span>{strconv.Itoa(book.Rating)} / 5</span>
               </div>
 
               <div class="formats">
-                <button class="small">
+                <a href="#" class="small button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-                <button class="small">
+                </a>
+                <a href="#" class="small button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                </button>
-                <button class="small">
+                </a>
+                <a href="#" class="small button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                </button>
-                <button class="small">
+                </a>
+                <button hx-delete={ path.Join("book", strconv.FormatInt(book.ID, 10)) } class="small">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                 </button>
               </div>
@@ -70,94 +74,17 @@ templ BookPage(book *dusk.Book) {
               <br/>
               2014-01-28
               <br/>
-              13122222
+              {book.ISBN}
             </div>
           </div>
 
-          <p>
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat
-            excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
-            voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure
-            elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis
-            laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex
-            in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis
-            sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa
-            et culpa duis.
-          </p>
+          <p>{book.Description.String}</p>
         </details>
 
-        <hr/>
+		if book.Notes.String != "" {
+			<hr/>
+		}
 
-        <div class="notes">
-          <h2>Notes</h2>
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat
-            excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
-            voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure
-            elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis
-            laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex
-            in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis
-            sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa
-            et culpa duis.
-
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem
-            quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,
-            saepe porro aperiam dolorem similique ab reiciendis. Ad.
-
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
-            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
-            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
-            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
-            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
-            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
-            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
-            ullamco ut ea consectetur et est culpa et culpa duis.
-
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
-            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
-            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
-            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
-            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
-            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
-            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
-            ullamco ut ea consectetur et est culpa et culpa duis.
-
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat
-            excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
-            voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure
-            elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis
-            laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex
-            in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis
-            sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa
-            et culpa duis.
-
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eveniet saepe quidem
-            quisquam vel reprehenderit iste error consequatur ab iure aperiam. Nihil explicabo,
-            saepe porro aperiam dolorem similique ab reiciendis. Ad.
-
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
-            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
-            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
-            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
-            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
-            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
-            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
-            ullamco ut ea consectetur et est culpa et culpa duis.
-
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore
-            culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim
-            cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip
-            amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut
-            officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia
-            dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id
-            nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit
-            commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
-            ullamco ut ea consectetur et est culpa et culpa duis.
-        </div>
+        <div class="notes">{book.Notes.String}</div>
     }
 }
