@@ -3,10 +3,21 @@ package pages
 import (
     "dusk"
     "dusk/ui/common"
+    "dusk/ui/partials"
 )
 
-templ AuthorPage(b *dusk.Author) {
+templ AuthorPage(author *dusk.Author, books dusk.Books, errorMessage string) {
     @common.Base() {
+        <div class="author__details">
+          <div class="header">
+            <h1>
+              {author.Name}
+            </h1>
+          </div>
 
+          <div class="book_list">
+            @partials.Library(books, errorMessage)
+          </div>
+        </div>
     }
 }

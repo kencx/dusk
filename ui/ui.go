@@ -16,6 +16,7 @@ type Store interface {
 
 	GetAuthor(id int64) (*dusk.Author, error)
 	GetAllAuthors() (dusk.Authors, error)
+	GetAllBooksFromAuthor(id int64) (dusk.Books, error)
 	CreateAuthor(a *dusk.Author) (*dusk.Author, error)
 	UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error)
 	DeleteAuthor(id int64) error

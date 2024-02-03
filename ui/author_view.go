@@ -2,8 +2,8 @@ package ui
 
 import (
 	"dusk/http/request"
-	"dusk/http/response"
 	"dusk/ui/pages"
+	"log"
 	"net/http"
 )
 
@@ -15,9 +15,15 @@ func (s *Handler) authorView(rw http.ResponseWriter, r *http.Request) {
 
 	author, err := s.db.GetAuthor(id)
 	if err != nil {
-		response.InternalServerError(rw, r, err)
+		log.Println(err)
 		return
 	}
 
-	pages.AuthorPage(author).Render(r.Context(), rw)
+	books, err := s.db.GetAllBooksFromAuthor(author.ID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	pages.AuthorPage(author, books, "").Render(r.Context(), rw)
 }

@@ -55,6 +55,31 @@ func (s *Store) GetAllAuthors() (dusk.Authors, error) {
 	return i.(dusk.Authors), nil
 }
 
+func (s *Store) GetAllBooksFromAuthor(id int64) (dusk.Books, error) {
+	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
+		var books dusk.Books
+
+		stmt := `SELECT b.*
+            FROM book b
+                INNER JOIN book_author_link ba ON ba.book=b.id
+            WHERE ba.author=$1`
+		err := tx.Select(&books, stmt, id)
+		if err != nil {
+			return nil, fmt.Errorf("db: retrieve all books from author %d failed: %v", id, err)
+		}
+		if len(books) == 0 {
+			return nil, dusk.ErrNoRows
+		}
+
+		return books, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return i.(dusk.Books), nil
+}
+
 func (s *Store) CreateAuthor(a *dusk.Author) (*dusk.Author, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		id, err := insertAuthor(tx, a.Name)
