@@ -21,3 +21,19 @@ templ List(authors dusk.Authors, err error) {
 		}
 	</div>
 }
+
+templ ListTag(tags dusk.Tags, err error) {
+	<div class="list__tag-view">
+		if err == dusk.ErrNoRows {
+			<p>No items found.</p>
+		} else if tags != nil {
+			<ul>
+				for _, tag := range tags {
+					<li><a href={ templ.URL(path.Join("tag", strconv.FormatInt(tag.ID, 10))) }>{ tag.Name }</a></li>
+				}
+			</ul>
+		} else {
+			<p>Something went wrong, please try again.</p>
+		}
+	</div>
+}

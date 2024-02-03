@@ -1,33 +1,20 @@
 package ui
 
 import (
-	"dusk"
 	"dusk/http/request"
-	"errors"
+	"dusk/ui/views"
 	"log"
 	"net/http"
 )
 
 func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
-	// m := views.NewTagListViewModel(nil, nil)
-
 	tags, err := s.db.GetAllTags()
 	if err != nil {
-		switch {
-		case errors.Is(err, dusk.ErrNoRows):
-			// TODO set custom message
-			// m.RenderError(rw, r, err)
-		default:
-			// m.RenderError(rw, r, err)
-		}
+		log.Println(err)
+		views.NewTagList(nil, err).Render(rw, r)
 		return
 	}
-
-	if tags == nil {
-		tags = dusk.Tags{}
-	}
-	// m.Tags = tags
-	// m.Render(rw, r)
+	views.NewTagList(tags, nil).Render(rw, r)
 }
 
 func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
@@ -36,11 +23,18 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := s.db.GetTag(int64(id))
+	tag, err := s.db.GetTag(id)
 	if err != nil {
 		log.Println(err)
+		views.NewTag(nil, nil, err).Render(rw, r)
 		return
 	}
 
-	// views.TagPage(tag, books, "").Render(r.Context(), rw)
+	books, err := s.db.GetAllBooksFromTag(tag.ID)
+	if err != nil {
+		log.Println(err)
+		views.NewTag(nil, nil, err).Render(rw, r)
+		return
+	}
+	views.NewTag(tag, books, nil).Render(rw, r)
 }

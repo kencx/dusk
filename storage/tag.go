@@ -52,6 +52,31 @@ func (s *Store) GetAllTags() (dusk.Tags, error) {
 	return i.(dusk.Tags), nil
 }
 
+func (s *Store) GetAllBooksFromTag(id int64) (dusk.Books, error) {
+	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
+		var books dusk.Books
+
+		stmt := `SELECT b.*
+            FROM book b
+                INNER JOIN book_tag_link ba ON ba.book=b.id
+            WHERE ba.tag=$1`
+		err := tx.Select(&books, stmt, id)
+		if err != nil {
+			return nil, fmt.Errorf("db: retrieve all books from tag %d failed: %v", id, err)
+		}
+		if len(books) == 0 {
+			return nil, dusk.ErrNoRows
+		}
+
+		return books, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return i.(dusk.Books), nil
+}
+
 func (s *Store) CreateTag(t *dusk.Tag) (*dusk.Tag, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		id, err := insertTag(tx, t.Name)

@@ -1,0 +1,35 @@
+package views
+
+import (
+	"dusk"
+	"dusk/ui/shared"
+	"dusk/ui/partials"
+	"net/http"
+	"strconv"
+)
+
+type TagList struct {
+	tags dusk.Tags
+	err  error
+}
+
+func NewTagList(tags dusk.Tags, err error) *TagList {
+	return &TagList{tags, err}
+}
+
+func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *TagList) Html() {
+	@shared.Base() {
+		if v.tags != nil {
+			<h1>Tags ({ strconv.Itoa(len(v.tags)) })</h1>
+		} else {
+			<h1>Tags</h1>
+		}
+		<div>
+			@partials.ListTag(v.tags, v.err)
+		</div>
+	}
+}

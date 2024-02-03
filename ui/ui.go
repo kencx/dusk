@@ -24,6 +24,7 @@ type Store interface {
 
 	GetTag(id int64) (*dusk.Tag, error)
 	GetAllTags() (dusk.Tags, error)
+	GetAllBooksFromTag(id int64) (dusk.Books, error)
 	CreateTag(t *dusk.Tag) (*dusk.Tag, error)
 	UpdateTag(id int64, t *dusk.Tag) (*dusk.Tag, error)
 	DeleteTag(id int64) error
