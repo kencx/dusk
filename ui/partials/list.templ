@@ -6,12 +6,18 @@ import (
 	"strconv"
 )
 
-templ List(authors dusk.Authors) {
+templ List(authors dusk.Authors, err error) {
 	<div class="list__author-view">
-		<ul>
-			for _, author := range authors {
-				<li><a href={ templ.URL(path.Join("author", strconv.FormatInt(author.ID, 10))) }>{ author.Name }</a></li>
-			}
-		</ul>
+		if err == dusk.ErrNoRows {
+			<p>No items found.</p>
+		} else if authors != nil {
+			<ul>
+				for _, author := range authors {
+					<li><a href={ templ.URL(path.Join("author", strconv.FormatInt(author.ID, 10))) }>{ author.Name }</a></li>
+				}
+			</ul>
+		} else {
+			<p>Something went wrong, please try again.</p>
+		}
 	</div>
 }

@@ -8,29 +8,26 @@ import (
 	"strconv"
 )
 
-type IndexViewModel struct {
-	Books dusk.Books
-	ViewModel
+type Index struct {
+	books dusk.Books
+	err   error
 }
 
-func NewIndexViewModel(books dusk.Books, err error) IndexViewModel {
-	return IndexViewModel{Books: books, ViewModel: NewViewModel(err)}
+func NewIndex(books dusk.Books, err error) *Index {
+	return &Index{books, err}
 }
 
-func (m IndexViewModel) Render(rw http.ResponseWriter, r *http.Request) {
-	m.Html().Render(r.Context(), rw)
+func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
 }
 
-func (m IndexViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
-	if err != nil {
-		m.ErrorMessage = err.Error()
-	}
-	m.Html().Render(r.Context(), rw)
-}
-
-templ (m IndexViewModel) Html() {
+templ (v *Index) Html() {
 	@shared.Base() {
-		<h1>Books ({ strconv.Itoa(len(m.Books)) })</h1>
-		@partials.Library(m.Books, m.ErrorMessage)
+		if v.books != nil {
+			<h1>Books ({ strconv.Itoa(len(v.books)) })</h1>
+		} else {
+			<h1>Books</h1>
+		}
+		@partials.Library(v.books, v.err)
 	}
 }

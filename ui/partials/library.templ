@@ -4,14 +4,16 @@ import (
 	"dusk"
 )
 
-templ Library(books dusk.Books, errorMessage string) {
+templ Library(books dusk.Books, err error) {
 	<div class="library__card-view">
-		if len(books) <= 0 {
-			<p>{ errorMessage }</p>
-		} else {
+		if err == dusk.ErrNoRows {
+			<p>No items found.</p>
+		} else if books != nil {
 			for _, book := range books {
 				@bookCard(book)
 			}
+		} else {
+			<p>Something went wrong, please try again.</p>
 		}
 	</div>
 }

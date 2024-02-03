@@ -2,7 +2,9 @@ package ui
 
 import (
 	"dusk"
+	"dusk/http/request"
 	"errors"
+	"log"
 	"net/http"
 )
 
@@ -26,4 +28,19 @@ func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
 	}
 	// m.Tags = tags
 	// m.Render(rw, r)
+}
+
+func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
+	id := request.HandleInt64("id", rw, r)
+	if id == -1 {
+		return
+	}
+
+	_, err := s.db.GetTag(int64(id))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// views.TagPage(tag, books, "").Render(r.Context(), rw)
 }

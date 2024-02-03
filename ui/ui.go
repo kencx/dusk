@@ -2,6 +2,7 @@ package ui
 
 import (
 	"dusk"
+	"dusk/ui/views"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -70,5 +71,10 @@ func Routes(db Store) chi.Router {
 		// c.Delete("/{id[0-9]+}", s.formDeletetag)
 	})
 
+	ui.NotFound(s.notFound)
 	return ui
+}
+
+func (s *Handler) notFound(rw http.ResponseWriter, r *http.Request) {
+	views.NotFound().Render(r.Context(), rw)
 }

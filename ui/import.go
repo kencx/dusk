@@ -4,7 +4,6 @@ import (
 	"dusk/metadata"
 	"dusk/ui/views"
 	"dusk/validator"
-	"errors"
 	"net/http"
 )
 
@@ -15,7 +14,7 @@ const (
 )
 
 func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
-	m := views.NewImportViewModel(OPENLIBRARY, nil)
+	m := views.NewImport(OPENLIBRARY)
 
 	// handle tabs
 	if r.URL.Query().Has("tab") {
@@ -30,12 +29,12 @@ func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 	// TODO add clearer error messages
 
-	m := views.NewImportViewModel(OPENLIBRARY, nil)
+	m := views.NewImport(OPENLIBRARY)
 
 	isbn := r.FormValue("openlibrary")
 	metadata, err := metadata.Fetch(isbn)
 	if err != nil {
-		m.RenderError(rw, r, err)
+		m.Render(rw, r)
 		return
 	}
 
@@ -44,13 +43,13 @@ func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 	b.Validate(v)
 	if !v.Valid() {
-		m.RenderError(rw, r, errors.New("Something went wrong, please try again"))
+		m.Render(rw, r)
 		return
 	}
 
 	_, err = s.db.CreateBook(b)
 	if err != nil {
-		m.RenderError(rw, r, err)
+		m.Render(rw, r)
 		return
 	}
 

@@ -4,14 +4,32 @@ import (
 	"dusk"
 	"dusk/ui/shared"
 	"dusk/ui/partials"
+	"net/http"
 	"strconv"
 )
 
-templ AuthorList(authors dusk.Authors) {
+type AuthorList struct {
+	authors dusk.Authors
+	err     error
+}
+
+func NewAuthorList(authors dusk.Authors, err error) *AuthorList {
+	return &AuthorList{authors, err}
+}
+
+func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *AuthorList) Html() {
 	@shared.Base() {
-		<h1>Authors ({ strconv.Itoa(len(authors)) })</h1>
+		if v.authors != nil {
+			<h1>Authors ({ strconv.Itoa(len(v.authors)) })</h1>
+		} else {
+			<h1>Authors</h1>
+		}
 		<div>
-			@partials.List(authors)
+			@partials.List(v.authors, v.err)
 		</div>
 	}
 }

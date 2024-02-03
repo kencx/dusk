@@ -1,0 +1,19 @@
+package views
+
+import (
+	"dusk/ui/shared"
+	"dusk/ui/partials"
+	"net/http"
+)
+
+type View interface {
+	Render(rw http.ResponseWriter, r *http.Request)
+	RenderError(rw http.ResponseWriter, r *http.Request, err error)
+	Html() templ.Component
+}
+
+templ NotFound() {
+	@shared.Base() {
+		@partials.NotFound()
+	}
+}

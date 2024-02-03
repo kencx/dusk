@@ -1,0 +1,103 @@
+package views
+
+import (
+	"dusk"
+	"dusk/ui/partials"
+	"dusk/ui/shared"
+	"net/http"
+	"path"
+	"strconv"
+)
+
+type Book struct {
+	book *dusk.Book
+	err  error
+}
+
+func NewBook(book *dusk.Book, err error) *Book {
+	return &Book{book, err}
+}
+
+func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *Book) Html() {
+	@shared.Base() {
+		<div>
+			if v.err == dusk.ErrDoesNotExist {
+				@partials.NotFound()
+			} else if v.book != nil {
+				<div class="book__details">
+					<div class="cover">
+						<img alt="" src="../static/red-rising.jpg"/>
+					</div>
+					<div class="header">
+						<h1>
+							{ v.book.Title }
+							<small>Very long subtitle here</small>
+						</h1>
+						<h4>
+							for _, author := range v.book.Author {
+								<span class="author"><a href={ templ.URL(path.Join("/author", author)) }>{ author }</a></span>
+							}
+						</h4>
+						<div class="secondary">
+							<div class="tags">
+								for _, tag := range v.book.Tag {
+									<a href={ templ.URL(path.Join("/tag", tag)) } tt={ tag }>{ tag }</a>
+								}
+							</div>
+							<div class="footer">
+								<div>
+									<span>{ strconv.Itoa(v.book.NumOfPages) } views</span> •
+									<span>{ strconv.Itoa(v.book.Rating) } / 5</span>
+								</div>
+								<div class="formats">
+									<a href="#" class="small button">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+									</a>
+									<a href="#" class="small button">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+									</a>
+									<a href="#" class="small button">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+									</a>
+									<button hx-delete={ path.Join("book", strconv.FormatInt(v.book.ID, 10)) } class="small">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<details>
+					<summary>See details</summary>
+					<div class="metadata">
+						<div class="key">
+							Publisher
+							<br/>
+							Published
+							<br/>
+							ISBN
+						</div>
+						<div class="value">
+							Del Ray Books
+							<br/>
+							2014-01-28
+							<br/>
+							{ v.book.ISBN }
+						</div>
+					</div>
+					<p>{ v.book.Description.String }</p>
+				</details>
+				if v.book.Notes.String != "" {
+					<hr/>
+				}
+				<div class="notes">{ v.book.Notes.String }</div>
+			} else {
+				<p>Something went wrong, please try again.</p>
+			}
+		</div>
+	}
+}

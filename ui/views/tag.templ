@@ -1,0 +1,43 @@
+package views
+
+import (
+	"dusk"
+	"dusk/ui/shared"
+	"dusk/ui/partials"
+	"net/http"
+)
+
+type Tag struct {
+	tag   *dusk.Tag
+	books dusk.Books
+	err   error
+}
+
+func NewTag(tag *dusk.Tag, books dusk.Books, err error) *Tag {
+	return &Tag{tag, books, err}
+}
+
+func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *Tag) Html() {
+	@shared.Base() {
+		<div>
+			if v.err == dusk.ErrDoesNotExist {
+				@partials.NotFound()
+			} else if v.tag != nil {
+				<div class="tag__details">
+					<div class="header">
+						<h1>
+							{ v.tag.Name }
+						</h1>
+					</div>
+				</div>
+				@partials.Library(v.books, v.err)
+			} else {
+				<p>Something went wrong, please try again.</p>
+			}
+		</div>
+	}
+}

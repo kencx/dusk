@@ -5,24 +5,29 @@ import (
 	"net/http"
 )
 
-type ImportViewModel struct {
-	Tab string
-	ViewModel
+type Import struct {
+	tab string
+	err error
 }
 
-func NewImportViewModel(tab string, err error) ImportViewModel {
-	return ImportViewModel{Tab: tab, ViewModel: NewViewModel(err)}
+func NewImport(tab string) *Import { return &Import{tab, nil} }
+
+func (v *Import) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
 }
 
-func (m ImportViewModel) Render(rw http.ResponseWriter, r *http.Request) {
-	m.Html().Render(r.Context(), rw)
-}
-
-func (m ImportViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
-	if err != nil {
-		m.ErrorMessage = err.Error()
+templ (v *Import) Html() {
+	@shared.Base() {
+		<h2>Import Book</h2>
+		if v.err != nil {
+			<p>Something went wrong, please try again.</p>
+		}
+		<div id="tab-content" role="tabpanel" class="tab-content import__search">
+			<div id="tabs" hx-target="this" hx-swap="innerHTML">
+				@Tab(v.tab)
+			</div>
+		</div>
 	}
-	m.Html().Render(r.Context(), rw)
 }
 
 templ Tab(tab string) {
@@ -60,19 +65,5 @@ templ Tab(tab string) {
 				<input id="calibre" name="calibre" required/>
 				<button type="submit">Submit</button>
 			</form>
-	}
-}
-
-templ (m ImportViewModel) Html() {
-	@shared.Base() {
-		<h2>Import Book</h2>
-		if m.ErrorMessage != "" {
-			<p>{ m.ErrorMessage }</p>
-		}
-		<div id="tab-content" role="tabpanel" class="tab-content import__search">
-			<div id="tabs" hx-target="this" hx-swap="innerHTML">
-				@Tab(m.Tab)
-			</div>
-		</div>
 	}
 }

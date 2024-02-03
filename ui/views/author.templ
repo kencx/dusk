@@ -1,0 +1,51 @@
+package views
+
+import (
+	"dusk"
+	"dusk/ui/shared"
+	"dusk/ui/partials"
+	"net/http"
+	"strconv"
+)
+
+type Author struct {
+	author *dusk.Author
+	books  dusk.Books
+	err    error
+}
+
+func NewAuthor(author *dusk.Author, books dusk.Books, err error) *Author {
+	return &Author{author, books, err}
+}
+
+func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *Author) Html() {
+	@shared.Base() {
+		<div>
+			if v.err == dusk.ErrDoesNotExist {
+				@partials.NotFound()
+			} else if v.author != nil {
+				<div class="author__details">
+					<div class="header">
+						<h1>
+							{ v.author.Name }
+							if v.err == dusk.ErrNoRows {
+								No books found.
+							} else if len(v.books) == 1 {
+								<small>1 book</small>
+							} else {
+								<small>{ strconv.Itoa(len(v.books)) } books</small>
+							}
+						</h1>
+					</div>
+					@partials.Library(v.books, v.err)
+				</div>
+			} else {
+				<p>Something went wrong, please try again.</p>
+			}
+		</div>
+	}
+}
