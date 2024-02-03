@@ -1,17 +1,46 @@
 package partials
 
 import (
+	"fmt"
+
 	"github.com/kencx/dusk"
 )
 
-templ Library(books dusk.Books, err error) {
-	<div class="library__card-view">
+type LibraryViewToggle string
+
+const (
+	CARD  LibraryViewToggle = "card"
+	TABLE                   = "table"
+)
+
+templ toggleButton(view LibraryViewToggle) {
+	<button
+		hx-get={ fmt.Sprintf("?show=%s", string(view)) }
+		hx-trigger="click"
+		hx-target="#library"
+		hx-swap="innerHTML"
+	>
+		if view == CARD {
+			<span class="icon-card"></span>
+		} else {
+			<span class="icon-table"></span>
+		}
+	</button>
+}
+
+templ Library(books dusk.Books, view LibraryViewToggle, err error) {
+	<div class="options">
+		@toggleButton(TABLE)
+	</div>
+	<div id="library">
 		if err == dusk.ErrNoRows {
 			@EmptyLibrary()
 		} else if books != nil {
-			for _, book := range books {
-				@bookCard(book)
-			}
+			<div class="library__card-view">
+				for _, book := range books {
+					@bookCard(book)
+				}
+			</div>
 		} else {
 			<p>Something went wrong, please try again.</p>
 		}
@@ -27,4 +56,25 @@ templ EmptyLibrary() {
 			</form>
 		</div>
 	</div>
+}
+
+templ ViewToggle(books dusk.Books, view LibraryViewToggle) {
+	switch view {
+		case CARD:
+			<div hx-swap-oob="innerHTML:.options">
+				@toggleButton(TABLE)
+			</div>
+			<div class="library__card-view">
+				for _, book := range books {
+					@bookCard(book)
+				}
+			</div>
+		case TABLE:
+			<div hx-swap-oob="innerHTML:.options">
+				@toggleButton(CARD)
+			</div>
+			<div class="library__table-view">
+				@table(books)
+			</div>
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk/http/request"
+	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
 )
 
@@ -37,5 +38,13 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 		views.NewTag(nil, nil, err).Render(rw, r)
 		return
 	}
+
+	// handle toggle
+	if r.URL.Query().Has("show") {
+		show := partials.LibraryViewToggle(r.URL.Query().Get("show"))
+		partials.ViewToggle(books, show).Render(r.Context(), rw)
+		return
+	}
+
 	views.NewTag(tag, books, nil).Render(rw, r)
 }

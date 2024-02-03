@@ -44,7 +44,7 @@ templ (v *Author) Html() {
 							}
 						</hgroup>
 					</div>
-					@partials.Library(v.books, v.err)
+					@partials.Library(v.books, partials.CARD, v.err)
 				</div>
 			} else {
 				<p>Something went wrong, please try again.</p>

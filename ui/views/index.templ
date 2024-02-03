@@ -32,6 +32,6 @@ templ (v *Index) Html() {
 		} else {
 			<h1>Books</h1>
 		}
-		@partials.Library(v.books, v.err)
+		@partials.Library(v.books, partials.CARD, v.err)
 	}
 }

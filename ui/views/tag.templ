@@ -35,7 +35,7 @@ templ (v *Tag) Html() {
 						</hgroup>
 					</div>
 				</div>
-				@partials.Library(v.books, v.err)
+				@partials.Library(v.books, partials.CARD, v.err)
 			} else {
 				<p>Something went wrong, please try again.</p>
 			}

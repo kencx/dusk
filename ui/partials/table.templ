@@ -1,0 +1,40 @@
+package partials
+
+import (
+	"github.com/kencx/dusk"
+	"path"
+	"strconv"
+	"strings"
+)
+
+templ table(books dusk.Books) {
+	<table class="hoverable">
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Author</th>
+				<th>Rating</th>
+				<th>Num of Pages</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, b := range books {
+				<tr>
+					<td data-label="Title">
+						<a
+							href={ templ.URL(path.Join("/book", strconv.FormatInt(b.ID,
+                        10))) }
+						>
+							{ b.Title }
+						</a>
+					</td>
+					<td data-label="Author">
+						{ strings.Join(b.Author, ", ") }
+					</td>
+					<td data-label="Rating">{ strconv.Itoa(b.Rating) } / 5</td>
+					<td data-label="Num of Pages">{ strconv.Itoa(b.NumOfPages) }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

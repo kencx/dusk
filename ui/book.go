@@ -6,16 +6,26 @@ import (
 
 	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
 )
 
 func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
+
 	books, err := s.db.GetAllBooks()
 	if err != nil {
 		log.Println(err)
 		views.NewIndex(nil, err).Render(rw, r)
 		return
 	}
+
+	// handle toggle
+	if r.URL.Query().Has("show") {
+		show := partials.LibraryViewToggle(r.URL.Query().Get("show"))
+		partials.ViewToggle(books, show).Render(r.Context(), rw)
+		return
+	}
+
 	views.NewIndex(books, nil).Render(rw, r)
 }
 
