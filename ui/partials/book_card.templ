@@ -7,16 +7,16 @@ import (
     "strings"
 )
 
-templ BookCard(b *dusk.Book) {
+templ bookCard(b *dusk.Book) {
     <div class="library__book-card">
         <div class="cover">
-            <a href={ templ.SafeURL(path.Join("book", strconv.Itoa(int(b.ID)))) }>
+            <a href={ templ.URL(path.Join("book", strconv.Itoa(int(b.ID)))) }>
                 <img alt="" src="/static/red-rising.jpg"/>
             </a>
         </div>
 
         <div class="details">
-            <a href={ templ.SafeURL(path.Join("book", strconv.Itoa(int(b.ID)))) }>
+            <a href={ templ.URL(path.Join("book", strconv.Itoa(int(b.ID)))) }>
                 <h4 class="title">{b.Title}</h4>
             </a>
             <a href="/" class="author">
