@@ -54,11 +54,20 @@ func Routes(db Store) chi.Router {
 		// c.Post("/calibre", s.importCalibre)
 	})
 
+	ui.HandleFunc("/authors", s.authorListView)
 	ui.Route("/author", func(c chi.Router) {
 		c.Get("/{id:[0-9]+}", s.authorView)
 		// c.Post("/{id[0-9]+}", s.formAddAuthor)
 		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
 		// c.Delete("/{id[0-9]+}", s.formDeleteAuthor)
+	})
+
+	ui.HandleFunc("/tags", s.tagListView)
+	ui.Route("/tag", func(c chi.Router) {
+		c.Get("/{id:[0-9]+}", s.tagView)
+		// c.Post("/{id[0-9]+}", s.formAddtag)
+		// c.Put("/{id[0-9]+}", s.formUpdatetag)
+		// c.Delete("/{id[0-9]+}", s.formDeletetag)
 	})
 
 	return ui

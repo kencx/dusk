@@ -22,7 +22,7 @@ templ BookPage(book *dusk.Book) {
 
             <h4>
               for _, author := range book.Author {
-                  <span class="author"><a href={ templ.URL(path.Join("author", author)) }>{author}</a></span>
+                  <span class="author"><a href={ templ.URL(path.Join("/author", author)) }>{author}</a></span>
               }
             </h4>
           </div>
@@ -30,7 +30,7 @@ templ BookPage(book *dusk.Book) {
           <div class="secondary">
             <div class="tags">
 			  for _, tag := range book.Tag {
-				<a href={ templ.URL(path.Join("tag", tag)) } tt={tag}>{tag}</a>
+				<a href={ templ.URL(path.Join("/tag", tag)) } tt={tag}>{tag}</a>
 			  }
             </div>
 

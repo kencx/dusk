@@ -32,7 +32,7 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <span class=\"right\"><a class=\"button\" href=\"/\"><span class=\"icon-user\"></span></a> <a class=\"button\" href=\"/import\"><span class=\"icon-add-box\"></span></a> <a class=\"button\" href=\"/\"><span class=\"icon-settings\"></span></a></span></header>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <span class=\"right\"><a class=\"button\" href=\"/authors\"><span class=\"icon-user\"></span></a> <a class=\"button\" href=\"/tags\"><span class=\"icon-bookmark\"></span></a> <a class=\"button\" href=\"/import\"><span class=\"icon-add-box\"></span></a> <a class=\"button\" href=\"/\"><span class=\"icon-settings\"></span></a></span></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -4,33 +4,33 @@ import (
     "dusk"
     "dusk/ui/common"
     "dusk/ui/partials"
-	"net/http"
+    "net/http"
+    "strconv"
 )
 
 type IndexViewModel struct {
-	Books dusk.Books
-	ViewModel
+    Books dusk.Books
+    ViewModel
 }
 
 func NewIndexViewModel(books dusk.Books, err error) IndexViewModel {
-	return IndexViewModel{Books: books, ViewModel: NewViewModel(err)}
+    return IndexViewModel{Books: books, ViewModel: NewViewModel(err)}
 }
 
 func (m IndexViewModel) Render(rw http.ResponseWriter, r *http.Request) {
-	m.Html().Render(r.Context(), rw)
+    m.Html().Render(r.Context(), rw)
 }
 
 func (m IndexViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
-	if err != nil {
-		m.ErrorMessage = err.Error()
-	}
-	m.Html().Render(r.Context(), rw)
+    if err != nil {
+        m.ErrorMessage = err.Error()
+    }
+    m.Html().Render(r.Context(), rw)
 }
 
 templ (m IndexViewModel) Html() {
     @common.Base() {
-        <div>
-  		  @partials.Library(m.Books, m.ErrorMessage)
-        </div>
+        <h1>Books ({strconv.Itoa(len(m.Books))})</h1>
+        @partials.Library(m.Books, m.ErrorMessage)
     }
 }

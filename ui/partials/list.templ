@@ -1,0 +1,17 @@
+package partials
+
+import (
+	"dusk"
+	"path"
+	"strconv"
+)
+
+templ List(authors dusk.Authors) {
+	<div class="list__author-view">
+		<ul>
+		for _, author := range authors {
+			<li><a href={ templ.URL(path.Join("author", strconv.FormatInt(author.ID, 10))) }>{author.Name}</a></li>
+		}
+		</ul>
+	</div>
+}
