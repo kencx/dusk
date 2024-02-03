@@ -14,9 +14,10 @@ type Book struct {
 	ISBN        string          `json:"isbn" db:"isbn"`
 	NumOfPages  int             `json:"num_of_pages" db:"numOfPages"`
 	Rating      int             `json:"rating" db:"rating"`
-	Description util.NullString `json:"description,omitempty"`
-	Notes       util.NullString `json:"notes,omitempty"`
+	Description util.NullString `json:"description,omitempty" db:"description"`
+	Notes       util.NullString `json:"notes,omitempty" db:"notes"`
 	Tag         []string        `json:"tag,omitempty"`
+	Cover       string          `json:"cover,omitempty" db:"cover"`
 
 	DateCompleted sql.NullTime `json:"-" db:"dateCompleted"`
 	DateAdded     sql.NullTime `json:"-" db:"dateAdded"`

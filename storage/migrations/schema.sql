@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS book (
     rating        INTEGER DEFAULT 0,
     description   TEXT,
     notes         TEXT,
+    cover         TEXT,
     dateAdded     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateUpdated   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateCompleted TIMESTAMP

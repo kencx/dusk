@@ -228,7 +228,7 @@ func (s *Store) DeleteBooks(ids []int64) error {
 
 // insert book entry to books table
 func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
-	stmt := `INSERT INTO book (title, isbn, numOfPages, rating, description, notes, dateAdded, dateUpdated, dateCompleted)
+	stmt := `INSERT INTO book (title, isbn, numOfPages, rating, description, notes, cover, dateAdded, dateUpdated, dateCompleted)
             VALUES (
             :title,
 			:isbn,
@@ -236,6 +236,7 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
             :rating,
             :description,
             :notes,
+            :cover,
             :dateAdded,
             :dateUpdated,
             :dateCompleted);`
@@ -268,6 +269,7 @@ func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
 			rating=:rating,
 			description=:description,
 			notes=:notes,
+			cover=:cover,
 			dateAdded=:dateAdded,
 			dateUpdated=:dateUpdated,
 			dateCompleted=:dateCompleted
