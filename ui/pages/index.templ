@@ -30,7 +30,16 @@ func (m IndexViewModel) RenderError(rw http.ResponseWriter, r *http.Request, err
 templ (m IndexViewModel) Html() {
     @common.Base() {
         <div>
-            @partials.Library(m.Books, m.ErrorMessage)
+            <div class="library__card-view">
+
+            if len(m.Books) <= 0 {
+                <p>{m.ErrorMessage}</p>
+            } else {
+                for _, book := range m.Books {
+                    @partials.BookCard(book)
+                }
+            }
+            </div>
         </div>
     }
 }
