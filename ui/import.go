@@ -1,40 +1,45 @@
 package ui
 
 import (
-	"dusk/metadata"
+	"dusk"
+	"dusk/integrations/openlibrary"
 	"dusk/ui/views"
 	"dusk/validator"
 	"net/http"
-)
-
-const (
-	OPENLIBRARY = "openlibrary"
-	GOODREADS   = "goodreads"
-	CALIBRE     = "calibre"
+	"regexp"
 )
 
 func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
-	m := views.NewImport(OPENLIBRARY)
-
 	// handle tabs
 	if r.URL.Query().Has("tab") {
-		tab := r.URL.Query().Get("tab")
-		views.Tab(tab).Render(r.Context(), rw)
+		tab := views.TabView(r.URL.Query().Get("tab"))
+		views.Tab(tab, nil).Render(r.Context(), rw)
 		return
 	}
 
-	m.Render(rw, r)
+	views.NewImport(views.OPENLIBRARY, nil, nil).Render(rw, r)
 }
 
 func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
-	// TODO add clearer error messages
-
-	m := views.NewImport(OPENLIBRARY)
-
+	ol := views.OPENLIBRARY
 	isbn := r.FormValue("openlibrary")
-	metadata, err := metadata.Fetch(isbn)
+
+	// input validation
+	rx, err := regexp.Compile(`(\d+.*?)`)
 	if err != nil {
-		m.Render(rw, r)
+		views.NewImport(ol, nil, err).Render(rw, r)
+		return
+	}
+
+	if !rx.MatchString(isbn) {
+		views.NewImport(ol, nil, views.ErrNotValidIsbn).Render(rw, r)
+		return
+	}
+
+	metadata, err := openlibrary.FetchByIsbn(isbn)
+	if err != nil {
+		// TODO openlibrary request err
+		views.NewImport(ol, nil, err).Render(rw, r)
 		return
 	}
 
@@ -43,15 +48,9 @@ func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 	b.Validate(v)
 	if !v.Valid() {
-		m.Render(rw, r)
+		views.NewImport(ol, nil, err).Render(rw, r)
 		return
 	}
 
-	_, err = s.db.CreateBook(b)
-	if err != nil {
-		m.Render(rw, r)
-		return
-	}
-
-	m.Render(rw, r)
+	views.NewImport(ol, dusk.Books{b}, nil).Render(rw, r)
 }

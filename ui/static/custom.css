@@ -21,26 +21,27 @@ main {
 .topbar {
   display: flex;
   align-items: center;
-}
 
-.topbar .right {
-  margin-left: auto;
-}
+	.right {
+		margin-left: auto;
+	}
 
-.topbar .icon-add-box {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='12' y1='8' x2='12' y2='16'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='16' y2='12'%3E%3C/line%3E%3C/svg%3E");
-}
+	.icon-add-box {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='12' y1='8' x2='12' y2='16'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='16' y2='12'%3E%3C/line%3E%3C/svg%3E");
+	}
 
-/* dark mode */
-/* .topbar .icon-add-box { */
-/*   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23fdfdfd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='12' y1='8' x2='12' y2='16'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='16' y2='12'%3E%3C/line%3E%3C/svg%3E"); */
+	/* dark mode */
+	/* .icon-add-box { */
+	/*   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23fdfdfd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='12' y1='8' x2='12' y2='16'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='16' y2='12'%3E%3C/line%3E%3C/svg%3E"); */
 /* } */
 
-.topbar span[class^='icon-'] {
-  height: 1.2em;
-  width: 1.2em;
-  vertical-align: -0.25em;
+	span[class^='icon-'] {
+		height: 1.2em;
+		width: 1.2em;
+		vertical-align: -0.25em;
+	}
 }
+
 
 /* FOOTER */
 footer {
@@ -68,48 +69,45 @@ footer {
   /* max-height: 260px; */
   cursor: pointer;
   transition: all 0.3s ease-in-out 0s;
+
+	a:hover, a:focus {
+		text-decoration: none;
+	}
+
+	.cover {
+		max-width: 180px;
+
+		img {
+			max-width: 100%;
+			max-height: 100%;
+			margin: auto;
+		}
+	}
+
+	.details {
+		margin-top: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.title {
+		margin: 0;
+		color: var(--fore-color);
+	}
+
+	.author {
+		margin: 0;
+		font-size: 0.75rem;
+		color: var(--secondary-fore-color);
+	}
 }
 
 .library__book-card:hover {
-  transform: translateY(4px);
-}
+	transform: translateY(4px);
 
-.library__book-card a:hover,
-.library__book-card a:focus {
-  text-decoration: none;
-}
-
-.library__book-card:hover img {
-  transform: scale3d(1.02, 1.02, 1.02);
-  opacity: 0.2;
-}
-
-.library__book-card .cover {
-  max-width: 180px;
-  /* max-height: 260px; */
-}
-
-.library__book-card .cover img {
-  max-width: 100%;
-  max-height: 100%;
-  margin: auto;
-  /* border-radius: 0.4rem; */
-}
-
-.library__book-card .details {
-  margin-top: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.library__book-card .title {
-  margin: 0;
-  color: var(--fore-color);
-}
-
-.library__book-card .author {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--secondary-fore-color);
+	img {
+		transform: scale3d(1.02, 1.02, 1.02);
+		opacity: 0.2;
+	}
 }
 
 @media screen and (max-width: 768px) {
@@ -133,88 +131,87 @@ footer {
     "a b"
     "a c";
   margin-bottom: 1.2rem;
-}
 
-.book__details .cover {
-  grid-area: a;
-  display: flex;
-  align-items: start;
-  justify-content: center;
-  min-width: var(--max-cover-width);
-  max-width: var(--max-cover-width);
-}
+	.cover {
+		grid-area: a;
+		display: flex;
+		align-items: start;
+		justify-content: center;
+		min-width: var(--max-cover-width);
+		max-width: var(--max-cover-width);
+	}
 
-.book__details .header {
-  grid-area: b;
-}
+	.header {
+		grid-area: b;
 
-.book__details .header h1 {
-  min-height: 6rem;
-  max-height: 8rem;
-}
+		h1 {
+			min-height: 6rem;
+			max-height: 8rem;
+		}
 
-.book__details .author a {
-  color: var(--fore-color);
-}
+		.author + .author::before {
+			display: inline-block;
+			white-space: pre;
+			content: ", ";
+		}
+	}
 
-.book__details .header .author + .author::before {
-  display: inline-block;
-  white-space: pre;
-  content: ", ";
-}
+	.author a {
+		color: var(--fore-color);
+	}
 
-.book__details .secondary {
-  grid-area: c;
-  margin: 0 var(--universal-margin);
-}
+	.secondary {
+		grid-area: c;
+		margin: 0 var(--universal-margin);
+	}
 
-.book__details .tags {
-  color: var(--secondary-fore-color);
-  font-size: 0.95rem;
-  min-height: 4.5rem;
-  max-height: 4.5rem;
-}
+	.tags {
+		color: var(--secondary-fore-color);
+		font-size: 0.95rem;
+		min-height: 4.5rem;
+		max-height: 4.5rem;
 
-.book__details .tags a {
-  color: var(--secondary-fore-color);
-  border-bottom: 0.2rem solid var(--pre-color);
-}
+		a {
+			color: var(--secondary-fore-color);
+			border-bottom: 0.2rem solid var(--pre-color);
+		}
 
-.book__details .tags > a + a {
-  margin-left: 0.5rem;
-}
+		a:focus, .tags a:hover {
+			text-decoration: none;
+		}
+	}
 
-.book__details .tags a:focus,
-.book__details .tags a:hover {
-  text-decoration: none;
-}
+	.tags > a + a {
+		margin-left: 0.5rem;
+	}
 
-.book__details .footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--secondary-fore-color);
-}
+	.footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: var(--secondary-fore-color);
 
-.book__details .footer span::before,
-.book__details .footer span::after {
-  content: " ";
-  white-space: pre;
-}
+		span::before,
+		span::after {
+			content: " ";
+			white-space: pre;
+		}
+	}
 
-.book__details .formats {
-  padding: 1.2rem 0;
+
+	.formats {
+		padding: 1.2rem 0;
+	}
 }
 
 .metadata {
   display: flex;
   gap: 2rem;
-}
 
-.metadata .key,
-.metadata .value {
-  font-size: 0.85rem;
-  color: var(--secondary-fore-color);
+	.key, .value {
+		font-size: 0.85rem;
+		color: var(--secondary-fore-color);
+	}
 }
 
 .notes {
@@ -225,68 +222,70 @@ footer {
   .book__details {
     display: block;
     margin-bottom: 0;
-  }
 
-  .book__details .cover {
-    margin: auto;
-  }
+		.cover {
+			margin: auto;
+		}
 
-  .book__details .header {
-    text-align: center;
-  }
+		.header {
+			text-align: center;
 
-  .book__details .header h1 {
-    max-height: none;
-    min-height: none;
-  }
+			h1 {
+				max-height: none;
+				min-height: none;
+			}
+		}
 
-  .book__details .tags {
-    text-align: center;
-  }
+		.tags {
+			text-align: center;
+		}
 
-  .book__details .footer {
-    display: block;
-    text-align: center;
+		.footer {
+			display: block;
+			text-align: center;
+		}
   }
 }
 
 /* IMPORT VIEW */
 
-.import__tabs {
-  margin-left: var(--universal-margin);
-}
-
 .import__tabs button {
   margin-bottom: 0;
+
+	&.selected {
+		font-weight: bold;
+		border-bottom: 0.2rem solid var(--pre-color);
+	}
 }
 
-.import__tabs button.selected {
-  font-weight: bold;
-  border-bottom: 0.2rem solid var(--pre-color);
-}
+.import__tabs {
+	form {
+		margin-top: 0;
+	}
 
-.import__search form {
-  margin-top: 0;
-}
+	.openlibrary-form {
+		small {
+			padding: calc(var(--universal-margin) / 2);
+		}
+	}
 
-.import__search .goodreads-form input {
-  margin: var(--universal-margin);
-  padding: calc(2 * var(--universal-padding)) var(--universal-padding);
-  margin-bottom: 0;
-}
+	.goodreads-form {
+	  input {
+			margin: var(--universal-margin);
+			padding: calc(2 * var(--universal-padding)) var(--universal-padding);
+			margin-bottom: 0;
+		}
 
-.import__search .goodreads-form button {
-  margin-top: 0;
-  margin-left: calc(2 * var(--universal-margin));
-}
+		button {
+			margin-top: 0;
+			margin-left: calc(2 * var(--universal-margin));
+		}
+	}
 
-.import__search input {
-  width: 40%;
-}
-
-/* reset mini.css rule */
-.import__search .goodreads-form .input-group.vertical > input {
-  flex-basis: unset;
+	/* reset mini.css rule */
+	.goodreads-form .input-group.vertical > input {
+		flex-basis: unset;
+	}
 }
 
 .import__result_list {
@@ -304,33 +303,33 @@ footer {
   border: 0.0625rem solid var(--form-border-color);
   border-radius: var(--universal-border-radius);
   text-align: left;
-}
 
-.import__result img {
-  --max-result-cover-width: 100px;
-  max-width: var(--max-result-cover-width);
-}
+	img {
+		--max-result-cover-width: 100px;
+		max-width: var(--max-result-cover-width);
+	}
 
-.import__result .details {
-  padding: 1rem 0;
-  min-width: 8rem;
-}
+	.details {
+		padding: 1rem 0;
+		min-width: 8rem;
 
-.import__result .details h3 {
-  padding: 0;
-  margin: 0;
-}
+		h3 {
+			padding: 0;
+			margin: 0;
+		}
+	}
 
-.import__result .description {
-  padding: 1rem 1rem 1rem 0;
-  font-size: 0.75rem;
+	.description {
+		padding: 1rem 1rem 1rem 0;
+		font-size: 0.75rem;
+	}
 }
 
 /* AUTHOR LIST VIEW */
 .list__author-view ul {
   padding-left: 0;
-}
 
-.list__author-view ul li {
-  list-style: none;
+	li {
+		list-style: none;
+	}
 }

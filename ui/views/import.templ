@@ -1,16 +1,33 @@
 package views
 
 import (
+	"dusk"
 	"dusk/ui/shared"
+	"errors"
 	"net/http"
 )
 
+type TabView string
+
+const (
+	OPENLIBRARY TabView = "openlibrary"
+	GOODREADS           = "goodreads"
+	CALIBRE             = "calibre"
+)
+
+var (
+	ErrNotValidIsbn = errors.New("invalid isbn")
+)
+
 type Import struct {
-	tab string
-	err error
+	tab     TabView
+	results dusk.Books
+	err     error
 }
 
-func NewImport(tab string) *Import { return &Import{tab, nil} }
+func NewImport(tab TabView, res dusk.Books, err error) *Import {
+	return &Import{tab, res, err}
+}
 
 func (v *Import) Render(rw http.ResponseWriter, r *http.Request) {
 	v.Html().Render(r.Context(), rw)
@@ -18,52 +35,112 @@ func (v *Import) Render(rw http.ResponseWriter, r *http.Request) {
 
 templ (v *Import) Html() {
 	@shared.Base() {
-		<h2>Import Book</h2>
-		if v.err != nil {
-			<p>Something went wrong, please try again.</p>
-		}
-		<div id="tab-content" role="tabpanel" class="tab-content import__search">
-			<div id="tabs" hx-target="this" hx-swap="innerHTML">
-				@Tab(v.tab)
-			</div>
+		<h2>
+			Add Books
+		</h2>
+		<div hx-target="this" hx-swap="innerHTML" class="import__tabs">
+			@Tab(OPENLIBRARY, v.err)
+		</div>
+		<div class="import__result_list">
+			if len(v.results) > 0 {
+				@importResults(v.results)
+			}
 		</div>
 	}
 }
 
-templ Tab(tab string) {
+templ Tab(tab TabView, err error) {
 	switch tab {
-		case "openlibrary":
-			<div class="import__tabs tab-list" role="tablist">
-				<button hx-get="/import?tab=openlibrary" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">OpenLibrary</button>
-				<button hx-get="/import?tab=goodreads" role="tab" aria-selected="false" aria-controls="tab-content">Goodreads</button>
-				<button hx-get="/import?tab=calibre" role="tab" aria-selected="false" aria-controls="tab-content">Calibre</button>
+		case OPENLIBRARY:
+			<button hx-get="/import?tab=openlibrary" class="selected">OpenLibrary</button>
+			<button hx-get="/import?tab=goodreads">Goodreads</button>
+			<button hx-get="/import?tab=calibre">Calibre</button>
+			@openLibraryForm(err)
+		case GOODREADS:
+			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
+			<button hx-get="/import?tab=goodreads" class="selected">Goodreads</button>
+			<button hx-get="/import?tab=calibre">Calibre</button>
+			@goodreadsForm(err)
+		case CALIBRE:
+			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
+			<button hx-get="/import?tab=goodreads">Goodreads</button>
+			<button hx-get="/import?tab=calibre" class="selected">Calibre</button>
+			@calibreForm(err)
+	}
+}
+
+templ openLibraryForm(err error) {
+	<form action="/import/openlibrary" method="POST">
+		<div class="openlibrary-form input-group vertical">
+			<label for="search">Add a book from <a href="https://openlibrary.org">OpenLibrary</a>:</label>
+			<input id="search" name="openlibrary" placeholder="Enter an ISBN, Title or Author"/>
+			<small>ISBNs must contain 10 or 13 characters, including dashes and spaces.</small>
+		</div>
+		<button class="small" type="submit">Submit</button>
+	</form>
+	<div>
+		if err == nil {
+			<div></div>
+		} else if err == ErrNotValidIsbn {
+			<div class="card error fluid">
+				<p>
+					You entered an invalid ISBN. A book's ISBN is usually found on the
+					back cover, near the barcode. It will contain 10 or 13 characters, plus
+					any dashes and spaces.
+				</p>
+				<p>
+					Valid examples: 978-0495011606, 9780136006176, 0077354761,
+					013603599X
+				</p>
+				<p>
+					Alternatively, you can try searching for the book's title or
+					author.
+				</p>
 			</div>
-			<form action="/import/openlibrary" method="POST">
-				<input id="search" name="openlibrary" placeholder="ISBN" required/>
-				<button class="small" type="submit">Submit</button>
-			</form>
-		case "goodreads":
-			<div class="import__tabs tab-list" role="tablist">
-				<button hx-get="/import?tab=openlibrary" role="tab" aria-selected="false" aria-controls="tab-content">OpenLibrary</button>
-				<button hx-get="/import?tab=goodreads" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">Goodreads</button>
-				<button hx-get="/import?tab=calibre" role="tab" aria-selected="false" aria-controls="tab-content">Calibre</button>
+		} else if err != nil {
+			<p>Something went wrong, please try again</p>
+		}
+	</div>
+}
+
+templ goodreadsForm(err error) {
+	<form class="goodreads-form" action="/import/goodreads" method="POST">
+		<div class="input-group vertical">
+			<label class="goodreads" for="goodreads">Choose a Goodreads csv file:</label>
+			<input type="file" name="goodreads" accept=".csv" required/>
+		</div>
+		<button class="small" type="submit">Submit</button>
+	</form>
+}
+
+templ calibreForm(err error) {
+	<form action="/import/calibre" method="POST">
+		<input id="calibre" name="calibre" required/>
+		<button type="submit">Submit</button>
+	</form>
+}
+
+templ importResults(results dusk.Books) {
+	<h2>Results</h2>
+	for _, result := range results {
+		<button
+			class="import__result"
+		>
+			<img alt="" src="/static/red-rising.jpg"/>
+			<div class="details">
+				<h3>{ result.Title }</h3>
+				<small>
+					for _, author := range result.Author {
+						<span class="author">{ author }</span>
+					}
+				</small>
+				<br/>
+				<small>ISBN: { result.ISBN }</small>
+				<br/>
 			</div>
-			<form class="goodreads-form" action="/import/goodreads" method="POST">
-				<div class="input-group vertical">
-					<label class="goodreads" for="goodreads">Choose a Goodreads csv file:</label>
-					<input type="file" name="goodreads" accept=".csv" required/>
-				</div>
-				<button class="small" type="submit">Submit</button>
-			</form>
-		case "calibre":
-			<div class="import__tabs tab-list" role="tablist">
-				<button hx-get="/import?tab=openlibrary" role="tab" aria-selected="false" aria-controls="tab-content">OpenLibrary</button>
-				<button hx-get="/import?tab=goodreads" role="tab" aria-selected="false" aria-controls="tab-content">Goodreads</button>
-				<button hx-get="/import?tab=calibre" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">Calibre</button>
+			<div class="description">
+				Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.
 			</div>
-			<form action="/import/calibre" method="POST">
-				<input id="calibre" name="calibre" required/>
-				<button type="submit">Submit</button>
-			</form>
+		</button>
 	}
 }
