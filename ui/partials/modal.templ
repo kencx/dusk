@@ -1,0 +1,18 @@
+package partials
+
+templ ModalButton() {
+	<label for="modal-control" class="small button">
+		{ children... }
+	</label>
+	<input type="checkbox" id="modal-control" class="modal" autocomplete="off"/>
+}
+
+templ ModalDialog() {
+	<div class="modal__dialog" role="dialog">
+		<label for="modal-control" class="overlay"></label>
+		<div class="card">
+			<label for="modal-control" class="modal-close"></label>
+			{ children... }
+		</div>
+	</div>
+}

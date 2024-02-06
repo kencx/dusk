@@ -3,6 +3,7 @@
 }
 
 :root {
+  --dark-back-color: #18181b;
   --button-back-color: transparent;
 }
 
@@ -343,4 +344,27 @@ footer {
 	li {
 		list-style: none;
 	}
+}
+
+/* MODAL */
+
+[type="checkbox"].modal + div .card {
+	border-radius: var(--universal-border-radius);
+	padding: var(--universal-padding);
+}
+
+[type="checkbox"].modal + div .card .modal-close {
+	right: 0.5rem;
+}
+
+.modal__dialog .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.modal__dialog .confirm {
+	text-align: center;
 }
