@@ -7,7 +7,7 @@ import (
 templ Library(books dusk.Books, err error) {
 	<div class="library__card-view">
 		if err == dusk.ErrNoRows {
-			<p>No items found.</p>
+			@EmptyLibrary()
 		} else if books != nil {
 			for _, book := range books {
 				@bookCard(book)
@@ -15,5 +15,16 @@ templ Library(books dusk.Books, err error) {
 		} else {
 			<p>Something went wrong, please try again.</p>
 		}
+	</div>
+}
+
+templ EmptyLibrary() {
+	<div class="library__empty">
+		<p>No books found.</p>
+		<div>
+			<a class="button inverse" href="/import">
+				Add Book
+			</a>
+		</div>
 	</div>
 }

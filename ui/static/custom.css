@@ -58,7 +58,14 @@ footer {
   display: flex;
   flex-wrap: wrap;
   column-gap: 4rem;
-  justify-content: space-between;
+  justify-content: start;
+}
+
+.library__empty {
+	align-self: center;
+	margin: auto;
+	text-align: center;
+	padding: 5rem 0;
 }
 
 .library__book-card {
