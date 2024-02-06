@@ -30,20 +30,28 @@ func OK(rw http.ResponseWriter, r *http.Request, body []byte) {
 	res := new(rw, r)
 	res.statusCode = http.StatusOK
 	res.body = body
-	res.Write()
+	res.write()
 }
 
 func NoContent(rw http.ResponseWriter, r *http.Request) {
 	res := new(rw, r)
 	res.statusCode = http.StatusNoContent
-	res.Write()
+	res.write()
 }
 
 func Created(rw http.ResponseWriter, r *http.Request, body []byte) {
 	res := new(rw, r)
 	res.statusCode = http.StatusCreated
 	res.body = body
-	res.Write()
+	res.write()
+}
+
+func Custom(rw http.ResponseWriter, r *http.Request, code int, headers map[string]string, body []byte) {
+	res := new(rw, r)
+	res.statusCode = code
+	res.headers = headers
+	res.body = body
+	res.write()
 }
 
 func newError(rw http.ResponseWriter, r *http.Request, err interface{}) *response {
@@ -69,35 +77,35 @@ func newError(rw http.ResponseWriter, r *http.Request, err interface{}) *respons
 
 func BadRequest(rw http.ResponseWriter, r *http.Request, err error) {
 	res := newError(rw, r, err)
-	res.Write()
+	res.write()
 }
 
 func InternalServerError(rw http.ResponseWriter, r *http.Request, err error) {
 	res := newError(rw, r, err)
 	res.statusCode = http.StatusInternalServerError
-	res.Write()
+	res.write()
 }
 
 func NotFound(rw http.ResponseWriter, r *http.Request, err error) {
 	res := newError(rw, r, err)
 	res.statusCode = http.StatusNotFound
-	res.Write()
+	res.write()
 }
 
 func Unauthorized(rw http.ResponseWriter, r *http.Request, err error) {
 	res := newError(rw, r, err)
 	res.statusCode = http.StatusUnauthorized
 	res.headers["WWW-Authenticate"] = `Basic realm="Restricted"`
-	res.Write()
+	res.write()
 }
 
 func ValidationError(rw http.ResponseWriter, r *http.Request, err map[string]string) {
 	res := newError(rw, r, err)
 	res.statusCode = http.StatusUnprocessableEntity
-	res.Write()
+	res.write()
 }
 
-func (r *response) Write() {
+func (r *response) write() {
 	for k, v := range r.headers {
 		r.rw.Header().Set(k, v)
 	}

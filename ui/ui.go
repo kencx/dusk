@@ -46,7 +46,7 @@ func Routes(db Store) chi.Router {
 		c.Get("/{id:[0-9]+}", s.bookPage)
 		// c.Post("/{id[0-9]+}", s.formAddBook)
 		// c.Put("/{id[0-9]+}", s.formUpdateBook)
-		// c.Delete("/{id[0-9]+}", s.formDeleteBook)
+		c.Delete("/{id:[0-9]+}", s.deleteBook)
 	})
 
 	ui.Route("/import", func(c chi.Router) {
