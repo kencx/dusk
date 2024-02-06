@@ -293,6 +293,10 @@ footer {
 	.goodreads-form .input-group.vertical > input {
 		flex-basis: unset;
 	}
+
+	.custom-form .input-group.vertical > input {
+		flex-basis: unset;
+	}
 }
 
 .import__result_list {
