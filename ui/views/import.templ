@@ -5,6 +5,7 @@ import (
 	"dusk/ui/shared"
 	"errors"
 	"net/http"
+	"strconv"
 )
 
 type TabView string
@@ -21,66 +22,69 @@ var (
 )
 
 type Import struct {
-	tab     TabView
-	results dusk.Books
-	err     error
+	Tab     TabView
+	Results dusk.Books
+	Message string
+	Err     error
 }
 
-func NewImport(tab TabView, res dusk.Books, err error) *Import {
-	return &Import{tab, res, err}
+func ImportRenderResults(rw http.ResponseWriter, r *http.Request, res dusk.Books) {
+	ImportResults(res, "", nil).Render(r.Context(), rw)
 }
 
-func (v *Import) Render(rw http.ResponseWriter, r *http.Request) {
+func ImportResultsMessage(rw http.ResponseWriter, r *http.Request, res dusk.Books, message string) {
+	ImportResults(res, message, nil).Render(r.Context(), rw)
+}
+
+func ImportResultsError(rw http.ResponseWriter, r *http.Request, err error) {
+	ImportResults(nil, "", err).Render(r.Context(), rw)
+}
+
+func (v Import) Render(rw http.ResponseWriter, r *http.Request) {
 	v.Html().Render(r.Context(), rw)
 }
 
 templ (v *Import) Html() {
 	@shared.Base() {
-		<h2>
-			Add Books
-		</h2>
+		<h2>Add Books</h2>
 		<div hx-target="this" hx-swap="innerHTML" class="import__tabs">
-			@Tab(OPENLIBRARY, v.err)
+			@Tab(OPENLIBRARY)
 		</div>
-		<div class="import__result_list">
-			if len(v.results) > 0 {
-				@importResults(v.results)
-			}
-		</div>
+		<div class="import__result_list"></div>
 	}
 }
 
-templ Tab(tab TabView, err error) {
+templ Tab(tab TabView) {
 	switch tab {
 		case OPENLIBRARY:
 			<button hx-get="/import?tab=openlibrary" class="selected">OpenLibrary</button>
 			<button hx-get="/import?tab=goodreads">Goodreads</button>
 			<button hx-get="/import?tab=calibre">Calibre</button>
 			<button hx-get="/import?tab=custom">Custom</button>
-			@openLibraryForm(err)
+			@openLibraryForm()
 		case GOODREADS:
 			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
 			<button hx-get="/import?tab=goodreads" class="selected">Goodreads</button>
 			<button hx-get="/import?tab=calibre">Calibre</button>
 			<button hx-get="/import?tab=custom">Custom</button>
-			@goodreadsForm(err)
+			@goodreadsForm()
 		case CALIBRE:
 			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
 			<button hx-get="/import?tab=goodreads">Goodreads</button>
 			<button hx-get="/import?tab=calibre" class="selected">Calibre</button>
 			<button hx-get="/import?tab=custom">Custom</button>
-			@calibreForm(err)
+			@calibreForm()
 		case CUSTOM:
 			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
 			<button hx-get="/import?tab=goodreads">Goodreads</button>
 			<button hx-get="/import?tab=calibre">Calibre</button>
 			<button hx-get="/import?tab=custom" class="selected">Custom</button>
-			@customForm(err)
+			@customForm()
 	}
 }
 
-templ openLibraryForm(err error) {
-	<form action="/import/openlibrary" method="POST">
+templ openLibraryForm() {
+	<form hx-post="/import/openlibrary" hx-target=".import__result_list" hx-swap="innerHTML">
 		<div class="openlibrary-form input-group vertical">
 			<label for="search">Add a book from <a href="https://openlibrary.org">OpenLibrary</a>:</label>
 			<input id="search" name="openlibrary" placeholder="Enter an ISBN, Title or Author"/>
@@ -88,32 +92,9 @@ templ openLibraryForm(err error) {
 		</div>
 		<button class="small" type="submit">Submit</button>
 	</form>
-	<div>
-		if err == nil {
-			<div></div>
-		} else if err == ErrNotValidIsbn {
-			<div class="card error fluid">
-				<p>
-					You entered an invalid ISBN. A book's ISBN is usually found on the
-					back cover, near the barcode. It will contain 10 or 13 characters, plus
-					any dashes and spaces.
-				</p>
-				<p>
-					Valid examples: 978-0495011606, 9780136006176, 0077354761,
-					013603599X
-				</p>
-				<p>
-					Alternatively, you can try searching for the book's title or
-					author.
-				</p>
-			</div>
-		} else if err != nil {
-			<p>Something went wrong, please try again</p>
-		}
-	</div>
 }
 
-templ goodreadsForm(err error) {
+templ goodreadsForm() {
 	<form class="goodreads-form" action="/import/goodreads" method="POST">
 		<div class="input-group vertical">
 			<label class="goodreads" for="goodreads">Choose a Goodreads csv file:</label>
@@ -123,14 +104,14 @@ templ goodreadsForm(err error) {
 	</form>
 }
 
-templ calibreForm(err error) {
+templ calibreForm() {
 	<form action="/import/calibre" method="POST">
 		<input id="calibre" name="calibre" required/>
 		<button type="submit">Submit</button>
 	</form>
 }
 
-templ customForm(err error) {
+templ customForm() {
 	<form class="custom-form" action="/import/custom" method="POST">
 		<div class="input-group vertical">
 			<label class="custom" for="custom">Upload a file:</label>
@@ -141,27 +122,65 @@ templ customForm(err error) {
 	</form>
 }
 
-templ importResults(results dusk.Books) {
-	<h2>Results</h2>
-	for _, result := range results {
-		<button
-			class="import__result"
-		>
-			<img alt="" src="/static/red-rising.jpg"/>
-			<div class="details">
-				<h3>{ result.Title }</h3>
+templ ImportResults(results dusk.Books, message string, err error) {
+	if err == ErrNotValidIsbn {
+		<div class="card error fluid">
+			<p>
+				You entered an invalid ISBN. A book's ISBN is usually found on the
+				back cover, near the barcode. It will contain 10 or 13 characters, plus
+				any dashes and spaces.
+			</p>
+			<p>
+				Valid examples: 978-0495011606, 9780136006176, 0077354761,
+				013603599X
+			</p>
+			<p>
+				Alternatively, you can try searching for the book's title or
+				author.
+			</p>
+		</div>
+	} else if err != nil {
+		<div class="card error fluid">
+			<p>Something went wrong, please try again</p>
+		</div>
+	}
+	if message != "" {
+		<div class="card fluid message">
+			@templ.Raw(message)
+		</div>
+	}
+	if err == nil {
+		<h2>
+			Results
+			<small>Found { strconv.Itoa(len(results)) } result(s)</small>
+		</h2>
+		<div class="column-headers">
+			<small>Cover</small>
+			<small>Title</small>
+			<small>Author</small>
+			<small>ISBN</small>
+			<div></div>
+		</div>
+		for _, result := range results {
+			<div class="import__result">
+				<img alt="" src="/static/red-rising.jpg"/>
+				<h5>
+					{ result.Title }
+					<small>Very long subtitle here</small>
+				</h5>
 				<small>
 					for _, author := range result.Author {
 						<span class="author">{ author }</span>
 					}
 				</small>
-				<br/>
-				<small>ISBN: { result.ISBN }</small>
-				<br/>
+				<small>{ result.ISBN }</small>
+				<div class="add-button">
+					<form hx-post="/import/add" hx-target=".import__result_list" hx-swap="innerHTML">
+						<input type="hidden" name="result" value={ result.ISBN }/>
+						<button class="small" type="submit">Add</button>
+					</form>
+				</div>
 			</div>
-			<div class="description">
-				Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.
-			</div>
-		</button>
+		}
 	}
 }

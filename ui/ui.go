@@ -54,6 +54,7 @@ func Routes(db Store) chi.Router {
 		c.Post("/openlibrary", s.importOpenLibrary)
 		// c.Post("/goodreads", s.importGoodreads)
 		// c.Post("/calibre", s.importCalibre)
+		c.Post("/add", s.importAddResult)
 	})
 
 	ui.HandleFunc("/authors", s.authorList)

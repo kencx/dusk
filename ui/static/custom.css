@@ -278,7 +278,7 @@ footer {
 	}
 
 	.goodreads-form {
-	  input {
+		input {
 			margin: var(--universal-margin);
 			padding: calc(2 * var(--universal-padding)) var(--universal-padding);
 			margin-bottom: 0;
@@ -304,37 +304,29 @@ footer {
   margin: 1.5rem 0;
 }
 
-.import__result {
-  display: flex;
-  justify-content: start;
-  gap: 1.5rem;
+.import__result,
+.column-headers {
+  display: grid;
+  grid-template-columns: 50px 2fr 1fr 0.5fr 4rem;
+  grid-template-areas:
+    "a b c d e";
+  gap: 0.125rem;
+  align-items: center;
   margin: var(--universal-margin);
-  padding: calc(2 * var(--universal-padding)) var(--universal-padding);
+  padding: var(--universal-padding);
   background: var(--form-back-color);
   color: var(--form-fore-color);
   border: 0.0625rem solid var(--form-border-color);
   border-radius: var(--universal-border-radius);
   text-align: left;
 
-	img {
-		--max-result-cover-width: 100px;
-		max-width: var(--max-result-cover-width);
+	img, .cover {
+    width: 50px;
 	}
 
-	.details {
-		padding: 1rem 0;
-		min-width: 8rem;
-
-		h3 {
-			padding: 0;
-			margin: 0;
-		}
-	}
-
-	.description {
-		padding: 1rem 1rem 1rem 0;
-		font-size: 0.75rem;
-	}
+  .add-button form {
+    all: unset;
+  }
 }
 
 /* AUTHOR LIST VIEW */
