@@ -6,6 +6,7 @@ import (
 	"dusk/api"
 	"dusk/storage"
 	"dusk/ui"
+	"dusk/worker"
 	"net/http"
 	"time"
 
@@ -44,11 +45,12 @@ type Store interface {
 type Server struct {
 	*http.Server
 	db Store
+	fw *worker.FileWorker
 	// InfoLog  *log.Logger
 	// ErrorLog *log.Logger
 }
 
-func New(db *storage.Store) *Server {
+func New(db *storage.Store, fw *worker.FileWorker) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
@@ -57,6 +59,7 @@ func New(db *storage.Store) *Server {
 			Handler:      chi.NewRouter(),
 		},
 		db: db,
+		fw: fw,
 		// InfoLog:  log.New(os.Stdout, "INFO ", log.LstdFlags),
 		// ErrorLog: log.New(os.Stderr, "ERROR ", log.LstdFlags),
 	}
@@ -91,6 +94,6 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
 
-	r.Mount("/api", api.Routes(s.db))
-	r.Mount("/", ui.Routes(s.db))
+	r.Mount("/api", api.Router(s.db, s.fw))
+	r.Mount("/", ui.Router(s.db, s.fw))
 }

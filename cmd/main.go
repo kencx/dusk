@@ -3,6 +3,7 @@ package main
 import (
 	dhttp "dusk/http"
 	"dusk/storage"
+	"dusk/worker"
 	"errors"
 	"flag"
 	"fmt"
@@ -14,10 +15,11 @@ import (
 )
 
 type config struct {
-	port     int
-	dsn      string
-	tls_cert string
-	tls_key  string
+	port    int
+	dsn     string
+	tlsCert string
+	tlsKey  string
+	dataDir string
 }
 
 func main() {
@@ -25,8 +27,9 @@ func main() {
 
 	flag.IntVar(&config.port, "port", 9090, "Server Port")
 	flag.StringVar(&config.dsn, "dsn", "library.db", "sqlite DSN")
-	flag.StringVar(&config.tls_cert, "TLS cert", "", "TLS Certificate path")
-	flag.StringVar(&config.tls_key, "TLS key", "", "TLS Key path")
+	flag.StringVar(&config.tlsCert, "TLS cert", "", "TLS Certificate path")
+	flag.StringVar(&config.tlsKey, "TLS key", "", "TLS Key path")
+	flag.StringVar(&config.dataDir, "data_dir", "data", "Data directory")
 	flag.Parse()
 
 	db, err := storage.Open(config.dsn)
@@ -44,10 +47,15 @@ func main() {
 		log.Print(err)
 	}
 
-	srv := dhttp.New(store)
+	fw, err := worker.NewFileWorker(config.dataDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srv := dhttp.New(store, fw)
 	go func() error {
 		// srv.InfoLog.Printf("Starting server on :%d", config.port)
-		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tls_cert, config.tls_key)
+		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tlsCert, config.tlsKey)
 		if !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}

@@ -18,6 +18,7 @@ type Book struct {
 	Notes       util.NullString `json:"notes,omitempty" db:"notes"`
 	Tag         []string        `json:"tag,omitempty"`
 	Cover       string          `json:"cover,omitempty" db:"cover"`
+	Formats     []string        `json:"formats,omitempty" db:"formats"`
 
 	DateCompleted sql.NullTime `json:"-" db:"dateCompleted"`
 	DateAdded     sql.NullTime `json:"-" db:"dateAdded"`

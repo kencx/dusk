@@ -4,6 +4,7 @@ import (
 	"dusk"
 	"dusk/http/response"
 	"dusk/util"
+	"dusk/worker"
 	"net/http"
 	"time"
 
@@ -33,10 +34,11 @@ type Store interface {
 
 type Handler struct {
 	db Store
+	fw *worker.FileWorker
 }
 
-func Routes(db Store) chi.Router {
-	s := Handler{db: db}
+func Router(db Store, fw *worker.FileWorker) chi.Router {
+	s := Handler{db, fw}
 	api := chi.NewRouter()
 
 	api.Get("/ping", s.Healthcheck)
@@ -45,6 +47,8 @@ func Routes(db Store) chi.Router {
 		r.Get("/{id:[0-9]+}", s.GetBook)
 		r.Get("/", s.GetAllBooks)
 		r.Post("/", s.AddBook)
+		r.Post("/{id:[0-9]+}/cover", s.AddBookCover)
+		r.Post("/{id:[0-9]+}/format", s.AddBookFormat)
 		r.Put("/{id:[0-9]+}", s.UpdateBook)
 		r.Delete("/{id:[0-9]+}", s.DeleteBook)
 	})
