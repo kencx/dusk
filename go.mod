@@ -10,3 +10,8 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 )
+
+require (
+	github.com/kennygrant/sanitize v1.2.4 // indirect
+	golang.org/x/net v0.17.0 // indirect
+)

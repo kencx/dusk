@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/kennygrant/sanitize"
 )
 
 const (
@@ -95,7 +97,7 @@ func (w *FileWorker) UploadFile(file io.Reader, title, filename string) (string,
 }
 
 func (w *FileWorker) CreateBookDir(title string) (string, error) {
-	sanitized := sanitize(title)
+	sanitized := sanitize.Name(title)
 
 	path := filepath.Join(w.DataDir, sanitized)
 	err := os.MkdirAll(path, 0755)
@@ -109,8 +111,4 @@ func (w *FileWorker) CreateBookDir(title string) (string, error) {
 func (w *FileWorker) GetRelativePath(path string) string {
 	parentDir := filepath.Base(filepath.Dir(path))
 	return filepath.Join(parentDir, filepath.Base(path))
-}
-
-func sanitize(f string) string {
-	return f
 }
