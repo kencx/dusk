@@ -27,9 +27,9 @@ func main() {
 
 	flag.IntVar(&config.port, "port", 9090, "Server Port")
 	flag.StringVar(&config.dsn, "dsn", "library.db", "sqlite DSN")
-	flag.StringVar(&config.tlsCert, "TLS cert", "", "TLS Certificate path")
-	flag.StringVar(&config.tlsKey, "TLS key", "", "TLS Key path")
-	flag.StringVar(&config.dataDir, "data_dir", "data", "Data directory")
+	flag.StringVar(&config.tlsCert, "tlsKey", "", "TLS Certificate path")
+	flag.StringVar(&config.tlsKey, "tlsCert", "", "TLS Key path")
+	flag.StringVar(&config.dataDir, "dataDir", "dusk_data", "Data directory")
 	flag.Parse()
 
 	db, err := storage.Open(config.dsn)
