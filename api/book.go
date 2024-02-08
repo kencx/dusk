@@ -7,9 +7,7 @@ import (
 	"dusk/util"
 	"dusk/validator"
 	"fmt"
-	"mime"
 	"net/http"
-	"strings"
 )
 
 func (s *Handler) GetBook(rw http.ResponseWriter, r *http.Request) {
@@ -94,12 +92,6 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contentType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil || !strings.HasPrefix(contentType, "image/") {
-		response.BadRequest(rw, r, fmt.Errorf("incorrect content-type %s, must be image/*", contentType))
-		return
-	}
-
 	b, err := s.db.GetBook(id)
 	if err == dusk.ErrDoesNotExist {
 		response.NotFound(rw, r, err)
@@ -110,19 +102,19 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	coverPath, err := s.fw.GeneratePath(b.Title)
+	file, err := request.ReadFile(r, "cover", "image/")
+	if err != nil {
+		response.BadRequest(rw, r, err)
+		return
+	}
+
+	path, err := s.fw.UploadCover(file, b.Title)
 	if err != nil {
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	err = request.ReadAndUploadFile(rw, r, "cover", coverPath)
-	if err != nil {
-		response.InternalServerError(rw, r, err)
-		return
-	}
-
-	b.Cover = coverPath
+	b.Cover = s.fw.GetRelativePath(path)
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
 		response.InternalServerError(rw, r, err)
@@ -144,12 +136,6 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contentType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil || !strings.HasPrefix(contentType, "image/") {
-		response.BadRequest(rw, r, fmt.Errorf("incorrect content-type %s, must be image/*", contentType))
-		return
-	}
-
 	b, err := s.db.GetBook(id)
 	if err == dusk.ErrDoesNotExist {
 		response.NotFound(rw, r, err)
@@ -160,19 +146,20 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formatPath, err := s.fw.GeneratePath(b.Title)
+	// TODO
+	file, err := request.ReadFile(r, "format", "")
+	if err != nil {
+		response.BadRequest(rw, r, err)
+		return
+	}
+
+	path, err := s.fw.UploadFile(file, b.Title, fmt.Sprintf("%s.%s", b.Title, ".epub"))
 	if err != nil {
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	err = request.ReadAndUploadFile(rw, r, "format", formatPath)
-	if err != nil {
-		response.InternalServerError(rw, r, err)
-		return
-	}
-
-	// b.Format = formatPath
+	b.Cover = s.fw.GetRelativePath(path)
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
 		response.InternalServerError(rw, r, err)

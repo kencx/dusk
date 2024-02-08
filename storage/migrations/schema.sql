@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS book (
     rating        INTEGER DEFAULT 0,
     description   TEXT,
     notes         TEXT,
-    cover         TEXT,
+    cover         TEXT DEFAULT "default_cover",
     dateAdded     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateUpdated   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateCompleted TIMESTAMP
@@ -35,3 +35,14 @@ CREATE TABLE IF NOT EXISTS book_tag_link (
 	tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
 	PRIMARY KEY(book, tag)
 );
+
+-- CREATE TABLE IF NOT EXISTS format (
+-- 	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+-- 	filepath TEXT NOT NULL UNIQUE
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS book_format_link (
+-- 	book INTEGER NOT NULL REFERENCES book(id) ON DELETE CASCADE,
+-- 	format INTEGER NOT NULL REFERENCES format(id) ON DELETE CASCADE,
+-- 	PRIMARY KEY(book, format)
+-- );

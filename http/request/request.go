@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -61,24 +60,27 @@ func Read(rw http.ResponseWriter, r *http.Request, dest interface{}) error {
 	return nil
 }
 
-func ReadAndUploadFile(rw http.ResponseWriter, r *http.Request, key, path string) error {
-	in, _, err := r.FormFile(key)
+func ReadFile(r *http.Request, key, mimetype string) (io.Reader, error) {
+	file, _, err := r.FormFile(key)
 	if err != nil {
-		return fmt.Errorf("failed to parse form data: %v", err)
+		return nil, fmt.Errorf("failed to parse form data: %v", err)
 	}
-	defer in.Close()
+	defer file.Close()
 
-	out, err := os.Create(path)
-	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return fmt.Errorf("failed to copy file to destination: %v", err)
+	// create buffer to store file header
+	fileHeader := make([]byte, 512)
+	if _, err := file.Read(fileHeader); err != nil {
+		return nil, fmt.Errorf("failed to read file header: %v", err)
 	}
 
-	// TODO log upload file complete
-	return nil
+	// set position back to start
+	if _, err := file.Seek(0, 0); err != nil {
+		return nil, err
+	}
+
+	if !strings.HasPrefix(http.DetectContentType(fileHeader), mimetype) {
+		return nil, fmt.Errorf("incorrect mimetype, must be %s", mimetype)
+	}
+
+	return file, nil
 }
