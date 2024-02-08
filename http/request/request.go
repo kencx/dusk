@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -57,5 +58,27 @@ func Read(rw http.ResponseWriter, r *http.Request, dest interface{}) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func ReadAndUploadFile(rw http.ResponseWriter, r *http.Request, key, path string) error {
+	in, _, err := r.FormFile(key)
+	if err != nil {
+		return fmt.Errorf("failed to parse form data: %v", err)
+	}
+	defer in.Close()
+
+	out, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %v", err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return fmt.Errorf("failed to copy file to destination: %v", err)
+	}
+
+	// TODO log upload file complete
 	return nil
 }

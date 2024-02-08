@@ -6,7 +6,10 @@ import (
 	"dusk/http/response"
 	"dusk/util"
 	"dusk/validator"
+	"fmt"
+	"mime"
 	"net/http"
+	"strings"
 )
 
 func (s *Handler) GetBook(rw http.ResponseWriter, r *http.Request) {
@@ -83,6 +86,106 @@ func (s *Handler) AddBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.Created(rw, r, body)
+}
+
+func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
+	id := request.HandleInt64("id", rw, r)
+	if id == -1 {
+		return
+	}
+
+	contentType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || !strings.HasPrefix(contentType, "image/") {
+		response.BadRequest(rw, r, fmt.Errorf("incorrect content-type %s, must be image/*", contentType))
+		return
+	}
+
+	b, err := s.db.GetBook(id)
+	if err == dusk.ErrDoesNotExist {
+		response.NotFound(rw, r, err)
+		return
+	}
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	coverPath, err := s.fw.GeneratePath(b.Title)
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	err = request.ReadAndUploadFile(rw, r, "cover", coverPath)
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	b.Cover = coverPath
+	result, err := s.db.UpdateBook(id, b)
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	body, err := util.ToJSON(response.Envelope{"books": result})
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	response.OK(rw, r, body)
+}
+
+func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
+	id := request.HandleInt64("id", rw, r)
+	if id == -1 {
+		return
+	}
+
+	contentType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || !strings.HasPrefix(contentType, "image/") {
+		response.BadRequest(rw, r, fmt.Errorf("incorrect content-type %s, must be image/*", contentType))
+		return
+	}
+
+	b, err := s.db.GetBook(id)
+	if err == dusk.ErrDoesNotExist {
+		response.NotFound(rw, r, err)
+		return
+	}
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	formatPath, err := s.fw.GeneratePath(b.Title)
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	err = request.ReadAndUploadFile(rw, r, "format", formatPath)
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	// b.Format = formatPath
+	result, err := s.db.UpdateBook(id, b)
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	body, err := util.ToJSON(response.Envelope{"books": result})
+	if err != nil {
+		response.InternalServerError(rw, r, err)
+		return
+	}
+
+	response.OK(rw, r, body)
 }
 
 func (s *Handler) UpdateBook(rw http.ResponseWriter, r *http.Request) {
