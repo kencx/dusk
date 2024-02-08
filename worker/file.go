@@ -1,6 +1,8 @@
 package worker
 
 import (
+	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -31,6 +33,39 @@ func (w *FileWorker) createDataDir() error {
 		return err
 	}
 	return nil
+}
+
+func (w *FileWorker) ExtractCoverFromEpub(path, title string) (string, error) {
+	if filepath.Ext(path) != ".epub" {
+		return "", errors.New("not an epub file")
+	}
+
+	z, err := zip.OpenReader(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to unzip epub: %v", err)
+	}
+	defer z.Close()
+
+	var coverPath string
+	for _, f := range z.File {
+
+		if filepath.Ext(f.Name) == ".jpeg" ||
+			filepath.Ext(f.Name) == ".png" ||
+			filepath.Ext(f.Name) == ".jpg" {
+
+			rc, err := f.Open()
+			if err != nil {
+				return "", fmt.Errorf("failed to read image file in epub: %v", err)
+			}
+
+			coverPath, err = w.UploadCover(rc, title)
+			if err != nil {
+				return "", err
+			}
+			break
+		}
+	}
+	return coverPath, nil
 }
 
 func (w *FileWorker) UploadCover(cover io.Reader, title string) (string, error) {

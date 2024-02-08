@@ -8,6 +8,7 @@ import (
 	"dusk/validator"
 	"fmt"
 	"net/http"
+	"path/filepath"
 )
 
 func (s *Handler) GetBook(rw http.ResponseWriter, r *http.Request) {
@@ -147,19 +148,29 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO
-	file, err := request.ReadFile(r, "format", "")
+	file, err := request.ReadFile(r, "format", "application/")
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
 	}
 
-	path, err := s.fw.UploadFile(file, b.Title, fmt.Sprintf("%s.%s", b.Title, ".epub"))
+	path, err := s.fw.UploadFile(file, b.Title, fmt.Sprintf("%s.%s", b.Title, "epub"))
 	if err != nil {
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	b.Cover = s.fw.GetRelativePath(path)
+	if filepath.Ext(path) == ".epub" {
+		coverPath, err := s.fw.ExtractCoverFromEpub(path, b.Title)
+		if err != nil {
+			response.InternalServerError(rw, r, err)
+			return
+		}
+		b.Cover = s.fw.GetRelativePath(coverPath)
+	}
+
+	b.Formats = append(b.Formats, s.fw.GetRelativePath(path))
+
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
 		response.InternalServerError(rw, r, err)
