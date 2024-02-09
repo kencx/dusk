@@ -64,7 +64,7 @@ func TestNoContainerFile(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	err = got.getRootFile()
 	is.Equal(err, ErrNotValidEpub)
 }
@@ -77,7 +77,7 @@ func TestGetRootFile(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	err = got.getRootFile()
 	is.NoErr(err)
 	is.Equal(got.RootFile, want)
@@ -90,7 +90,7 @@ func TestNoRootFile(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	err = got.getRootFile()
 	is.Equal(err, ErrNoRootFiles)
 }
@@ -109,7 +109,7 @@ func TestGetMetadata(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	p, err := got.getPackage()
 	is.NoErr(err)
 
@@ -127,7 +127,7 @@ func TestGetCover(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	p, err := got.getPackage()
 	is.NoErr(err)
 
@@ -143,7 +143,7 @@ func TestNoCover(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	p, err := got.getPackage()
 	is.NoErr(err)
 
@@ -159,7 +159,7 @@ func TestGetCoverInMetadata(t *testing.T) {
 	is.NoErr(err)
 	defer rc.Close()
 
-	got := &Epub{ReadCloser: rc}
+	got := &Epub{Reader: &rc.Reader}
 	p, err := got.getPackage()
 	is.NoErr(err)
 

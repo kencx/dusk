@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"slices"
@@ -36,7 +37,7 @@ func ExtractCoverFile(path string) (io.ReadCloser, error) {
 }
 
 type Epub struct {
-	*zip.ReadCloser
+	*zip.Reader
 	Version int
 	metadata
 
@@ -90,7 +91,20 @@ func New(path string) (*Epub, error) {
 	}
 	defer rc.Close()
 
-	ep := &Epub{ReadCloser: rc}
+	return new(&rc.Reader)
+}
+
+func NewFromReader(r multipart.File, fileSize int64) (*Epub, error) {
+	rc, err := zip.NewReader(r, fileSize)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(rc)
+}
+
+func new(r *zip.Reader) (*Epub, error) {
+	ep := &Epub{Reader: r}
 	if err := ep.getRootFile(); err != nil {
 		return nil, fmt.Errorf("failed to extract rootFile: %v", err)
 	}
