@@ -15,9 +15,9 @@ var (
 	testdb  *sqlx.DB
 	testDSN string
 
-	testSchemaPath  = "migrations/schema.sql"
-	testDataPath    = "migrations/testdata.sql"
-	resetSchemaPath = "migrations/reset.sql"
+	testSchemaPath  = "schema.sql"
+	testDataPath    = "testdata.sql"
+	resetSchemaPath = "reset.sql"
 )
 
 func TestMain(m *testing.M) {
