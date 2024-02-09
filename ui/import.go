@@ -24,7 +24,7 @@ func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 	isbn := r.FormValue("openlibrary")
 
-	// input validation
+	// isbn validation
 	rx, err := regexp.Compile(`(\d+.*?)`)
 	if err != nil {
 		views.ImportResultsError(rw, r, err)

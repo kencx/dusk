@@ -51,6 +51,7 @@ func Router(db Store, fw *worker.FileWorker) chi.Router {
 		c.Delete("/{id:[0-9]+}", s.deleteBook)
 	})
 
+	ui.Post("/upload", s.upload)
 	ui.Route("/import", func(c chi.Router) {
 		c.Get("/", s.importPage)
 		c.Post("/openlibrary", s.importOpenLibrary)

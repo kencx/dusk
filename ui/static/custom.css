@@ -295,7 +295,7 @@ footer {
 		flex-basis: unset;
 	}
 
-	.custom-form .input-group.vertical > input {
+	.upload-form .input-group.vertical > input {
 		flex-basis: unset;
 	}
 }

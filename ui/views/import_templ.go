@@ -24,7 +24,7 @@ const (
 	OPENLIBRARY TabView = "openlibrary"
 	GOODREADS           = "goodreads"
 	CALIBRE             = "calibre"
-	CUSTOM              = "custom"
+	UPLOAD              = "upload"
 )
 
 var (
@@ -152,11 +152,11 @@ func Tab(tab TabView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=custom\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=upload\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var8 := `Custom`
+			templ_7745c5c3_Var8 := `Upload`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -197,11 +197,11 @@ func Tab(tab TabView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=custom\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=upload\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var12 := `Custom`
+			templ_7745c5c3_Var12 := `Upload`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -242,11 +242,11 @@ func Tab(tab TabView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=custom\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=upload\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var16 := `Custom`
+			templ_7745c5c3_Var16 := `Upload`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -259,7 +259,7 @@ func Tab(tab TabView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case CUSTOM:
+		case UPLOAD:
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-get=\"/import?tab=openlibrary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -287,11 +287,11 @@ func Tab(tab TabView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=custom\" class=\"selected\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button hx-get=\"/import?tab=upload\" class=\"selected\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var20 := `Custom`
+			templ_7745c5c3_Var20 := `Upload`
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -300,7 +300,7 @@ func Tab(tab TabView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = customForm().Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = uploadForm().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -456,7 +456,7 @@ func calibreForm() templ.Component {
 	})
 }
 
-func customForm() templ.Component {
+func uploadForm() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -469,7 +469,7 @@ func customForm() templ.Component {
 			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"custom-form\" action=\"/import/custom\" method=\"POST\"><div class=\"input-group vertical\"><label class=\"custom\" for=\"custom\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"upload-form\" hx-post=\"/upload\" hx-target=\".import__result_list\" hx-swap=\"innerHTML\" enctype=\"multipart/form-data\"><div class=\"input-group vertical\"><label class=\"upload\" for=\"upload\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -478,7 +478,7 @@ func customForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input type=\"file\" name=\"custom\" accept=\".epub,.mobi,.pdf\" required> <small>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input type=\"file\" name=\"upload\" accept=\".epub,.mobi,.pdf,.txt,.html\" required> <small>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -639,7 +639,7 @@ func ImportResults(results dusk.Books, message string, err error) templ.Componen
 			var templ_7745c5c3_Var47 string
 			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(len(results)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 154, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 160, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
@@ -702,7 +702,7 @@ func ImportResults(results dusk.Books, message string, err error) templ.Componen
 				var templ_7745c5c3_Var53 string
 				templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(result.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 167, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 173, Col: 19}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 				if templ_7745c5c3_Err != nil {
@@ -729,7 +729,7 @@ func ImportResults(results dusk.Books, message string, err error) templ.Componen
 					var templ_7745c5c3_Var55 string
 					templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(author)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 172, Col: 35}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 178, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 					if templ_7745c5c3_Err != nil {
@@ -747,7 +747,7 @@ func ImportResults(results dusk.Books, message string, err error) templ.Componen
 				var templ_7745c5c3_Var56 string
 				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(result.ISBN)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 175, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/views/import.templ`, Line: 181, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 				if templ_7745c5c3_Err != nil {
