@@ -2,7 +2,6 @@ package worker
 
 import (
 	"dusk/epub"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -37,12 +36,8 @@ func (w *FileWorker) createDataDir() error {
 	return nil
 }
 
-func (w *FileWorker) ExtractCoverFromEpub(path, title string) (string, error) {
-	if filepath.Ext(path) != ".epub" {
-		return "", errors.New("not an epub file")
-	}
-
-	f, err := epub.ExtractCover(path)
+func (w *FileWorker) UploadCoverFromFile(path, title string) (string, error) {
+	f, err := epub.ExtractCoverFile(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to get cover file: %v", err)
 	}

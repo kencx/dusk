@@ -8,8 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 )
 
 const (
@@ -19,33 +21,28 @@ const (
 var (
 	coverExtension = []string{".jpg", ".jpeg", ".png"}
 
-	ErrNoRootFiles = errors.New("no rootfiles found")
-	ErrNoCovers    = errors.New("no cover files found")
+	ErrNotValidEpub = errors.New("not valid epub file")
+	ErrNoRootFiles  = errors.New("no root files found")
+	ErrNoCovers     = errors.New("no cover files found")
 )
 
-func Open(path string) (*zip.ReadCloser, error) {
-	return zip.OpenReader(path)
-}
-
-func ExtractCover(path string) (io.ReadCloser, error) {
-	rc, err := zip.OpenReader(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unzip epub: %v", err)
-	}
-	defer rc.Close()
-
-	cover, err := getCover(rc)
+func ExtractCoverFile(path string) (io.ReadCloser, error) {
+	ep, err := New(path)
 	if err != nil {
 		return nil, err
 	}
 
-	return rc.Open(cover)
+	return ep.Open(ep.CoverFile)
 }
 
 type Epub struct {
-	*metadata
+	*zip.ReadCloser
+	Version int
+	metadata
 
-	RootFile, CoverFile string
+	// rel path from EPUB root
+	RootFile  string
+	CoverFile string
 }
 
 type container struct {
@@ -57,9 +54,11 @@ type container struct {
 	} `xml:"rootfiles>rootfile"`
 }
 
-type Package struct {
+type contentPackage struct {
 	Package  xml.Name `xml:"package"`
+	Version  string   `xml:"version,attr"`
 	Metadata metadata `xml:"metadata"`
+	Manifest manifest `xml:"manifest"`
 }
 
 type metadata struct {
@@ -74,6 +73,16 @@ type metadata struct {
 
 type identifiers struct{}
 
+type manifest struct {
+	Item []struct {
+		Item       xml.Name `xml:"item"`
+		Href       string   `xml:"href,attr"`
+		Id         string   `xml:"id,attr"`
+		MediaType  string   `xml:"media-type,attr"`
+		Properties string   `xml:"properties,attr,omitempty"`
+	} `xml:"item"`
+}
+
 func New(path string) (*Epub, error) {
 	rc, err := zip.OpenReader(path)
 	if err != nil {
@@ -81,26 +90,27 @@ func New(path string) (*Epub, error) {
 	}
 	defer rc.Close()
 
-	return NewFromFile(rc)
-}
-
-func NewFromFile(rc *zip.ReadCloser) (*Epub, error) {
-	rootFile, err := getRootFile(rc)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get rootFile: %v", err)
+	ep := &Epub{ReadCloser: rc}
+	if err := ep.getRootFile(); err != nil {
+		return nil, fmt.Errorf("failed to extract rootFile: %v", err)
 	}
 
-	m, err := getMetadata(rc, rootFile)
+	p, err := ep.getPackage()
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract package: %v", err)
+	}
+
+	err = ep.getMetadata(p)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract metadata: %v", err)
 	}
 
-	cover, err := getCover(rc)
+	err = ep.getCover(p)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract cover: %v", err)
 	}
 
-	return &Epub{m, rootFile, cover}, nil
+	return ep, nil
 }
 
 func (e *Epub) ToBook() *dusk.Book {
@@ -111,48 +121,84 @@ func (e *Epub) ToBook() *dusk.Book {
 	}
 }
 
-func getRootFile(rc *zip.ReadCloser) (string, error) {
-	f, err := rc.Open(CONTAINER)
-	if err != nil {
-		return "", fmt.Errorf("failed to open container.xml: %v", err)
+func (e *Epub) getRootFile() error {
+	f, err := e.Open(CONTAINER)
+	if errors.Is(err, os.ErrNotExist) {
+		return ErrNotValidEpub
+	} else if err != nil {
+		return fmt.Errorf("failed to open container.xml: %v", err)
 	}
 	defer f.Close()
 
 	c := &container{}
 	err = util.UnmarshalXml(f, c)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	if len(c.Rootfiles) >= 1 {
-		return c.Rootfiles[0].FullPath, nil
-	}
-
-	return "", ErrNoRootFiles
-}
-
-func getMetadata(rc *zip.ReadCloser, rootFile string) (*metadata, error) {
-	f, err := rc.Open(rootFile)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	dest := &Package{}
-	err = util.UnmarshalXml(f, dest)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dest.Metadata, nil
-}
-
-func getCover(rc *zip.ReadCloser) (string, error) {
-	for _, f := range rc.File {
-		if slices.Contains(coverExtension, filepath.Ext(f.Name)) {
-			return f.Name, nil
+	for _, rootFile := range c.Rootfiles {
+		if slices.ContainsFunc[[]*zip.File](e.File, func(z *zip.File) bool {
+			return z.Name == rootFile.FullPath
+		}) {
+			e.RootFile = rootFile.FullPath
+			return nil
 		}
 	}
 
-	return "", ErrNoCovers
+	return ErrNoRootFiles
+}
+
+func (e *Epub) getMetadata(p *contentPackage) error {
+	v, err := strconv.ParseFloat(p.Version, 64)
+	if err != nil {
+		return err
+	}
+
+	e.Version = int(v)
+	e.metadata = p.Metadata
+	return nil
+}
+
+func (e *Epub) getCover(p *contentPackage) error {
+	for _, item := range p.Manifest.Item {
+		if item.Properties == "cover-image" {
+			// The cover-image property returns a path that is relative to
+			// the root file. Thus, we prefix it with with the root file's
+			// parent directory to get the absolute path from the EPUB root.
+			e.CoverFile = filepath.Join(filepath.Dir(e.RootFile), item.Href)
+			return nil
+		}
+	}
+
+	// fallback to any image file
+	for _, f := range e.File {
+		if slices.Contains(coverExtension, filepath.Ext(f.Name)) {
+			e.CoverFile = f.Name
+			return nil
+		}
+	}
+
+	return ErrNoCovers
+}
+
+func (e *Epub) getPackage() (*contentPackage, error) {
+	if e.RootFile == "" {
+		if err := e.getRootFile(); err != nil {
+			return nil, err
+		}
+	}
+
+	f, err := e.Open(e.RootFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open root file: %v", err)
+	}
+	defer f.Close()
+
+	cp := &contentPackage{}
+	err = util.UnmarshalXml(f, cp)
+	if err != nil {
+		return nil, err
+	}
+
+	return cp, nil
 }

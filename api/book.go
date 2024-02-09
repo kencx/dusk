@@ -161,7 +161,7 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if filepath.Ext(path) == ".epub" {
-		coverPath, err := s.fw.ExtractCoverFromEpub(path, b.Title)
+		coverPath, err := s.fw.UploadCoverFromFile(path, b.Title)
 		if err != nil {
 			response.InternalServerError(rw, r, err)
 			return

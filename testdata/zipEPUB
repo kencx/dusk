@@ -1,0 +1,3 @@
+#!/bin/bash
+
+zip -rX "$1" mimetype META-INF/ EPUB/
