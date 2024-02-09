@@ -59,7 +59,7 @@ func (s *Handler) AddAuthor(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
 	var author dusk.Author
-	err := request.Read(rw, r, &author)
+	err := request.ReadJSON(rw, r, &author)
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
@@ -95,7 +95,7 @@ func (s *Handler) UpdateAuthor(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
 	var author dusk.Author
-	err := request.Read(rw, r, &author)
+	err := request.ReadJSON(rw, r, &author)
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return

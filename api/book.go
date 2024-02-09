@@ -60,7 +60,7 @@ func (s *Handler) AddBook(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
 	var book dusk.Book
-	err := request.Read(rw, r, &book)
+	err := request.ReadJSON(rw, r, &book)
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
@@ -118,12 +118,14 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 	b.Cover = s.fw.GetRelativePath(path)
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
+		// TODO delete uploaded file on err
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
 	body, err := util.ToJSON(response.Envelope{"books": result})
 	if err != nil {
+		// TODO delete uploaded file on err
 		response.InternalServerError(rw, r, err)
 		return
 	}
@@ -131,6 +133,7 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 	response.OK(rw, r, body)
 }
 
+// TODO should adding format change metadata?
 func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 	id := request.HandleInt64("id", rw, r)
 	if id == -1 {
@@ -163,6 +166,7 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 	if filepath.Ext(path) == ".epub" {
 		coverPath, err := s.fw.UploadCoverFromFile(path, b.Title)
 		if err != nil {
+			// TODO delete uploaded file on err
 			response.InternalServerError(rw, r, err)
 			return
 		}
@@ -173,12 +177,14 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
+		// TODO delete uploaded file on err
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
 	body, err := util.ToJSON(response.Envelope{"books": result})
 	if err != nil {
+		// TODO delete uploaded file on err
 		response.InternalServerError(rw, r, err)
 		return
 	}
@@ -194,7 +200,7 @@ func (s *Handler) UpdateBook(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
 	var book dusk.Book
-	err := request.Read(rw, r, &book)
+	err := request.ReadJSON(rw, r, &book)
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return

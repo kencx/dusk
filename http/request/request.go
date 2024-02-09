@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -16,7 +17,7 @@ var (
 	invalidUnmarshalError *json.InvalidUnmarshalError
 )
 
-func Read(rw http.ResponseWriter, r *http.Request, dest interface{}) error {
+func ReadJSON(rw http.ResponseWriter, r *http.Request, dest interface{}) error {
 
 	// limit request body
 	r.Body = http.MaxBytesReader(rw, r.Body, int64(maxBytes))
@@ -60,8 +61,14 @@ func Read(rw http.ResponseWriter, r *http.Request, dest interface{}) error {
 	return nil
 }
 
-func ReadFile(r *http.Request, key, mimetype string) (io.Reader, error) {
-	file, _, err := r.FormFile(key)
+type Payload struct {
+	multipart.File
+	Size     int64
+	Filename string
+}
+
+func ReadFile(r *http.Request, key, mimetype string) (*Payload, error) {
+	file, fh, err := r.FormFile(key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse form data: %v", err)
 	}
@@ -82,5 +89,9 @@ func ReadFile(r *http.Request, key, mimetype string) (io.Reader, error) {
 		return nil, fmt.Errorf("incorrect mimetype, must be %s", mimetype)
 	}
 
-	return file, nil
+	return &Payload{
+		File:     file,
+		Size:     fh.Size,
+		Filename: fh.Filename,
+	}, nil
 }

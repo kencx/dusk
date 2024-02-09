@@ -59,7 +59,7 @@ func (s *Handler) AddTag(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
 	var tag dusk.Tag
-	err := request.Read(rw, r, &tag)
+	err := request.ReadJSON(rw, r, &tag)
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
@@ -95,7 +95,7 @@ func (s *Handler) UpdateTag(rw http.ResponseWriter, r *http.Request) {
 
 	// marshal payload to struct
 	var tag dusk.Tag
-	err := request.Read(rw, r, &tag)
+	err := request.ReadJSON(rw, r, &tag)
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
