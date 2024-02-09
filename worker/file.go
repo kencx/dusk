@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"archive/zip"
+	"dusk/epub"
 	"errors"
 	"fmt"
 	"io"
@@ -42,32 +42,18 @@ func (w *FileWorker) ExtractCoverFromEpub(path, title string) (string, error) {
 		return "", errors.New("not an epub file")
 	}
 
-	z, err := zip.OpenReader(path)
+	f, err := epub.ExtractCover(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to unzip epub: %v", err)
+		return "", fmt.Errorf("failed to get cover file: %v", err)
 	}
-	defer z.Close()
+	defer f.Close()
 
-	var coverPath string
-	for _, f := range z.File {
-
-		if filepath.Ext(f.Name) == ".jpeg" ||
-			filepath.Ext(f.Name) == ".png" ||
-			filepath.Ext(f.Name) == ".jpg" {
-
-			rc, err := f.Open()
-			if err != nil {
-				return "", fmt.Errorf("failed to read image file in epub: %v", err)
-			}
-
-			coverPath, err = w.UploadCover(rc, title)
-			if err != nil {
-				return "", err
-			}
-			break
-		}
+	dest, err := w.UploadCover(f, title)
+	if err != nil {
+		return "", fmt.Errorf("failed to upload cover file: %v", err)
 	}
-	return coverPath, nil
+
+	return dest, nil
 }
 
 func (w *FileWorker) UploadCover(cover io.Reader, title string) (string, error) {
