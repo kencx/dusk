@@ -14,6 +14,7 @@ air:
 
 ## build: build binary
 build:
+	templ generate -path ui
 	cd cmd && go build -v -o ${binary} .
 
 ## run: run binary
