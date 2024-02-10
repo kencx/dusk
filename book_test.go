@@ -2,8 +2,6 @@ package dusk
 
 import (
 	"testing"
-
-	"dusk/validator"
 )
 
 func TestValidateBook(t *testing.T) {
@@ -69,23 +67,22 @@ func TestValidateBook(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := validator.New()
-			tt.book.Validate(v)
+			errMap := tt.book.Valid()
 
-			if !v.Valid() && tt.err == nil {
-				t.Fatalf("expected no err, got %v", v.Errors)
+			if len(errMap) > 0 && tt.err == nil {
+				t.Fatalf("expected no err, got %v", errMap)
 			}
 
-			if v.Valid() && tt.err != nil {
+			if len(errMap) == 0 && tt.err != nil {
 				t.Fatalf("expected err with %q, got nil", tt.err)
 			}
 
-			if !v.Valid() && tt.err != nil {
-				if len(v.Errors) != len(tt.err) {
-					t.Fatalf("got %d errs, want %d errs", len(v.Errors), len(tt.err))
+			if len(errMap) > 0 && tt.err != nil {
+				if len(errMap) != len(tt.err) {
+					t.Fatalf("got %d errs, want %d errs", len(errMap), len(tt.err))
 				}
 
-				for k, v := range v.Errors {
+				for k, v := range errMap {
 					s, ok := tt.err[k]
 					if !ok {
 						t.Fatalf("err field missing %q", k)

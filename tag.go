@@ -9,6 +9,8 @@ type Tag struct {
 
 type Tags []*Tag
 
-func (t *Tag) Validate(v *validator.Validator) {
-	v.Check(t.Name != "", "name", "value is missing")
+func (t Tag) Valid() validator.ErrMap {
+	err := validator.New()
+	err.Check(t.Name != "", "name", "value is missing")
+	return err
 }

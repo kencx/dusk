@@ -65,11 +65,9 @@ func (s *Handler) AddTag(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate payload
-	v := validator.New()
-	tag.Validate(v)
-	if !v.Valid() {
-		response.ValidationError(rw, r, v.Errors)
+	errMap := validator.Validate(tag)
+	if errMap != nil {
+		response.ValidationError(rw, r, errMap)
 		return
 	}
 
@@ -101,12 +99,10 @@ func (s *Handler) UpdateTag(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate payload
 	// PUT should require all fields
-	v := validator.New()
-	tag.Validate(v)
-	if !v.Valid() {
-		response.ValidationError(rw, r, v.Errors)
+	errMap := validator.Validate(tag)
+	if errMap != nil {
+		response.ValidationError(rw, r, errMap)
 		return
 	}
 

@@ -65,11 +65,9 @@ func (s *Handler) AddAuthor(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate payload
-	v := validator.New()
-	author.Validate(v)
-	if !v.Valid() {
-		response.ValidationError(rw, r, v.Errors)
+	errMap := validator.Validate(author)
+	if errMap != nil {
+		response.ValidationError(rw, r, errMap)
 		return
 	}
 
@@ -101,12 +99,9 @@ func (s *Handler) UpdateAuthor(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate payload
-	// PUT should require all fields
-	v := validator.New()
-	author.Validate(v)
-	if !v.Valid() {
-		response.ValidationError(rw, r, v.Errors)
+	errMap := validator.Validate(author)
+	if errMap != nil {
+		response.ValidationError(rw, r, errMap)
 		return
 	}
 

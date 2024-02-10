@@ -5,6 +5,7 @@ import (
 	"dusk/integrations/openlibrary"
 	"dusk/ui/views"
 	"dusk/validator"
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -31,7 +32,7 @@ func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !rx.MatchString(isbn) {
+	if !validator.Matches(isbn, rx) {
 		views.ImportResultsError(rw, r, views.ErrNotValidIsbn)
 		return
 	}
@@ -45,10 +46,9 @@ func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 
 	b := metadata.ToBook()
 
-	v := validator.New()
-	b.Validate(v)
-	if !v.Valid() {
-		views.ImportResultsError(rw, r, err)
+	errMap := validator.Validate(b)
+	if errMap != nil {
+		views.ImportResultsError(rw, r, errors.New("TODO"))
 		return
 	}
 
@@ -71,10 +71,9 @@ func (s *Handler) importAddResult(rw http.ResponseWriter, r *http.Request) {
 
 	b := metadata.ToBook()
 
-	v := validator.New()
-	b.Validate(v)
-	if !v.Valid() {
-		views.ImportResultsError(rw, r, err)
+	errMap := validator.Validate(b)
+	if errMap != nil {
+		views.ImportResultsError(rw, r, errors.New("TODO"))
 		return
 	}
 

@@ -9,6 +9,8 @@ type Author struct {
 
 type Authors []*Author
 
-func (a *Author) Validate(v *validator.Validator) {
-	v.Check(a.Name != "", "name", "value is missing")
+func (a Author) Valid() validator.ErrMap {
+	err := validator.New()
+	err.Check(a.Name != "", "name", "value is missing")
+	return err
 }

@@ -29,16 +29,20 @@ type Books []*Book
 
 var isbnRgx = regexp.MustCompile(`[0-9]+`)
 
-func (b *Book) Validate(v *validator.Validator) {
-	v.Check(b.Title != "", "title", "value is missing")
+func (b Book) Valid() validator.ErrMap {
+	err := validator.New()
 
-	v.Check(len(b.Author) != 0, "author", "value is missing")
+	err.Check(b.Title != "", "title", "value is missing")
 
-	v.Check(b.ISBN != "", "isbn", "value is missing")
-	v.Check(validator.Matches(b.ISBN, isbnRgx), "isbn", "incorrect format")
+	err.Check(len(b.Author) != 0, "author", "value is missing")
 
-	v.Check(b.NumOfPages >= 0, "numOfPages", "must be >= 0")
+	err.Check(b.ISBN != "", "isbn", "value is missing")
+	err.Check(validator.Matches(b.ISBN, isbnRgx), "isbn", "incorrect format")
 
-	v.Check(b.Rating >= 0, "rating", "must be >= 0")
-	v.Check(b.Rating <= 10, "rating", "must be <= 10")
+	err.Check(b.NumOfPages >= 0, "numOfPages", "must be >= 0")
+
+	err.Check(b.Rating >= 0, "rating", "must be >= 0")
+	err.Check(b.Rating <= 10, "rating", "must be <= 10")
+
+	return err
 }

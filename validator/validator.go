@@ -2,41 +2,35 @@ package validator
 
 import "regexp"
 
-type Validator struct {
-	Errors map[string]string `json:"errors"`
+type Validator interface {
+	Valid() ErrMap
 }
 
-func New() *Validator {
-	return &Validator{
-		Errors: make(map[string]string),
-	}
+type ErrMap map[string]string
+
+func New() ErrMap {
+	return ErrMap(make(map[string]string))
 }
 
-func (v *Validator) Valid() bool {
-	return len(v.Errors) == 0
-}
-
-func (v *Validator) AddError(key, message string) {
-	if _, exists := v.Errors[key]; !exists {
-		v.Errors[key] = message
-	}
-}
-
-func (v *Validator) Check(ok bool, key, message string) {
+func (e ErrMap) Check(ok bool, key, message string) {
 	if !ok {
-		v.AddError(key, message)
+		e.Add(key, message)
 	}
 }
 
-func Matches(value string, rgx *regexp.Regexp) bool {
-	return rgx.MatchString(value)
+func (e ErrMap) Add(key, message string) {
+	if _, exists := e[key]; !exists {
+		e[key] = message
+	}
 }
 
-func In[T comparable](item T, sl []T) bool {
-	for _, elem := range sl {
-		if item == elem {
-			return true
-		}
+func Validate(v Validator) ErrMap {
+	if err := v.Valid(); len(err) > 0 {
+		return err
 	}
-	return false
+	return nil
+}
+
+func Matches(value string, r *regexp.Regexp) bool {
+	return r.MatchString(value)
 }

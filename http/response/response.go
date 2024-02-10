@@ -2,6 +2,7 @@ package response
 
 import (
 	"dusk/util"
+	"dusk/validator"
 	"net/http"
 )
 
@@ -99,8 +100,8 @@ func Unauthorized(rw http.ResponseWriter, r *http.Request, err error) {
 	res.write()
 }
 
-func ValidationError(rw http.ResponseWriter, r *http.Request, err map[string]string) {
-	res := newError(rw, r, err)
+func ValidationError(rw http.ResponseWriter, r *http.Request, errMap validator.ErrMap) {
+	res := newError(rw, r, errMap)
 	res.statusCode = http.StatusUnprocessableEntity
 	res.write()
 }

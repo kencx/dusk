@@ -66,10 +66,9 @@ func (s *Handler) AddBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v := validator.New()
-	book.Validate(v)
-	if !v.Valid() {
-		response.ValidationError(rw, r, v.Errors)
+	errMap := validator.Validate(book)
+	if errMap != nil {
+		response.ValidationError(rw, r, errMap)
 		return
 	}
 
@@ -206,12 +205,10 @@ func (s *Handler) UpdateBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate payload
 	// PUT should require all fields
-	v := validator.New()
-	book.Validate(v)
-	if !v.Valid() {
-		response.ValidationError(rw, r, v.Errors)
+	errMap := validator.Validate(book)
+	if errMap != nil {
+		response.ValidationError(rw, r, errMap)
 		return
 	}
 

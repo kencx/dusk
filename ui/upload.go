@@ -35,10 +35,9 @@ func (s *Handler) uploadEpub(rw http.ResponseWriter, r *http.Request, f *request
 	}
 
 	b := ep.ToBook()
-	v := validator.New()
-	b.Validate(v)
-	if !v.Valid() {
-		views.ImportResultsError(rw, r, errors.New("invalid book"))
+	errMap := validator.Validate(b)
+	if errMap != nil {
+		views.ImportResultsError(rw, r, errors.New("TODO"))
 		return
 	}
 
