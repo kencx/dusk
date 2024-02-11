@@ -1,11 +1,11 @@
 package request
 
 import (
+	"dusk/file"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -65,44 +65,40 @@ func ReadJSON(rw http.ResponseWriter, r *http.Request, dest interface{}) error {
 	return nil
 }
 
-type Payload struct {
-	multipart.File
-	Size     int64
-	Filename string
-}
-
-func ReadFile(rw http.ResponseWriter, r *http.Request, key, mimetype string) (*Payload, error) {
+func ReadFile(rw http.ResponseWriter, r *http.Request, key, mimetype string) (*file.Payload, error) {
 	r.Body = http.MaxBytesReader(rw, r.Body, maxUploadSize)
 
 	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
 		return nil, fmt.Errorf("file exceeds max upload size: %v", err)
 	}
 
-	file, fh, err := r.FormFile(key)
+	f, fh, err := r.FormFile(key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse form data: %v", err)
 	}
-	defer file.Close()
+	defer f.Close()
 
 	// checking mimetype
 	// create buffer to store file header
 	fileHeader := make([]byte, 512)
-	if _, err := file.Read(fileHeader); err != nil {
+	if _, err := f.Read(fileHeader); err != nil {
 		return nil, fmt.Errorf("failed to read file header: %v", err)
 	}
 
 	// set position back to start
-	if _, err := file.Seek(0, 0); err != nil {
+	if _, err := f.Seek(0, 0); err != nil {
 		return nil, err
 	}
 
-	if !strings.HasPrefix(http.DetectContentType(fileHeader), mimetype) {
+	mtype := http.DetectContentType(fileHeader)
+	if !strings.HasPrefix(mtype, mimetype) {
 		return nil, fmt.Errorf("incorrect mimetype, must be %s", mimetype)
 	}
 
-	return &Payload{
-		File:     file,
+	return &file.Payload{
+		File:     f,
 		Size:     fh.Size,
 		Filename: fh.Filename,
+		MimeType: mtype,
 	}, nil
 }

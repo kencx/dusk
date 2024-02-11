@@ -4,9 +4,9 @@ import (
 	"context"
 	"dusk"
 	"dusk/api"
+	"dusk/file"
 	"dusk/storage"
 	"dusk/ui"
-	"dusk/worker"
 	"net/http"
 	"time"
 
@@ -45,12 +45,10 @@ type Store interface {
 type Server struct {
 	*http.Server
 	db Store
-	fw *worker.FileWorker
-	// InfoLog  *log.Logger
-	// ErrorLog *log.Logger
+	fw *file.Worker
 }
 
-func New(db *storage.Store, fw *worker.FileWorker) *Server {
+func New(db *storage.Store, fw *file.Worker) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
@@ -60,8 +58,6 @@ func New(db *storage.Store, fw *worker.FileWorker) *Server {
 		},
 		db: db,
 		fw: fw,
-		// InfoLog:  log.New(os.Stdout, "INFO ", log.LstdFlags),
-		// ErrorLog: log.New(os.Stderr, "ERROR ", log.LstdFlags),
 	}
 	s.RegisterRoutes()
 	return s

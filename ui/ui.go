@@ -2,8 +2,8 @@ package ui
 
 import (
 	"dusk"
+	"dusk/file"
 	"dusk/ui/views"
-	"dusk/worker"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -33,10 +33,10 @@ type Store interface {
 
 type Handler struct {
 	db Store
-	fw *worker.FileWorker
+	fw *file.Worker
 }
 
-func Router(db Store, fw *worker.FileWorker) chi.Router {
+func Router(db Store, fw *file.Worker) chi.Router {
 	s := Handler{db, fw}
 	ui := chi.NewRouter()
 

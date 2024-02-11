@@ -1,9 +1,9 @@
 package main
 
 import (
+	"dusk/file"
 	dhttp "dusk/http"
 	"dusk/storage"
-	"dusk/worker"
 	"errors"
 	"flag"
 	"fmt"
@@ -47,7 +47,7 @@ func main() {
 		log.Print(err)
 	}
 
-	fw, err := worker.NewFileWorker(config.dataDir)
+	fw, err := file.NewWorker(config.dataDir)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -8,7 +8,6 @@ import (
 	"dusk/validator"
 	"fmt"
 	"net/http"
-	"path/filepath"
 )
 
 func (s *Handler) GetBook(rw http.ResponseWriter, r *http.Request) {
@@ -108,13 +107,11 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path, err := s.fw.UploadCover(file, b.Title)
-	if err != nil {
+	if err := s.fw.UploadBookCover(file, b); err != nil {
 		response.InternalServerError(rw, r, err)
 		return
 	}
 
-	b.Cover = s.fw.GetRelativePath(path)
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
 		// TODO delete uploaded file on err
@@ -149,30 +146,17 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO
 	file, err := request.ReadFile(rw, r, "format", "application/")
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
 	}
 
-	path, err := s.fw.UploadFile(file, b.Title, fmt.Sprintf("%s.%s", b.Title, "epub"))
+	if err := s.fw.UploadBookFormat(file, b); err != nil {
 	if err != nil {
 		response.InternalServerError(rw, r, err)
 		return
 	}
-
-	if filepath.Ext(path) == ".epub" {
-		coverPath, err := s.fw.UploadCoverFromFile(path, b.Title)
-		if err != nil {
-			// TODO delete uploaded file on err
-			response.InternalServerError(rw, r, err)
-			return
-		}
-		b.Cover = s.fw.GetRelativePath(coverPath)
-	}
-
-	b.Formats = append(b.Formats, s.fw.GetRelativePath(path))
 
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {

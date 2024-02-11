@@ -2,9 +2,9 @@ package api
 
 import (
 	"dusk"
+	"dusk/file"
 	"dusk/http/response"
 	"dusk/util"
-	"dusk/worker"
 	"net/http"
 	"time"
 
@@ -35,10 +35,10 @@ type Store interface {
 
 type Handler struct {
 	db Store
-	fw *worker.FileWorker
+	fw *file.Worker
 }
 
-func Router(db Store, fw *worker.FileWorker) chi.Router {
+func Router(db Store, fw *file.Worker) chi.Router {
 	s := Handler{db, fw}
 	api := chi.NewRouter()
 

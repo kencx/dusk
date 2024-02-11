@@ -1,6 +1,10 @@
 package validator
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
 
 type Validator interface {
 	Valid() ErrMap
@@ -10,6 +14,19 @@ type ErrMap map[string]string
 
 func New() ErrMap {
 	return ErrMap(make(map[string]string))
+}
+
+func (e ErrMap) Error() string {
+	if len(e) == 0 {
+		return ""
+	}
+
+	var msg strings.Builder
+	for k, v := range e {
+		msg.WriteString(fmt.Sprintf("%s=%s, ", k, v))
+
+	}
+	return msg.String()
 }
 
 func (e ErrMap) Check(ok bool, key, message string) {

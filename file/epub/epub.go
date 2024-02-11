@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -87,7 +88,7 @@ type manifest struct {
 func New(path string) (*Epub, error) {
 	rc, err := zip.OpenReader(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unzip epub: %w", err)
+		return nil, fmt.Errorf("epub: failed to unzip epub: %w", err)
 	}
 	defer rc.Close()
 
@@ -106,22 +107,26 @@ func NewFromReader(r multipart.File, fileSize int64) (*Epub, error) {
 func new(r *zip.Reader) (*Epub, error) {
 	ep := &Epub{Reader: r}
 	if err := ep.getRootFile(); err != nil {
-		return nil, fmt.Errorf("failed to extract rootFile: %w", err)
+		return nil, fmt.Errorf("epub: failed to extract rootFile: %w", err)
 	}
 
 	p, err := ep.getPackage()
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract package: %w", err)
+		return nil, fmt.Errorf("epub: failed to extract package: %w", err)
 	}
 
 	err = ep.getMetadata(p)
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract metadata: %w", err)
+		return nil, fmt.Errorf("epub: failed to extract metadata: %w", err)
 	}
 
 	err = ep.getCover(p)
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract cover: %w", err)
+		if errors.Is(err, ErrNoCovers) {
+			slog.Debug("[epub] No valid cover files found", slog.String("title", ep.Title))
+			return ep, ErrNoCovers
+		}
+		return nil, fmt.Errorf("epub: failed to extract cover: %w", err)
 	}
 
 	return ep, nil
@@ -175,7 +180,7 @@ func (e *Epub) getMetadata(p *contentPackage) error {
 
 func (e *Epub) getCover(p *contentPackage) error {
 	for _, item := range p.Manifest.Item {
-		if item.Properties == "cover-image" {
+		if item.Properties == "cover-image" || item.Id == "cover" {
 			// The cover-image property returns a path that is relative to
 			// the root file. Thus, we prefix it with with the root file's
 			// parent directory to get the absolute path from the EPUB root.

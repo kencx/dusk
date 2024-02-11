@@ -5,6 +5,8 @@ import (
 	"dusk/util"
 	"dusk/validator"
 	"regexp"
+
+	"github.com/kennygrant/sanitize"
 )
 
 type Book struct {
@@ -26,6 +28,10 @@ type Book struct {
 }
 
 type Books []*Book
+
+func (b Book) SafeTitle() string {
+	return sanitize.BaseName(b.Title)
+}
 
 var isbnRgx = regexp.MustCompile(`[0-9]+`)
 
