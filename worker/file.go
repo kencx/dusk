@@ -39,13 +39,13 @@ func (w *FileWorker) createDataDir() error {
 func (w *FileWorker) UploadCoverFromFile(path, title string) (string, error) {
 	f, err := epub.ExtractCoverFile(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to get cover file: %v", err)
+		return "", fmt.Errorf("failed to get cover file: %w", err)
 	}
 	defer f.Close()
 
 	dest, err := w.UploadCover(f, title)
 	if err != nil {
-		return "", fmt.Errorf("failed to upload cover file: %v", err)
+		return "", fmt.Errorf("failed to upload cover file: %w", err)
 	}
 
 	return dest, nil
@@ -58,19 +58,19 @@ func (w *FileWorker) UploadCover(cover io.Reader, title string) (string, error) 
 func (w *FileWorker) UploadFile(file io.Reader, title, filename string) (string, error) {
 	bookDir, err := w.CreateBookDir(title)
 	if err != nil {
-		return "", fmt.Errorf("failed to create book directory: %v", err)
+		return "", fmt.Errorf("failed to create book directory: %w", err)
 	}
 
 	path := filepath.Join(bookDir, filename)
 	out, err := os.Create(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to create file: %v", err)
+		return "", fmt.Errorf("failed to create file: %w", err)
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, file)
 	if err != nil {
-		return "", fmt.Errorf("failed to copy file to dest: %v", err)
+		return "", fmt.Errorf("failed to copy file to dest: %w", err)
 	}
 
 	// TODO log upload file complete

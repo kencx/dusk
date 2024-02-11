@@ -21,7 +21,7 @@ func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 			return nil, dusk.ErrDoesNotExist
 		}
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve author %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: retrieve author %d failed: %w", id, err)
 		}
 
 		return &author, nil
@@ -40,7 +40,7 @@ func (s *Store) GetAllAuthors() (dusk.Authors, error) {
 
 		err := tx.Select(&authors, stmt)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all authors failed: %v", err)
+			return nil, fmt.Errorf("db: retrieve all authors failed: %w", err)
 		}
 		if len(authors) == 0 {
 			return nil, dusk.ErrNoRows
@@ -65,7 +65,7 @@ func (s *Store) GetAllBooksFromAuthor(id int64) (dusk.Books, error) {
             WHERE ba.author=$1`
 		err := tx.Select(&books, stmt, id)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all books from author %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: retrieve all books from author %d failed: %w", id, err)
 		}
 		if len(books) == 0 {
 			return nil, dusk.ErrNoRows
@@ -103,11 +103,11 @@ func (s *Store) UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error) {
 		res, err := tx.Exec(stmt, a.Name, id)
 
 		if err != nil {
-			return nil, fmt.Errorf("db: update author %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: update author %d failed: %w", id, err)
 		}
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: update author %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: update author %d failed: %w", id, err)
 		}
 		if count == 0 {
 			return nil, errors.New("db: no authors updated")
@@ -155,12 +155,12 @@ func insertAuthor(tx *sqlx.Tx, author string) (int64, error) {
 	stmt := `INSERT OR IGNORE INTO author (name) VALUES ($1);`
 	res, err := tx.Exec(stmt, author)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to authors table failed: %v", err)
+		return -1, fmt.Errorf("db: insert to authors table failed: %w", err)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to authors table failed: %v", err)
+		return -1, fmt.Errorf("db: insert to authors table failed: %w", err)
 	}
 
 	// no rows inserted, query to get existing id
@@ -170,14 +170,14 @@ func insertAuthor(tx *sqlx.Tx, author string) (int64, error) {
 		stmt := `SELECT id FROM author WHERE name=$1;`
 		err := tx.Get(&id, stmt, author)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing author failed: %v", err)
+			return -1, fmt.Errorf("db: query existing author failed: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing author failed: %v", err)
+			return -1, fmt.Errorf("db: query existing author failed: %w", err)
 		}
 		return id, nil
 	}
@@ -204,12 +204,12 @@ func deleteAuthorsWithNoBooks(tx *sqlx.Tx) error {
 				(SELECT author FROM book_author_link);`
 	res, err := tx.Exec(stmt)
 	if err != nil {
-		return fmt.Errorf("db: unable to delete author with no books: %v", err)
+		return fmt.Errorf("db: unable to delete author with no books: %w", err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: unable to delete author with no books: %v", err)
+		return fmt.Errorf("db: unable to delete author with no books: %w", err)
 	}
 
 	if count != 0 {

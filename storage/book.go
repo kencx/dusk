@@ -35,7 +35,7 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 			return nil, dusk.ErrDoesNotExist
 		}
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve book id %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: retrieve book id %d failed: %w", id, err)
 		}
 
 		dest.Author = strings.Split(dest.AuthorString, ",")
@@ -65,7 +65,7 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
 		// sqlx Select does not return sql.ErrNoRows
 		// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all books failed: %v", err)
+			return nil, fmt.Errorf("db: retrieve all books failed: %w", err)
 		}
 		if len(dest) == 0 {
 			return nil, dusk.ErrNoRows
@@ -242,18 +242,18 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
             :dateCompleted);`
 	res, err := tx.NamedExec(stmt, b)
 	if err != nil {
-		return nil, fmt.Errorf("db: insert to book table failed: %v", err)
+		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
-		return nil, fmt.Errorf("db: insert to book table failed: %v", err)
+		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
 	}
 	if count == 0 {
 		return nil, errors.New("db: no books removed")
 	}
 	id, err := res.LastInsertId()
 	if err != nil {
-		return nil, fmt.Errorf("db: insert to book table failed: %v", err)
+		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
 	}
 
 	b.ID = id
@@ -277,11 +277,11 @@ func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
 	res, err := tx.NamedExec(stmt, b)
 
 	if err != nil {
-		return fmt.Errorf("db: update book %d failed: %v", id, err)
+		return fmt.Errorf("db: update book %d failed: %w", id, err)
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: update book %d failed: %v", id, err)
+		return fmt.Errorf("db: update book %d failed: %w", id, err)
 	}
 	if count == 0 {
 		return errors.New("db: no books updated")
@@ -295,11 +295,11 @@ func deleteBook(tx *sqlx.Tx, id int64) error {
 	stmt := `DELETE from book WHERE id=$1;`
 	res, err := tx.Exec(stmt, id)
 	if err != nil {
-		return fmt.Errorf("db: delete book %d failed: %v", id, err)
+		return fmt.Errorf("db: delete book %d failed: %w", id, err)
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: delete book %d failed: %v", id, err)
+		return fmt.Errorf("db: delete book %d failed: %w", id, err)
 	}
 	if count == 0 {
 		return errors.New("db: no books removed")

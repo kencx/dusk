@@ -20,7 +20,7 @@ func (s *Store) GetTag(id int64) (*dusk.Tag, error) {
 			return nil, dusk.ErrDoesNotExist
 		}
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve tag %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: retrieve tag %d failed: %w", id, err)
 		}
 		return &tag, nil
 	})
@@ -38,7 +38,7 @@ func (s *Store) GetAllTags() (dusk.Tags, error) {
 
 		err := tx.Select(&tags, stmt)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all tags failed: %v", err)
+			return nil, fmt.Errorf("db: retrieve all tags failed: %w", err)
 		}
 		if len(tags) == 0 {
 			return nil, dusk.ErrNoRows
@@ -62,7 +62,7 @@ func (s *Store) GetAllBooksFromTag(id int64) (dusk.Books, error) {
             WHERE ba.tag=$1`
 		err := tx.Select(&books, stmt, id)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all books from tag %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: retrieve all books from tag %d failed: %w", id, err)
 		}
 		if len(books) == 0 {
 			return nil, dusk.ErrNoRows
@@ -99,11 +99,11 @@ func (s *Store) UpdateTag(id int64, a *dusk.Tag) (*dusk.Tag, error) {
 		res, err := tx.Exec(stmt, a.Name, id)
 
 		if err != nil {
-			return nil, fmt.Errorf("db: update tag %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: update tag %d failed: %w", id, err)
 		}
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: update tag %d failed: %v", id, err)
+			return nil, fmt.Errorf("db: update tag %d failed: %w", id, err)
 		}
 		if count == 0 {
 			return nil, errors.New("db: no tags updated")
@@ -147,12 +147,12 @@ func insertTag(tx *sqlx.Tx, t string) (int64, error) {
 	stmt := `INSERT OR IGNORE INTO tag (name) VALUES ($1);`
 	res, err := tx.Exec(stmt, t)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to tag table failed: %v", err)
+		return -1, fmt.Errorf("db: insert to tag table failed: %w", err)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to tag table failed: %v", err)
+		return -1, fmt.Errorf("db: insert to tag table failed: %w", err)
 	}
 
 	// no rows inserted, query to get existing id
@@ -162,14 +162,14 @@ func insertTag(tx *sqlx.Tx, t string) (int64, error) {
 		stmt := `SELECT id FROM tag WHERE name=$1;`
 		err := tx.Get(&id, stmt, t)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing tag failed: %v", err)
+			return -1, fmt.Errorf("db: query existing tag failed: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing tag failed: %v", err)
+			return -1, fmt.Errorf("db: query existing tag failed: %w", err)
 		}
 		return id, nil
 	}
@@ -196,12 +196,12 @@ func deleteTagsWithNoBooks(tx *sqlx.Tx) error {
 				(SELECT tag FROM book_tag_link);`
 	res, err := tx.Exec(stmt)
 	if err != nil {
-		return fmt.Errorf("db: unable to delete tag with no books: %v", err)
+		return fmt.Errorf("db: unable to delete tag with no books: %w", err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: unable to delete tag with no books: %v", err)
+		return fmt.Errorf("db: unable to delete tag with no books: %w", err)
 	}
 
 	if count != 0 {

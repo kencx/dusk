@@ -45,7 +45,7 @@ func (s *Store) Close() error {
 func (s *Store) MigrateUp(filePath string) error {
 	schema, err := migrationFs.ReadFile(fmt.Sprintf("migrations/%s", filePath))
 	if err != nil {
-		return fmt.Errorf("db: cannot read sql file %q: %v", filePath, err)
+		return fmt.Errorf("db: cannot read sql file %q: %w", filePath, err)
 	}
 	if _, err := s.db.Exec(string(schema)); err != nil {
 		return err

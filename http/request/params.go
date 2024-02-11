@@ -14,7 +14,7 @@ func HandleInt64(key string, rw http.ResponseWriter, r *http.Request) int64 {
 
 	id, err := strconv.Atoi(param)
 	if err != nil {
-		response.BadRequest(rw, r, fmt.Errorf("unable to process id: %v", err))
+		response.BadRequest(rw, r, fmt.Errorf("unable to process id: %w", err))
 		return -1
 	}
 	return int64(id)

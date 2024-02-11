@@ -87,7 +87,7 @@ type manifest struct {
 func New(path string) (*Epub, error) {
 	rc, err := zip.OpenReader(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unzip epub: %v", err)
+		return nil, fmt.Errorf("failed to unzip epub: %w", err)
 	}
 	defer rc.Close()
 
@@ -106,22 +106,22 @@ func NewFromReader(r multipart.File, fileSize int64) (*Epub, error) {
 func new(r *zip.Reader) (*Epub, error) {
 	ep := &Epub{Reader: r}
 	if err := ep.getRootFile(); err != nil {
-		return nil, fmt.Errorf("failed to extract rootFile: %v", err)
+		return nil, fmt.Errorf("failed to extract rootFile: %w", err)
 	}
 
 	p, err := ep.getPackage()
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract package: %v", err)
+		return nil, fmt.Errorf("failed to extract package: %w", err)
 	}
 
 	err = ep.getMetadata(p)
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract metadata: %w", err)
 	}
 
 	err = ep.getCover(p)
 	if err != nil {
-		return nil, fmt.Errorf("failed to extract cover: %v", err)
+		return nil, fmt.Errorf("failed to extract cover: %w", err)
 	}
 
 	return ep, nil
@@ -140,7 +140,7 @@ func (e *Epub) getRootFile() error {
 	if errors.Is(err, os.ErrNotExist) {
 		return ErrNotValidEpub
 	} else if err != nil {
-		return fmt.Errorf("failed to open container.xml: %v", err)
+		return fmt.Errorf("failed to open container.xml: %w", err)
 	}
 	defer f.Close()
 
@@ -204,7 +204,7 @@ func (e *Epub) getPackage() (*contentPackage, error) {
 
 	f, err := e.Open(e.RootFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open root file: %v", err)
+		return nil, fmt.Errorf("failed to open root file: %w", err)
 	}
 	defer f.Close()
 
