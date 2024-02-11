@@ -4,10 +4,16 @@ import (
 	"dusk"
 	"dusk/file"
 	"dusk/ui/views"
+	"embed"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
+
+// TODO minify static files
+
+//go:embed static/*.js static/*.css
+var staticFs embed.FS
 
 type Store interface {
 	GetBook(id int64) (*dusk.Book, error)
@@ -40,8 +46,7 @@ func Router(db Store, fw *file.Worker) chi.Router {
 	s := Handler{db, fw}
 	ui := chi.NewRouter()
 
-	fs := http.FileServer(http.Dir("./ui/static"))
-	ui.Handle("/static/*", http.StripPrefix("/static/", fs))
+	serveStaticFiles(ui, fw.DataDir)
 
 	ui.HandleFunc("/", s.index)
 	ui.Route("/book", func(c chi.Router) {
@@ -78,6 +83,14 @@ func Router(db Store, fw *file.Worker) chi.Router {
 
 	ui.NotFound(s.notFound)
 	return ui
+}
+
+func serveStaticFiles(router *chi.Mux, dataDir string) {
+	fs := http.FileServerFS(staticFs)
+	router.Handle("/static/*", http.StripPrefix("/static/", fs))
+
+	dfs := http.FileServer(http.Dir(dataDir))
+	router.Handle("/files/*", http.StripPrefix("/files/", dfs))
 }
 
 func (s *Handler) notFound(rw http.ResponseWriter, r *http.Request) {
