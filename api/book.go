@@ -6,7 +6,7 @@ import (
 	"dusk/http/response"
 	"dusk/util"
 	"dusk/validator"
-	"fmt"
+	"log/slog"
 	"net/http"
 )
 
@@ -108,6 +108,7 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.fw.UploadBookCover(file, b); err != nil {
+		slog.Error("[API] Failed to upload file", slog.Any("err", err))
 		response.InternalServerError(rw, r, err)
 		return
 	}
@@ -115,6 +116,7 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 	result, err := s.db.UpdateBook(id, b)
 	if err != nil {
 		// TODO delete uploaded file on err
+		slog.Error("[API] Failed to update book", slog.Any("err", err))
 		response.InternalServerError(rw, r, err)
 		return
 	}
@@ -153,7 +155,7 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.fw.UploadBookFormat(file, b); err != nil {
-	if err != nil {
+		slog.Error("[API] Failed to upload file", slog.Any("err", err))
 		response.InternalServerError(rw, r, err)
 		return
 	}
@@ -232,5 +234,6 @@ func (s *Handler) DeleteBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	slog.Debug("Deleted book", slog.Int64("book_id", id))
 	response.OK(rw, r, nil)
 }

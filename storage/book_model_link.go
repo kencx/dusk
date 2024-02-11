@@ -68,11 +68,11 @@ func unlinkBookFromModels(tx *sqlx.Tx, model model, book_id int64, ids []int64) 
 }
 
 func getAuthorsFromBook(tx *sqlx.Tx, id int64) ([]string, error) {
-    return getModelsFromBook(tx, id, author)
+	return getModelsFromBook(tx, id, author)
 }
 
 func getTagsFromBook(tx *sqlx.Tx, id int64) ([]string, error) {
-    return getModelsFromBook(tx, id, tag)
+	return getModelsFromBook(tx, id, tag)
 }
 
 // get list of names from book id

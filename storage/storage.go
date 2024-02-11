@@ -2,8 +2,9 @@ package storage
 
 import (
 	"embed"
+	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -39,7 +40,7 @@ func (s *Store) Close() error {
 	if s.db != nil {
 		return s.db.Close()
 	}
-	return fmt.Errorf("db: does not exist")
+	return errors.New("db: database does not exist")
 }
 
 func (s *Store) MigrateUp(filePath string) error {
@@ -48,9 +49,9 @@ func (s *Store) MigrateUp(filePath string) error {
 		return fmt.Errorf("db: cannot read sql file %q: %w", filePath, err)
 	}
 	if _, err := s.db.Exec(string(schema)); err != nil {
-		return err
+		return fmt.Errorf("db: failed to execute sql file %q: %w", filePath, err)
 	}
 
-	log.Printf("Schema %s loaded", filePath)
+	slog.Info("Database schema loaded", "schema", filePath)
 	return nil
 }

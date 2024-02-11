@@ -6,6 +6,7 @@ import (
 	"dusk/http/response"
 	"dusk/util"
 	"dusk/validator"
+	"log/slog"
 	"net/http"
 )
 
@@ -141,5 +142,6 @@ func (s *Handler) DeleteAuthor(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	slog.Debug("Deleted author", slog.Int64("author_id", id))
 	response.OK(rw, r, nil)
 }

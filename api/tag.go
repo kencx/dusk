@@ -6,6 +6,7 @@ import (
 	"dusk/http/response"
 	"dusk/util"
 	"dusk/validator"
+	"log/slog"
 	"net/http"
 )
 
@@ -142,5 +143,6 @@ func (s *Handler) DeleteTag(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	slog.Debug("Deleted tag", slog.Int64("tag_id", id))
 	response.OK(rw, r, nil)
 }

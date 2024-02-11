@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -54,7 +55,7 @@ func main() {
 
 	srv := dhttp.New(store, fw)
 	go func() error {
-		// srv.InfoLog.Printf("Starting server on :%d", config.port)
+		slog.Info(fmt.Sprintf("Starting server on port %d", config.port))
 		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tlsCert, config.tlsKey)
 		if !errors.Is(err, http.ErrServerClosed) {
 			return err
@@ -64,19 +65,19 @@ func main() {
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	_ = <-sig
-	// srv.InfoLog.Printf("Received signal %s, shutting down...", s.String())
+	s := <-sig
+	slog.Info(fmt.Sprintf("Received signal %s, shutting down...", s.String()))
 
-	if err := db.Close(); err != nil {
+	if err := store.Close(); err != nil {
 		log.Fatal(err)
 	}
-	// srv.InfoLog.Println("Database connection closed")
+	slog.Info("Database connection closed")
 
 	if srv != nil {
 		if err := srv.Close(); err != nil {
 			log.Fatal(err)
 		}
-		// srv.InfoLog.Println("Server connection closed")
+		slog.Info("Server connection closed")
 	}
-	// srv.InfoLog.Println("Application gracefully stopped")
+	slog.Info("Application gracefully stopped")
 }

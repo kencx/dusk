@@ -5,6 +5,7 @@ import (
 	"dusk/ui/views"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 )
 
@@ -18,14 +19,14 @@ func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
 
 	b, err := s.fw.UploadBook(f)
 	if err != nil {
-		log.Printf("failed to upload cover: %v", err)
+		slog.Error("[UI] Failed to upload file", slog.Any("err", err))
 		views.ImportResultsError(rw, r, err)
 		return
 	}
 
 	res, err := s.db.CreateBook(b)
 	if err != nil {
-		log.Printf("failed to create book: %v", err)
+		slog.Error("[UI] Failed to create book", slog.Any("err", err))
 		views.ImportResultsError(rw, r, err)
 		return
 	}
