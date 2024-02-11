@@ -9,17 +9,19 @@ type Store struct {
 	UpdateBookFn  func(id int64, b *dusk.Book) (*dusk.Book, error)
 	DeleteBookFn  func(id int64) error
 
-	GetAuthorFn     func(id int64) (*dusk.Author, error)
-	GetAllAuthorsFn func() (dusk.Authors, error)
-	CreateAuthorFn  func(a *dusk.Author) (*dusk.Author, error)
-	UpdateAuthorFn  func(id int64, a *dusk.Author) (*dusk.Author, error)
-	DeleteAuthorFn  func(id int64) error
+	GetAuthorFn             func(id int64) (*dusk.Author, error)
+	GetAllAuthorsFn         func() (dusk.Authors, error)
+	GetAllBooksFromAuthorFn func(id int64) (dusk.Books, error)
+	CreateAuthorFn          func(a *dusk.Author) (*dusk.Author, error)
+	UpdateAuthorFn          func(id int64, a *dusk.Author) (*dusk.Author, error)
+	DeleteAuthorFn          func(id int64) error
 
-	GetTagFn     func(id int64) (*dusk.Tag, error)
-	GetAllTagsFn func() (dusk.Tags, error)
-	CreateTagFn  func(a *dusk.Tag) (*dusk.Tag, error)
-	UpdateTagFn  func(id int64, a *dusk.Tag) (*dusk.Tag, error)
-	DeleteTagFn  func(id int64) error
+	GetTagFn             func(id int64) (*dusk.Tag, error)
+	GetAllTagsFn         func() (dusk.Tags, error)
+	GetAllBooksFromTagFn func(id int64) (dusk.Books, error)
+	CreateTagFn          func(a *dusk.Tag) (*dusk.Tag, error)
+	UpdateTagFn          func(id int64, a *dusk.Tag) (*dusk.Tag, error)
+	DeleteTagFn          func(id int64) error
 }
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
@@ -50,6 +52,10 @@ func (s *Store) GetAllAuthors() (dusk.Authors, error) {
 	return s.GetAllAuthorsFn()
 }
 
+func (s *Store) GetAllBooksFromAuthor(id int64) (dusk.Books, error) {
+	return s.GetAllBooksFromAuthorFn(id)
+}
+
 func (s *Store) CreateAuthor(b *dusk.Author) (*dusk.Author, error) {
 	return s.CreateAuthorFn(b)
 }
@@ -68,6 +74,10 @@ func (s *Store) GetTag(id int64) (*dusk.Tag, error) {
 
 func (s *Store) GetAllTags() (dusk.Tags, error) {
 	return s.GetAllTagsFn()
+}
+
+func (s *Store) GetAllBooksFromTag(id int64) (dusk.Books, error) {
+	return s.GetAllBooksFromTagFn(id)
 }
 
 func (s *Store) CreateTag(b *dusk.Tag) (*dusk.Tag, error) {
