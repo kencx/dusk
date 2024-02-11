@@ -10,8 +10,12 @@ import (
 	"strings"
 )
 
+const (
+	maxBytes      = 1_048_576
+	maxUploadSize = 1024 * 1024 * 300
+)
+
 var (
-	maxBytes              = 1_048_576
 	syntaxError           *json.SyntaxError
 	unmarshalTypeError    *json.UnmarshalTypeError
 	invalidUnmarshalError *json.InvalidUnmarshalError
@@ -67,13 +71,20 @@ type Payload struct {
 	Filename string
 }
 
-func ReadFile(r *http.Request, key, mimetype string) (*Payload, error) {
+func ReadFile(rw http.ResponseWriter, r *http.Request, key, mimetype string) (*Payload, error) {
+	r.Body = http.MaxBytesReader(rw, r.Body, maxUploadSize)
+
+	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+		return nil, fmt.Errorf("file exceeds max upload size: %v", err)
+	}
+
 	file, fh, err := r.FormFile(key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse form data: %v", err)
 	}
 	defer file.Close()
 
+	// checking mimetype
 	// create buffer to store file header
 	fileHeader := make([]byte, 512)
 	if _, err := file.Read(fileHeader); err != nil {

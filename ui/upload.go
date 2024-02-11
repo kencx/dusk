@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
-	f, err := request.ReadFile(r, "upload", "application/")
+	f, err := request.ReadFile(rw, r, "upload", "application/")
 	if err != nil {
 		log.Printf("failed to read file: %v", err)
 		views.ImportResultsError(rw, r, err)

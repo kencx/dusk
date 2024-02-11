@@ -102,7 +102,7 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := request.ReadFile(r, "cover", "image/")
+	file, err := request.ReadFile(rw, r, "cover", "image/")
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
@@ -150,7 +150,7 @@ func (s *Handler) AddBookFormat(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO
-	file, err := request.ReadFile(r, "format", "application/")
+	file, err := request.ReadFile(rw, r, "format", "application/")
 	if err != nil {
 		response.BadRequest(rw, r, err)
 		return
