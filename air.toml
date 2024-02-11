@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-pre_cmd = ["templ generate"]
+pre_cmd = ["templ generate -path ui"]
 cmd = "go build -v -o tmp/dusk ./cmd"
 bin = "tmp/dusk"
 full_bin = "./tmp/dusk -dsn ./tmp/library.db -dataDir ./tmp/dusk_data"
