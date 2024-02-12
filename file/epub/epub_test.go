@@ -9,7 +9,7 @@ import (
 	"github.com/matryer/is"
 )
 
-const testData = "../testdata"
+const testData = "../../testdata"
 
 var (
 	EPUB30_SPEC  = filepath.Join(testData, "epub30-spec.epub")
