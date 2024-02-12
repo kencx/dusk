@@ -67,7 +67,7 @@ func (s *Handler) AddTag(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	errMap := validator.Validate(tag)
-	if errMap != nil {
+	if len(errMap) > 0 {
 		response.ValidationError(rw, r, errMap)
 		return
 	}
@@ -102,7 +102,7 @@ func (s *Handler) UpdateTag(rw http.ResponseWriter, r *http.Request) {
 
 	// PUT should require all fields
 	errMap := validator.Validate(tag)
-	if errMap != nil {
+	if len(errMap) > 0 {
 		response.ValidationError(rw, r, errMap)
 		return
 	}

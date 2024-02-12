@@ -1,9 +1,9 @@
 package validator
 
 import (
-	"fmt"
+	"encoding/json"
+	"log/slog"
 	"regexp"
-	"strings"
 )
 
 type Validator interface {
@@ -21,12 +21,14 @@ func (e ErrMap) Error() string {
 		return ""
 	}
 
-	var msg strings.Builder
-	for k, v := range e {
-		msg.WriteString(fmt.Sprintf("%s=%s, ", k, v))
-
+	// returns raw json string of error map
+	mJson, err := json.Marshal(e)
+	if err != nil {
+		slog.Error("[Validator] Failed to marshal error map", slog.Any("err", err))
+		return ""
 	}
-	return msg.String()
+
+	return string(mJson)
 }
 
 func (e ErrMap) Check(ok bool, key, message string) {

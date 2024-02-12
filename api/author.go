@@ -67,7 +67,7 @@ func (s *Handler) AddAuthor(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	errMap := validator.Validate(author)
-	if errMap != nil {
+	if len(errMap) > 0 {
 		response.ValidationError(rw, r, errMap)
 		return
 	}
@@ -101,7 +101,7 @@ func (s *Handler) UpdateAuthor(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	errMap := validator.Validate(author)
-	if errMap != nil {
+	if len(errMap) > 0 {
 		response.ValidationError(rw, r, errMap)
 		return
 	}

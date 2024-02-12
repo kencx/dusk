@@ -12,11 +12,3 @@ func ToJSON(v interface{}) ([]byte, error) {
 	}
 	return res, nil
 }
-
-// func FromJSON(body []byte, v interface{}) error {
-// 	err := json.Unmarshal(body, v)
-// 	if err != nil {
-// 		return fmt.Errorf("unable to unmarshal: %w", err)
-// 	}
-// 	return nil
-// }

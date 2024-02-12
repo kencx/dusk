@@ -47,7 +47,7 @@ func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {
 	b := metadata.ToBook()
 
 	errMap := validator.Validate(b)
-	if errMap != nil {
+	if len(errMap) > 0 {
 		views.ImportResultsError(rw, r, errors.New("TODO"))
 		return
 	}
@@ -72,7 +72,7 @@ func (s *Handler) importAddResult(rw http.ResponseWriter, r *http.Request) {
 	b := metadata.ToBook()
 
 	errMap := validator.Validate(b)
-	if errMap != nil {
+	if len(errMap) > 0 {
 		views.ImportResultsError(rw, r, errors.New("TODO"))
 		return
 	}

@@ -3,6 +3,7 @@ package response
 import (
 	"dusk/util"
 	"dusk/validator"
+	"encoding/json"
 	"net/http"
 )
 
@@ -60,6 +61,12 @@ func newError(rw http.ResponseWriter, r *http.Request, err interface{}) *respons
 	res.statusCode = http.StatusBadRequest
 
 	switch t := err.(type) {
+	case validator.ErrMap:
+		res.body, err = util.ToJSON(Envelope{"error": json.RawMessage(t.Error())})
+		if err != nil {
+			res.body, err = util.ToJSON(Envelope{"error": "something went wrong"})
+			res.statusCode = http.StatusInternalServerError
+		}
 	case error:
 		res.body, err = util.ToJSON(Envelope{"error": t.Error()})
 		if err != nil {
