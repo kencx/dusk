@@ -11,7 +11,11 @@ templ bookCard(b *dusk.Book) {
 	<div class="library__book-card">
 		<div class="cover">
 			<a href={ templ.URL(path.Join("/book", strconv.Itoa(int(b.ID)))) }>
-				<img alt="" src={ path.Join("/files", b.Cover) }/>
+				if b.Cover == "" {
+					<img alt="" src="/static/img/default_cover.jpg"/>
+				} else {
+					<img alt="" src={ path.Join("/files", b.Cover) }/>
+				}
 			</a>
 		</div>
 		<div class="details">

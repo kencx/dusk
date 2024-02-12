@@ -45,7 +45,7 @@ func main() {
 	}
 	err = store.MigrateUp("testdata.sql")
 	if err != nil {
-		log.Print(err)
+		slog.Error("Migration step failed", slog.Any("err", err))
 	}
 
 	fw, err := file.NewWorker(config.dataDir)

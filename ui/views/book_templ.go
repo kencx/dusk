@@ -62,7 +62,7 @@ func (v *Book) Html() templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else if v.book != nil {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"book__details\"><div class=\"cover\"><img alt=\"\" src=\"../static/red-rising.jpg\"></div><div class=\"header\"><h1>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"book__details\"><div class=\"cover\"><img alt=\"\" src=\"../static/img/red-rising.jpg\"></div><div class=\"header\"><h1>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
