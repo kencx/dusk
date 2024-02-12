@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/guregu/null/v5"
 	"github.com/matryer/is"
 )
 
@@ -15,17 +16,17 @@ var (
 	testBook1 = &dusk.Book{
 		Title:  "Book 1",
 		Author: []string{"John Adams"},
-		ISBN:   "100",
+		ISBN:   null.StringFrom("100"),
 	}
 	testBook2 = &dusk.Book{
 		Title:  "Book 2",
 		Author: []string{"Alice Brown"},
-		ISBN:   "101",
+		ISBN:   null.StringFrom("101"),
 	}
 	testBook3 = &dusk.Book{
 		Title:  "Book 3",
 		Author: []string{"Billy Foo", "Carl Baz"},
-		ISBN:   "102",
+		ISBN:   null.StringFrom("102"),
 	}
 	testBooks = []*dusk.Book{testBook1, testBook2, testBook3}
 )
@@ -168,7 +169,7 @@ func TestAddBookFailValidation(t *testing.T) {
 	failBook := &dusk.Book{
 		Title:  "",
 		Author: []string{"John Doe"},
-		ISBN:   "12345",
+		ISBN:   null.StringFrom("12345"),
 	}
 	want, err := util.ToJSON(failBook)
 	is.NoErr(err)
@@ -254,7 +255,7 @@ func TestUpdateBookFailValidation(t *testing.T) {
 	failBook := &dusk.Book{
 		Title:  "",
 		Author: []string{"John Doe"},
-		ISBN:   "12345",
+		ISBN:   null.StringFrom("12345"),
 	}
 	want, err := util.ToJSON(failBook)
 	is.NoErr(err)

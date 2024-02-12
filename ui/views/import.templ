@@ -180,10 +180,10 @@ templ ImportResults(results dusk.Books, message string, err error) {
 						<span class="author">{ author }</span>
 					}
 				</small>
-				<small>{ result.ISBN }</small>
+				<small>{ result.ISBN.String }</small>
 				<div class="add-button">
 					<form hx-post="/import/add" hx-target=".import__result_list" hx-swap="innerHTML">
-						<input type="hidden" name="result" value={ result.ISBN }/>
+						<input type="hidden" name="result" value={ result.ISBN.String }/>
 						<button class="small" type="submit">Add</button>
 					</form>
 				</div>

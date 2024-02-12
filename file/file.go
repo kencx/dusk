@@ -86,7 +86,7 @@ func (w *Worker) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
 		if err = w.UploadFile(coverFile, fullPath); err != nil {
 			return nil, err
 		}
-		book.Cover = getRelativePath(fullPath)
+		book.Cover.String = getRelativePath(fullPath)
 	}
 
 	return book, nil
@@ -116,7 +116,7 @@ func (w *Worker) UploadEpub(payload *Payload, book *dusk.Book) error {
 		if err = w.UploadFile(coverFile, fullPath); err != nil {
 			return err
 		}
-		book.Cover = getRelativePath(fullPath)
+		book.Cover.String = getRelativePath(fullPath)
 	}
 
 	return nil
@@ -154,7 +154,7 @@ func (w *Worker) UploadBookCover(payload *Payload, book *dusk.Book) error {
 		return err
 	}
 
-	book.Cover = getRelativePath(fullPath)
+	book.Cover.String = getRelativePath(fullPath)
 	return nil
 }
 

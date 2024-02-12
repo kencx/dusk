@@ -745,9 +745,9 @@ func ImportResults(results dusk.Books, message string, err error) templ.Componen
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var56 string
-				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(result.ISBN)
+				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(result.ISBN.String)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/import.templ`, Line: 182, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/import.templ`, Line: 182, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 				if templ_7745c5c3_Err != nil {
@@ -757,7 +757,7 @@ func ImportResults(results dusk.Books, message string, err error) templ.Componen
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(result.ISBN))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(result.ISBN.String))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -133,11 +133,13 @@ func new(r *zip.Reader) (*Epub, error) {
 }
 
 func (e *Epub) ToBook() *dusk.Book {
-	return &dusk.Book{
+	b := &dusk.Book{
 		Title:  e.Title,
 		Author: e.Creator,
-		ISBN:   e.Identifiers[0],
 	}
+	b.ISBN.String = e.Identifiers[0]
+
+	return b
 }
 
 func (e *Epub) getRootFile() error {

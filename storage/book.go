@@ -39,7 +39,7 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 		}
 
 		dest.Author = strings.Split(dest.AuthorString, ",")
-		dest.Tag = dest.TagString.Split()
+		dest.Tag = dest.TagString.Split(",")
 		return dest.Book, nil
 	})
 
@@ -74,7 +74,7 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
 		var books dusk.Books
 		for _, row := range dest {
 			row.Author = strings.Split(row.AuthorString, ",")
-			row.Tag = row.TagString.Split()
+			row.Tag = row.TagString.Split(",")
 			books = append(books, row.Book)
 		}
 		return books, nil

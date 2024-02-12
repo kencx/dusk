@@ -2,6 +2,7 @@ package validator
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"regexp"
 )
@@ -34,6 +35,12 @@ func (e ErrMap) Error() string {
 func (e ErrMap) Check(ok bool, key, message string) {
 	if !ok {
 		e.Add(key, message)
+	}
+}
+
+func (e ErrMap) EitherOr(either, or bool, key1, key2, message string) {
+	if !(either || or) {
+		e.Add(fmt.Sprintf("%s or %s", key1, key2), message)
 	}
 }
 

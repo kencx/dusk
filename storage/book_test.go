@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/guregu/null/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/matryer/is"
 )
@@ -14,7 +15,7 @@ var (
 	testBook1 = &dusk.Book{
 		ID:         1,
 		Title:      "Book 1",
-		ISBN:       "1",
+		ISBN:       null.StringFrom("1"),
 		NumOfPages: 250,
 		Rating:     5,
 		Author:     []string{testAuthor1.Name},
@@ -23,7 +24,7 @@ var (
 	testBook2 = &dusk.Book{
 		ID:         2,
 		Title:      "Book 2",
-		ISBN:       "2",
+		ISBN:       null.StringFrom("2"),
 		NumOfPages: 900,
 		Rating:     4,
 		Author:     []string{testAuthor2.Name},
@@ -31,14 +32,14 @@ var (
 	testBook3 = &dusk.Book{
 		ID:     3,
 		Title:  "Many Authors",
-		ISBN:   "3",
+		ISBN:   null.StringFrom("3"),
 		Author: []string{testAuthor3.Name, testAuthor4.Name, testAuthor5.Name},
 		Tag:    []string{testTag2.Name, testTag3.Name},
 	}
 	testBook4 = &dusk.Book{
 		ID:     4,
 		Title:  "Book 4",
-		ISBN:   "4",
+		ISBN:   null.StringFrom("4"),
 		Author: []string{testAuthor5.Name},
 	}
 	allTestBooks = dusk.Books{testBook1, testBook2, testBook3, testBook4}
@@ -108,14 +109,14 @@ func TestCreateBook(t *testing.T) {
 		name: "book with minimal data",
 		want: &dusk.Book{
 			Title:  "1984",
-			ISBN:   "1001",
+			ISBN:   null.StringFrom("1001"),
 			Author: []string{"George Orwell"},
 		},
 	}, {
 		name: "book with all data",
 		want: &dusk.Book{
 			Title:      "World War Z",
-			ISBN:       "1002",
+			ISBN:       null.StringFrom("1002"),
 			Author:     []string{"Max Brooks"},
 			NumOfPages: 100,
 			Rating:     10,
@@ -125,7 +126,7 @@ func TestCreateBook(t *testing.T) {
 		name: "book with two authors",
 		want: &dusk.Book{
 			Title:      "Pro Git",
-			ISBN:       "1003",
+			ISBN:       null.StringFrom("1003"),
 			Author:     []string{"Scott Chacon", "Ben Straub"},
 			NumOfPages: 100,
 			Rating:     10,
@@ -166,7 +167,7 @@ func TestCreateBookExistingAuthor(t *testing.T) {
 	defer resetDB()
 	want := &dusk.Book{
 		Title:      "Morning Star",
-		ISBN:       "1004",
+		ISBN:       null.StringFrom("1004"),
 		Author:     []string{"John Adams"},
 		NumOfPages: 100,
 		Rating:     10,
@@ -185,7 +186,7 @@ func TestCreateBookNewAndExistingAuthor(t *testing.T) {
 	defer resetDB()
 	want := &dusk.Book{
 		Title:      "Tiamat's Wrath",
-		ISBN:       "1005",
+		ISBN:       null.StringFrom("1005"),
 		Author:     []string{"John Adams", "Daniel Abrahams"},
 		NumOfPages: 100,
 		Rating:     10,
@@ -204,7 +205,7 @@ func TestCreateBookExistingTag(t *testing.T) {
 	defer resetDB()
 	want := &dusk.Book{
 		Title:      "Dune",
-		ISBN:       "1008",
+		ISBN:       null.StringFrom("1008"),
 		Author:     []string{"Frank Herbert"},
 		NumOfPages: 100,
 		Rating:     10,
@@ -224,7 +225,7 @@ func TestCreateBookNewAndExistingTag(t *testing.T) {
 	defer resetDB()
 	want := &dusk.Book{
 		Title:      "Foundation",
-		ISBN:       "1009",
+		ISBN:       null.StringFrom("1009"),
 		Author:     []string{"Isaac Asimov"},
 		NumOfPages: 100,
 		Rating:     10,

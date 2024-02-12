@@ -2,6 +2,14 @@ package dusk
 
 import (
 	"testing"
+
+	"github.com/guregu/null/v5"
+)
+
+var (
+	isbnPass   = null.StringFrom("100")
+	isbnFail   = null.StringFrom("abc")
+	isbn13Pass = null.StringFrom("1000")
 )
 
 func TestValidateBook(t *testing.T) {
@@ -13,14 +21,14 @@ func TestValidateBook(t *testing.T) {
 		name: "success",
 		book: &Book{
 			Title:  "FooBar",
-			ISBN:   "100",
+			ISBN:   isbnPass,
 			Author: []string{"John Doe"},
 		},
 		err: nil,
 	}, {
 		name: "no title",
 		book: &Book{
-			ISBN:   "100",
+			ISBN:   isbnPass,
 			Author: []string{"John Doe"},
 		},
 		err: map[string]string{"title": "value is missing"},
@@ -28,7 +36,7 @@ func TestValidateBook(t *testing.T) {
 		name: "nil author",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   "100",
+			ISBN:   isbnPass,
 			Author: nil,
 		},
 		err: map[string]string{"author": "value is missing"},
@@ -36,7 +44,7 @@ func TestValidateBook(t *testing.T) {
 		name: "zero length author",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   "100",
+			ISBN:   isbnPass,
 			Author: []string{},
 		},
 		err: map[string]string{"author": "value is missing"},
@@ -46,12 +54,12 @@ func TestValidateBook(t *testing.T) {
 			Title:  "Foo Bar",
 			Author: []string{"John Doe"},
 		},
-		err: map[string]string{"isbn": "value is missing"},
+		err: map[string]string{"isbn or isbn13": "value is missing"},
 	}, {
 		name: "isbn regex fail",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   "abc",
+			ISBN:   isbnFail,
 			Author: []string{"John Doe"},
 		},
 		err: map[string]string{"isbn": "incorrect format"},
@@ -59,10 +67,19 @@ func TestValidateBook(t *testing.T) {
 		name: "multiple errors",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   "abc",
+			ISBN:   isbnFail,
 			Author: nil,
 		},
 		err: map[string]string{"author": "value is missing", "isbn": "incorrect format"},
+	}, {
+		name: "both isbn",
+		book: &Book{
+			Title:  "Foo Bar",
+			ISBN:   isbnPass,
+			ISBN13: isbn13Pass,
+			Author: []string{"John Doe"},
+		},
+		err: nil,
 	}}
 
 	for _, tt := range tests {

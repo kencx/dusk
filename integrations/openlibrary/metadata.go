@@ -72,7 +72,7 @@ func (m *Metadata) ToBook() *dusk.Book {
 	}
 
 	if len(m.Isbn10) > 0 {
-		b.ISBN = m.Isbn10[0]
+		b.ISBN.String = m.Isbn10[0]
 	}
 	return b
 }

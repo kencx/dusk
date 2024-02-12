@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/guregu/null/v5"
 	"github.com/matryer/is"
 )
 
@@ -47,7 +48,7 @@ func TestToBook(t *testing.T) {
 	want := &dusk.Book{
 		Title:  "EPUB 3.0 Specification",
 		Author: []string{"EPUB 3 Working Group"},
-		ISBN:   "code.google.com.epub-samples.epub30-spec",
+		ISBN:   null.StringFrom("code.google.com.epub-samples.epub30-spec"),
 	}
 
 	ep, err := New(EPUB30_SPEC)

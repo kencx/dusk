@@ -52,7 +52,7 @@ func assertValidationError(t *testing.T, w *httptest.ResponseRecorder, key, mess
 	t.Helper()
 	is := is.New(t)
 
-	var env map[string]string
+	var env map[string]map[string]string
 	err := json.NewDecoder(w.Body).Decode(&env)
 	is.NoErr(err)
 
@@ -60,11 +60,7 @@ func assertValidationError(t *testing.T, w *httptest.ResponseRecorder, key, mess
 	is.Equal(w.Code, http.StatusUnprocessableEntity)
 	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 
-	var dest map[string]string
-	err = json.Unmarshal([]byte(got), &dest)
-	is.NoErr(err)
-
-	val, ok := dest[key]
+	val, ok := got[key]
 	if !ok {
 		t.Errorf("validation error field %q not present", key)
 	}
