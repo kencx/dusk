@@ -27,6 +27,8 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
                 INNER JOIN author a ON ba.author=a.id
                 LEFT JOIN  book_tag_link bt ON b.id=bt.book
                 LEFT JOIN  tag t ON bt.tag=t.id
+                LEFT JOIN  book_format_link bf ON b.id=bf.book
+                LEFT JOIN  format f ON bf.format=f.id
             WHERE b.id=$1
             GROUP BY b.id;`
 
@@ -58,6 +60,8 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
                 INNER JOIN author a ON ba.author=a.id
                 LEFT JOIN  book_tag_link bt ON b.id=bt.book
                 LEFT JOIN  tag t ON bt.tag=t.id
+                LEFT JOIN  book_format_link bf ON b.id=bf.book
+                LEFT JOIN  format f ON bf.format=f.id
             GROUP BY b.id
             ORDER BY b.id;`
 
@@ -228,18 +232,38 @@ func (s *Store) DeleteBooks(ids []int64) error {
 
 // insert book entry to books table
 func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
-	stmt := `INSERT INTO book (title, isbn, numOfPages, rating, description, notes, cover, dateAdded, dateUpdated, dateCompleted)
-            VALUES (
-            :title,
-			:isbn,
-			:numOfPages,
-            :rating,
-            :description,
-            :notes,
-            :cover,
-            :dateAdded,
-            :dateUpdated,
-            :dateCompleted);`
+	stmt := `INSERT INTO book (
+		title,
+		subtitle,
+		isbn,
+		isbn13,
+		numOfPages,
+		progress,
+		rating,
+		publisher,
+		datePublished,
+		description,
+		notes,
+		cover,
+		dateStarted,
+		dateCompleted,
+		dateAdded
+	) VALUES (
+		:title,
+		:subtitle,
+		:isbn,
+		:isbn13,
+		:numOfPages,
+		:progress,
+		:rating,
+		:publisher,
+		:datePublished,
+		:description,
+		:notes,
+		:cover,
+		:dateStarted,
+		:dateCompleted,
+		:dateAdded);`
 	res, err := tx.NamedExec(stmt, b)
 	if err != nil {
 		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
@@ -263,16 +287,22 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
 	b.ID = id
 	stmt := `UPDATE book
-		SET title=:title,
+		SET
+			title=:title,
+			subtitle=:subtitle,
 			isbn=:isbn,
+			isbn13=:isbn13,
 			numOfPages=:numOfPages,
+			progress=:progress,
 			rating=:rating,
+			publisher=:publisher,
+			datePublished=:datePublished,
 			description=:description,
 			notes=:notes,
 			cover=:cover,
-			dateAdded=:dateAdded,
-			dateUpdated=:dateUpdated,
-			dateCompleted=:dateCompleted
+			dateStarted=:dateStarted,
+			dateCompleted=:dateCompleted,
+			dateAdded=:dateAdded
 			WHERE id=:id;`
 	res, err := tx.NamedExec(stmt, b)
 

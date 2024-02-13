@@ -15,7 +15,7 @@ var (
 	testBook1 = &dusk.Book{
 		ID:         1,
 		Title:      "Book 1",
-		ISBN:       null.StringFrom("1"),
+		ISBN:       null.StringFrom("1000000000"),
 		NumOfPages: 250,
 		Rating:     5,
 		Author:     []string{testAuthor1.Name},
@@ -24,7 +24,7 @@ var (
 	testBook2 = &dusk.Book{
 		ID:         2,
 		Title:      "Book 2",
-		ISBN:       null.StringFrom("2"),
+		ISBN:       null.StringFrom("2000000000"),
 		NumOfPages: 900,
 		Rating:     4,
 		Author:     []string{testAuthor2.Name},
@@ -32,14 +32,14 @@ var (
 	testBook3 = &dusk.Book{
 		ID:     3,
 		Title:  "Many Authors",
-		ISBN:   null.StringFrom("3"),
+		ISBN:   null.StringFrom("3000000000"),
 		Author: []string{testAuthor3.Name, testAuthor4.Name, testAuthor5.Name},
 		Tag:    []string{testTag2.Name, testTag3.Name},
 	}
 	testBook4 = &dusk.Book{
 		ID:     4,
 		Title:  "Book 4",
-		ISBN:   null.StringFrom("4"),
+		ISBN:   null.StringFrom("4000000000"),
 		Author: []string{testAuthor5.Name},
 	}
 	allTestBooks = dusk.Books{testBook1, testBook2, testBook3, testBook4}

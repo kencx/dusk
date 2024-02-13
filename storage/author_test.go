@@ -94,6 +94,21 @@ func TestGetAllAuthorEmpty(t *testing.T) {
 	}
 }
 
+func TestGetAllBooksFromAuthor(t *testing.T) {
+	defer resetDB()
+
+	is := is.New(t)
+
+	got, err := ts.GetAllBooksFromAuthor(testAuthor5.ID)
+	is.NoErr(err)
+
+	want := dusk.Books{testBook3, testBook4}
+	is.True(len(got) == len(want))
+	for i := range want {
+		is.Equal(got[i].Title, want[i].Title)
+	}
+}
+
 func TestCreateAuthor(t *testing.T) {
 	defer resetDB()
 

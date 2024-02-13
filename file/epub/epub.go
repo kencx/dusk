@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+
+	"github.com/guregu/null/v5"
 )
 
 const (
@@ -137,7 +139,7 @@ func (e *Epub) ToBook() *dusk.Book {
 		Title:  e.Title,
 		Author: e.Creator,
 	}
-	b.ISBN.String = e.Identifiers[0]
+	b.ISBN = null.StringFrom(e.Identifiers[0])
 
 	return b
 }

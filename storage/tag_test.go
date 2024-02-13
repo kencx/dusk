@@ -88,6 +88,21 @@ func TestGetAllTagEmpty(t *testing.T) {
 	}
 }
 
+func TestGetAllBooksFromTag(t *testing.T) {
+	defer resetDB()
+
+	is := is.New(t)
+
+	got, err := ts.GetAllBooksFromTag(testTag1.ID)
+	is.NoErr(err)
+
+	want := dusk.Books{testBook1}
+	is.True(len(got) == len(want))
+	for i := range want {
+		is.Equal(got[i].Title, want[i].Title)
+	}
+}
+
 func TestCreateTag(t *testing.T) {
 	is := is.New(t)
 	want := &dusk.Tag{Name: "FooBar"}
