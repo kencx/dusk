@@ -1,12 +1,13 @@
 package openlibrary
 
 import (
-	"dusk"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/kencx/dusk"
 )
 
 const (

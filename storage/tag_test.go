@@ -1,8 +1,9 @@
 package storage
 
 import (
-	"dusk"
 	"testing"
+
+	"github.com/kencx/dusk"
 
 	"github.com/matryer/is"
 )

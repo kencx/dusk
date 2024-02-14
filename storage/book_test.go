@@ -1,11 +1,12 @@
 package storage
 
 import (
-	"dusk"
-	"dusk/null"
-	"dusk/util"
 	"reflect"
 	"testing"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/util"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/matryer/is"

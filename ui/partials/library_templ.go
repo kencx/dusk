@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	"dusk"
+	"github.com/kencx/dusk"
 )
 
 func Library(books dusk.Books, err error) templ.Component {

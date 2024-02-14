@@ -11,9 +11,10 @@ import "io"
 import "bytes"
 
 import (
-	"dusk/ui/partials"
-	"dusk/ui/shared"
 	"net/http"
+
+	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type View interface {

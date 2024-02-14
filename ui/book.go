@@ -1,11 +1,12 @@
 package ui
 
 import (
-	"dusk/http/request"
-	"dusk/http/response"
-	"dusk/ui/views"
 	"log"
 	"net/http"
+
+	"github.com/kencx/dusk/http/request"
+	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/ui/views"
 )
 
 func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {

@@ -1,12 +1,13 @@
 package api
 
 import (
-	"dusk"
-	"dusk/file"
-	"dusk/http/response"
-	"dusk/util"
 	"net/http"
 	"time"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/util"
 
 	"github.com/go-chi/chi/v5"
 )

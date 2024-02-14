@@ -1,10 +1,11 @@
 package request
 
 import (
-	"dusk/http/response"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/kencx/dusk/http/response"
 
 	"github.com/go-chi/chi/v5"
 )

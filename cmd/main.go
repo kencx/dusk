@@ -1,9 +1,6 @@
 package main
 
 import (
-	"dusk/file"
-	dhttp "dusk/http"
-	"dusk/storage"
 	"errors"
 	"flag"
 	"fmt"
@@ -13,6 +10,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/kencx/dusk/file"
+	dhttp "github.com/kencx/dusk/http"
+	"github.com/kencx/dusk/storage"
 )
 
 type config struct {

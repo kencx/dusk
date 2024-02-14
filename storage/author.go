@@ -2,11 +2,12 @@ package storage
 
 import (
 	"database/sql"
-	"dusk"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/kencx/dusk"
 
 	"github.com/jmoiron/sqlx"
 )

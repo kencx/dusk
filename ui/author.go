@@ -1,10 +1,11 @@
 package ui
 
 import (
-	"dusk/http/request"
-	"dusk/ui/views"
 	"log"
 	"net/http"
+
+	"github.com/kencx/dusk/http/request"
+	"github.com/kencx/dusk/ui/views"
 )
 
 func (s *Handler) authorList(rw http.ResponseWriter, r *http.Request) {

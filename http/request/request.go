@@ -1,13 +1,14 @@
 package request
 
 import (
-	"dusk/file"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/kencx/dusk/file"
 )
 
 const (

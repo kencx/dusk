@@ -2,10 +2,11 @@ package epub
 
 import (
 	"archive/zip"
-	"dusk"
-	"dusk/null"
 	"path/filepath"
 	"testing"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
 
 	"github.com/matryer/is"
 )

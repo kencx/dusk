@@ -1,8 +1,9 @@
 package dusk
 
 import (
-	"dusk/null"
 	"testing"
+
+	"github.com/kencx/dusk/null"
 )
 
 var (

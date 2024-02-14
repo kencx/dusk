@@ -1,6 +1,8 @@
 package dusk
 
-import "dusk/validator"
+import (
+	"github.com/kencx/dusk/validator"
+)
 
 type Tag struct {
 	ID   int64  `json:"id"`

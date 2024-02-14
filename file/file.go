@@ -1,8 +1,6 @@
 package file
 
 import (
-	"dusk"
-	"dusk/file/epub"
 	"errors"
 	"fmt"
 	"io"
@@ -10,6 +8,9 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/file/epub"
 )
 
 const (

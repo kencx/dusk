@@ -1,14 +1,15 @@
 package ui
 
 import (
-	"dusk"
-	"dusk/integrations/openlibrary"
-	"dusk/ui/views"
-	"dusk/validator"
 	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/integrations/openlibrary"
+	"github.com/kencx/dusk/ui/views"
+	"github.com/kencx/dusk/validator"
 )
 
 func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {

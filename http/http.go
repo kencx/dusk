@@ -2,13 +2,14 @@ package http
 
 import (
 	"context"
-	"dusk"
-	"dusk/api"
-	"dusk/file"
-	"dusk/storage"
-	"dusk/ui"
 	"net/http"
 	"time"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/api"
+	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/storage"
+	"github.com/kencx/dusk/ui"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

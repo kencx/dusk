@@ -1,10 +1,11 @@
 package response
 
 import (
-	"dusk/util"
-	"dusk/validator"
 	"encoding/json"
 	"net/http"
+
+	"github.com/kencx/dusk/util"
+	"github.com/kencx/dusk/validator"
 )
 
 var contentType = "application/json"

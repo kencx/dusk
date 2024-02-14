@@ -11,9 +11,10 @@ import "io"
 import "bytes"
 
 import (
-	"dusk"
 	"path"
 	"strconv"
+
+	"github.com/kencx/dusk"
 )
 
 func List(authors dusk.Authors, err error) templ.Component {
@@ -69,7 +70,7 @@ func List(authors dusk.Authors, err error) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(author.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/list.templ`, Line: 15, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/list.templ`, Line: 16, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -163,7 +164,7 @@ func ListTag(tags dusk.Tags, err error) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(tag.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/list.templ`, Line: 31, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/list.templ`, Line: 32, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {

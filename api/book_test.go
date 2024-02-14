@@ -1,13 +1,14 @@
 package api
 
 import (
-	"dusk"
-	"dusk/mock"
-	"dusk/null"
-	"dusk/util"
 	"encoding/json"
 	"net/http"
 	"testing"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/mock"
+	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/util"
 
 	"github.com/matryer/is"
 )

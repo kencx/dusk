@@ -1,6 +1,6 @@
 package mock
 
-import "dusk"
+import "github.com/kencx/dusk"
 
 type Store struct {
 	GetBookFn     func(id int64) (*dusk.Book, error)

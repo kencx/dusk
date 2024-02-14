@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	"dusk/ui/partials"
+	"github.com/kencx/dusk/ui/partials"
 )
 
 func Base() templ.Component {

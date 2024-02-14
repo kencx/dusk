@@ -1,13 +1,14 @@
 package api
 
 import (
-	"dusk"
-	"dusk/http/request"
-	"dusk/http/response"
-	"dusk/util"
-	"dusk/validator"
 	"log/slog"
 	"net/http"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/http/request"
+	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/util"
+	"github.com/kencx/dusk/validator"
 )
 
 func (s *Handler) GetTag(rw http.ResponseWriter, r *http.Request) {

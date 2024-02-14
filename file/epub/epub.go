@@ -2,9 +2,6 @@ package epub
 
 import (
 	"archive/zip"
-	"dusk"
-	"dusk/null"
-	"dusk/util"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -15,6 +12,10 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/util"
 )
 
 const (

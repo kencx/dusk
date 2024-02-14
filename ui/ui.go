@@ -1,10 +1,11 @@
 package ui
 
 import (
-	"dusk"
-	"dusk/file"
-	"dusk/ui/views"
 	"net/http"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/ui/views"
 
 	"github.com/go-chi/chi/v5"
 )

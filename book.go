@@ -1,9 +1,10 @@
 package dusk
 
 import (
-	"dusk/null"
-	"dusk/validator"
 	"regexp"
+
+	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/validator"
 
 	"github.com/kennygrant/sanitize"
 )

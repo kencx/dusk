@@ -1,12 +1,13 @@
 package ui
 
 import (
-	"dusk/http/request"
-	"dusk/ui/views"
 	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
+
+	"github.com/kencx/dusk/http/request"
+	"github.com/kencx/dusk/ui/views"
 )
 
 func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {

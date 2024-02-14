@@ -1,4 +1,4 @@
-module dusk
+module github.com/kencx/dusk
 
 go 1.22.0
 
