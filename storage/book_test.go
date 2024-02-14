@@ -2,11 +2,11 @@ package storage
 
 import (
 	"dusk"
+	"dusk/null"
 	"dusk/util"
 	"reflect"
 	"testing"
 
-	"github.com/guregu/null/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/matryer/is"
 )

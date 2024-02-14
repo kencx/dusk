@@ -3,6 +3,7 @@ package epub
 import (
 	"archive/zip"
 	"dusk"
+	"dusk/null"
 	"dusk/util"
 	"encoding/xml"
 	"errors"
@@ -14,8 +15,6 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
-
-	"github.com/guregu/null/v5"
 )
 
 const (

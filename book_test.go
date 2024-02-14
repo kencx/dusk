@@ -1,9 +1,8 @@
 package dusk
 
 import (
+	"dusk/null"
 	"testing"
-
-	"github.com/guregu/null/v5"
 )
 
 var (

@@ -3,10 +3,10 @@ package epub
 import (
 	"archive/zip"
 	"dusk"
+	"dusk/null"
 	"path/filepath"
 	"testing"
 
-	"github.com/guregu/null/v5"
 	"github.com/matryer/is"
 )
 

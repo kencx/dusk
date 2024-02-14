@@ -3,12 +3,12 @@ package api
 import (
 	"dusk"
 	"dusk/mock"
+	"dusk/null"
 	"dusk/util"
 	"encoding/json"
 	"net/http"
 	"testing"
 
-	"github.com/guregu/null/v5"
 	"github.com/matryer/is"
 )
 

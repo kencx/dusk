@@ -1,10 +1,10 @@
 package dusk
 
 import (
+	"dusk/null"
 	"dusk/validator"
 	"regexp"
 
-	"github.com/guregu/null/v5"
 	"github.com/kennygrant/sanitize"
 )
 
@@ -32,9 +32,9 @@ type Book struct {
 	Formats []string    `json:"formats,omitempty"`
 	Cover   null.String `json:"cover,omitempty" db:"cover"`
 
-	DateStarted   null.Time `json:"-" db:"dateStarted"`
-	DateCompleted null.Time `json:"-" db:"dateCompleted"`
-	DateAdded     null.Time `json:"-" db:"dateAdded"`
+	DateStarted   null.Time `json:"date_started" db:"dateStarted"`
+	DateCompleted null.Time `json:"date_completed" db:"dateCompleted"`
+	DateAdded     null.Time `json:"date_added" db:"dateAdded"`
 }
 
 type Books []*Book

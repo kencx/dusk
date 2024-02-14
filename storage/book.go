@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"dusk"
+	"dusk/null"
 	"dusk/util"
 	"errors"
 	"fmt"
@@ -14,8 +15,8 @@ import (
 
 type BookQuery struct {
 	*dusk.Book
-	AuthorString string          `db:"author_string"`
-	TagString    util.NullString `db:"tag_string"`
+	AuthorString string      `db:"author_string"`
+	TagString    null.String `db:"tag_string"`
 }
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
