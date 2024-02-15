@@ -95,11 +95,5 @@ func ReadFile(rw http.ResponseWriter, r *http.Request, key, mimetype string) (*f
 	if !strings.HasPrefix(mtype, mimetype) {
 		return nil, fmt.Errorf("incorrect mimetype, must be %s", mimetype)
 	}
-
-	return &file.Payload{
-		File:     f,
-		Size:     fh.Size,
-		Filename: fh.Filename,
-		MimeType: mtype,
-	}, nil
+	return file.NewPayload(f, fh, mimetype)
 }

@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/file/epub"
+	"github.com/kencx/dusk/null"
 )
 
 const (
@@ -31,7 +34,7 @@ func NewService(path string) (*Service, error) {
 
 // Upload new format for new book
 func (s *Service) UploadBook(payload *Payload) (*dusk.Book, error) {
-	switch payload.Extension() {
+	switch payload.Extension {
 	case ".epub":
 		return s.UploadNewEpub(payload)
 	default:
@@ -41,7 +44,7 @@ func (s *Service) UploadBook(payload *Payload) (*dusk.Book, error) {
 
 // Upload new format for existing book
 func (s *Service) UploadBookFormat(payload *Payload, book *dusk.Book) error {
-	switch payload.Extension() {
+	switch payload.Extension {
 	case ".epub":
 		return s.UploadEpub(payload, book)
 	default:
@@ -80,7 +83,7 @@ func (s *Service) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
 		if err = s.UploadFile(coverFile, fullPath); err != nil {
 			return nil, err
 		}
-		book.Cover.String = getRelativePath(fullPath)
+		book.Cover = null.StringFrom(getRelativePath(fullPath))
 	}
 
 	return book, nil
@@ -110,7 +113,7 @@ func (s *Service) UploadEpub(payload *Payload, book *dusk.Book) error {
 		if err = s.UploadFile(coverFile, fullPath); err != nil {
 			return err
 		}
-		book.Cover.String = getRelativePath(fullPath)
+		book.Cover = null.StringFrom(getRelativePath(fullPath))
 	}
 
 	return nil
@@ -118,13 +121,12 @@ func (s *Service) UploadEpub(payload *Payload, book *dusk.Book) error {
 
 // Upload other format for existing book
 func (s *Service) UploadOtherFormat(payload *Payload, book *dusk.Book) error {
-	// check or create book folder
-	bookDir := filepath.Join(s.Directory, book.SafeTitle())
-	if err := os.MkdirAll(bookDir, 0755); err != nil {
-		return fmt.Errorf("failed to create book directory: %w", err)
+	bookDir, err := s.createBookDirectory(book)
+	if err != nil {
+		return err
 	}
 
-	filename := fmt.Sprintf("%s%s", book.SafeTitle(), payload.Extension())
+	filename := fmt.Sprintf("%s%s", book.SafeTitle(), payload.Extension)
 	fullPath := filepath.Join(bookDir, filename)
 	if err := s.UploadFile(payload.File, fullPath); err != nil {
 		return err
@@ -136,25 +138,48 @@ func (s *Service) UploadOtherFormat(payload *Payload, book *dusk.Book) error {
 
 // Upload book cover for existing book
 func (s *Service) UploadBookCover(payload *Payload, book *dusk.Book) error {
-	// check or create book folder
-	bookDir := filepath.Join(s.Directory, book.SafeTitle())
-	if err := os.MkdirAll(bookDir, 0755); err != nil {
-		return fmt.Errorf("failed to create book directory: %w", err)
+	bookDir, err := s.createBookDirectory(book)
+	if err != nil {
+		return err
 	}
 
-	filename := fmt.Sprintf("%s%s", coverFilename, payload.Extension())
+	filename := fmt.Sprintf("%s%s", coverFilename, payload.Extension)
 	fullPath := filepath.Join(bookDir, filename)
 	if err := s.UploadFile(payload.File, fullPath); err != nil {
 		return err
 	}
 
-	book.Cover.String = getRelativePath(fullPath)
+	book.Cover = null.StringFrom(getRelativePath(fullPath))
+	return nil
+}
+
+// Upload book cover from URL for existing book
+func (s *Service) UploadBookCoverFromUrl(url string, book *dusk.Book) error {
+	bookDir, err := s.createBookDirectory(book)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("file: failed to fetch file from url: %w", err)
+	}
+	defer resp.Body.Close()
+
+	ext := path.Ext(path.Base(resp.Request.URL.Path))
+	filename := fmt.Sprintf("%s%s", coverFilename, ext)
+	fullPath := filepath.Join(bookDir, filename)
+	if err := s.UploadFile(resp.Body, fullPath); err != nil {
+		return err
+	}
+
+	book.Cover = null.StringFrom(getRelativePath(fullPath))
 	return nil
 }
 
 // Upload file to path
 func (s *Service) UploadFile(file io.Reader, path string) error {
-	dest, err := os.Create(path)
+	dest, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
 		return fmt.Errorf("file: failed to create file: %w", err)
 	}
@@ -168,6 +193,16 @@ func (s *Service) UploadFile(file io.Reader, path string) error {
 	return nil
 }
 
+// create or get book directory
+func (s *Service) createBookDirectory(book *dusk.Book) (string, error) {
+	bookDir := filepath.Join(s.Directory, book.SafeTitle())
+	if err := os.MkdirAll(bookDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create book directory: %w", err)
+	}
+	return bookDir, nil
+}
+
+// get last 2 elements of file path - parentDir/filename.ext
 func getRelativePath(path string) string {
 	parentDir := filepath.Base(filepath.Dir(path))
 	return filepath.Join(parentDir, filepath.Base(path))
