@@ -46,10 +46,10 @@ type Store interface {
 type Server struct {
 	*http.Server
 	db Store
-	fw *file.Worker
+	fs *file.Service
 }
 
-func New(db *storage.Store, fw *file.Worker) *Server {
+func New(db *storage.Store, fs *file.Service) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
@@ -58,7 +58,7 @@ func New(db *storage.Store, fw *file.Worker) *Server {
 			Handler:      chi.NewRouter(),
 		},
 		db: db,
-		fw: fw,
+		fs: fs,
 	}
 	s.RegisterRoutes()
 	return s
@@ -91,6 +91,6 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
 
-	r.Mount("/api", api.Router(s.db, s.fw))
-	r.Mount("/", ui.Router(s.db, s.fw))
+	r.Mount("/api", api.Router(s.db, s.fs))
+	r.Mount("/", ui.Router(s.db, s.fs))
 }

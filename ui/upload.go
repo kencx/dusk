@@ -18,7 +18,7 @@ func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := s.fw.UploadBook(f)
+	b, err := s.fs.UploadBook(f)
 	if err != nil {
 		slog.Error("[UI] Failed to upload file", slog.Any("err", err))
 		views.ImportResultsError(rw, r, err)

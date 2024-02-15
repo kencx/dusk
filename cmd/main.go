@@ -49,7 +49,7 @@ func main() {
 		slog.Error("Migration step failed", slog.Any("err", err))
 	}
 
-	fw, err := file.NewWorker(config.dataDir)
+	fw, err := file.NewService(config.dataDir)
 	if err != nil {
 		log.Fatal(err)
 	}

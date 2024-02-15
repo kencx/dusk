@@ -34,15 +34,15 @@ type Store interface {
 
 type Handler struct {
 	db Store
-	fw *file.Worker
+	fs *file.Service
 }
 
-func Router(db Store, fw *file.Worker) chi.Router {
-	s := Handler{db, fw}
+func Router(db Store, fs *file.Service) chi.Router {
+	s := Handler{db, fs}
 	ui := chi.NewRouter()
 
 	staticFiles(ui)
-	dfs := http.FileServer(http.Dir(fw.DataDir))
+	dfs := http.FileServer(http.Dir(fs.Directory))
 	ui.Handle("/files/*", http.StripPrefix("/files/", dfs))
 
 	ui.HandleFunc("/", s.index)

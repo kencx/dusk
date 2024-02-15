@@ -1,12 +1,22 @@
 package file
 
-import "path/filepath"
+import (
+	"mime/multipart"
+	"path/filepath"
+)
 
 var mime2Ext = map[string]string{
 	"application/epub+zip": ".epub",
 	"application/pdf":      ".pdf",
 	"image/jpeg":           ".jpeg",
 	"image/png":            ".png",
+}
+
+type Payload struct {
+	multipart.File
+	Size     int64
+	Filename string
+	MimeType string
 }
 
 // set extension by given filename or mimetype

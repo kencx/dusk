@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"mime/multipart"
 	"os"
 	"path/filepath"
 
@@ -17,48 +16,41 @@ const (
 	coverFilename = "cover"
 )
 
-type Payload struct {
-	multipart.File
-	Size     int64
-	Filename string
-	MimeType string
+type Service struct {
+	Directory string
 }
 
-type Worker struct {
-	DataDir string
-}
-
-func NewWorker(dataDir string) (*Worker, error) {
-	err := os.MkdirAll(dataDir, 0755)
+func NewService(path string) (*Service, error) {
+	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Worker{dataDir}, nil
+	return &Service{path}, nil
 }
 
 // Upload new format for new book
-func (w *Worker) UploadBook(payload *Payload) (*dusk.Book, error) {
+func (s *Service) UploadBook(payload *Payload) (*dusk.Book, error) {
 	switch payload.Extension() {
 	case ".epub":
-		return w.UploadNewEpub(payload)
+		return s.UploadNewEpub(payload)
 	default:
 		return nil, errors.New("unsupported file format")
 	}
 }
 
 // Upload new format for existing book
-func (w *Worker) UploadBookFormat(payload *Payload, book *dusk.Book) error {
+func (s *Service) UploadBookFormat(payload *Payload, book *dusk.Book) error {
 	switch payload.Extension() {
 	case ".epub":
-		return w.UploadEpub(payload, book)
+		return s.UploadEpub(payload, book)
 	default:
-		return w.UploadOtherFormat(payload, book)
+		return s.UploadOtherFormat(payload, book)
 	}
 }
 
 // Upload EPUB format for new book
-func (w *Worker) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
+func (s *Service) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
 	ep, err := epub.NewFromReader(payload.File, payload.Size)
 	if err != nil && !errors.Is(err, epub.ErrNoCovers) {
 		return nil, fmt.Errorf("failed to parse epub file: %w", err)
@@ -70,10 +62,11 @@ func (w *Worker) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
 		return nil, errMap
 	}
 
-	if err := w.UploadOtherFormat(payload, book); err != nil {
+	if err := s.UploadOtherFormat(payload, book); err != nil {
 		return nil, err
 	}
 
+	// find and upload cover image in epub
 	if ep.CoverFile != "" {
 		coverFile, err := ep.Open(ep.CoverFile)
 		if err != nil {
@@ -81,10 +74,10 @@ func (w *Worker) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
 		}
 		defer coverFile.Close()
 
-		bookDir := filepath.Join(w.DataDir, book.SafeTitle())
+		bookDir := filepath.Join(s.Directory, book.SafeTitle())
 		filename := fmt.Sprintf("%s%s", coverFilename, filepath.Ext(ep.CoverFile))
 		fullPath := filepath.Join(bookDir, filename)
-		if err = w.UploadFile(coverFile, fullPath); err != nil {
+		if err = s.UploadFile(coverFile, fullPath); err != nil {
 			return nil, err
 		}
 		book.Cover.String = getRelativePath(fullPath)
@@ -94,13 +87,13 @@ func (w *Worker) UploadNewEpub(payload *Payload) (*dusk.Book, error) {
 }
 
 // Upload EPUB format for existing book
-func (w *Worker) UploadEpub(payload *Payload, book *dusk.Book) error {
+func (s *Service) UploadEpub(payload *Payload, book *dusk.Book) error {
 	ep, err := epub.NewFromReader(payload.File, payload.Size)
 	if err != nil && !errors.Is(err, epub.ErrNoCovers) {
 		return fmt.Errorf("failed to parse epub file: %w", err)
 	}
 
-	if err := w.UploadOtherFormat(payload, book); err != nil {
+	if err := s.UploadOtherFormat(payload, book); err != nil {
 		return err
 	}
 
@@ -111,10 +104,10 @@ func (w *Worker) UploadEpub(payload *Payload, book *dusk.Book) error {
 		}
 		defer coverFile.Close()
 
-		bookDir := filepath.Join(w.DataDir, book.SafeTitle())
+		bookDir := filepath.Join(s.Directory, book.SafeTitle())
 		filename := fmt.Sprintf("%s%s", coverFilename, filepath.Ext(ep.CoverFile))
 		fullPath := filepath.Join(bookDir, filename)
-		if err = w.UploadFile(coverFile, fullPath); err != nil {
+		if err = s.UploadFile(coverFile, fullPath); err != nil {
 			return err
 		}
 		book.Cover.String = getRelativePath(fullPath)
@@ -124,16 +117,16 @@ func (w *Worker) UploadEpub(payload *Payload, book *dusk.Book) error {
 }
 
 // Upload other format for existing book
-func (w *Worker) UploadOtherFormat(payload *Payload, book *dusk.Book) error {
+func (s *Service) UploadOtherFormat(payload *Payload, book *dusk.Book) error {
 	// check or create book folder
-	bookDir := filepath.Join(w.DataDir, book.SafeTitle())
+	bookDir := filepath.Join(s.Directory, book.SafeTitle())
 	if err := os.MkdirAll(bookDir, 0755); err != nil {
 		return fmt.Errorf("failed to create book directory: %w", err)
 	}
 
 	filename := fmt.Sprintf("%s%s", book.SafeTitle(), payload.Extension())
 	fullPath := filepath.Join(bookDir, filename)
-	if err := w.UploadFile(payload.File, fullPath); err != nil {
+	if err := s.UploadFile(payload.File, fullPath); err != nil {
 		return err
 	}
 
@@ -142,16 +135,16 @@ func (w *Worker) UploadOtherFormat(payload *Payload, book *dusk.Book) error {
 }
 
 // Upload book cover for existing book
-func (w *Worker) UploadBookCover(payload *Payload, book *dusk.Book) error {
+func (s *Service) UploadBookCover(payload *Payload, book *dusk.Book) error {
 	// check or create book folder
-	bookDir := filepath.Join(w.DataDir, book.SafeTitle())
+	bookDir := filepath.Join(s.Directory, book.SafeTitle())
 	if err := os.MkdirAll(bookDir, 0755); err != nil {
 		return fmt.Errorf("failed to create book directory: %w", err)
 	}
 
 	filename := fmt.Sprintf("%s%s", coverFilename, payload.Extension())
 	fullPath := filepath.Join(bookDir, filename)
-	if err := w.UploadFile(payload.File, fullPath); err != nil {
+	if err := s.UploadFile(payload.File, fullPath); err != nil {
 		return err
 	}
 
@@ -160,7 +153,7 @@ func (w *Worker) UploadBookCover(payload *Payload, book *dusk.Book) error {
 }
 
 // Upload file to path
-func (w *Worker) UploadFile(file io.Reader, path string) error {
+func (s *Service) UploadFile(file io.Reader, path string) error {
 	dest, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("file: failed to create file: %w", err)
@@ -168,7 +161,7 @@ func (w *Worker) UploadFile(file io.Reader, path string) error {
 	defer dest.Close()
 
 	if _, err = io.Copy(dest, file); err != nil {
-		return fmt.Errorf("file: failed to create file: %w", err)
+		return fmt.Errorf("file: failed to copy file to dest: %w", err)
 	}
 
 	slog.Info("[file] New file uploaded", slog.String("path", path))

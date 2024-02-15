@@ -36,11 +36,11 @@ type Store interface {
 
 type Handler struct {
 	db Store
-	fw *file.Worker
+	fs *file.Service
 }
 
-func Router(db Store, fw *file.Worker) chi.Router {
-	s := Handler{db, fw}
+func Router(db Store, fs *file.Service) chi.Router {
+	s := Handler{db, fs}
 	api := chi.NewRouter()
 
 	api.Get("/ping", s.Healthcheck)
