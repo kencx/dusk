@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -32,12 +33,21 @@ templ (v *Book) Html() {
 			} else if v.book != nil {
 				<div class="book__details">
 					<div class="cover">
-						<img alt="" src="../static/img/red-rising.jpg"/>
+						if !v.book.Cover.Valid {
+							<img alt="" src="/static/img/default_cover.jpg"/>
+						} else if strings.HasPrefix(v.book.Cover.String, "http://") ||
+							strings.HasPrefix(v.book.Cover.String, "https://") {
+							<img alt="" src={ v.book.Cover.String }/>
+						} else {
+							<img alt="" src={ path.Join("/files", v.book.Cover.String) }/>
+						}
 					</div>
 					<div class="header">
 						<h1>
 							{ v.book.Title }
-							<small>Very long subtitle here</small>
+							if v.book.Subtitle.Valid {
+								<small>{ v.book.Subtitle.String }</small>
+							}
 						</h1>
 						<h4>
 							for _, author := range v.book.Author {
@@ -52,7 +62,7 @@ templ (v *Book) Html() {
 							</div>
 							<div class="footer">
 								<div>
-									<span>{ strconv.Itoa(v.book.NumOfPages) } views</span> •
+									<span>{ strconv.Itoa(v.book.NumOfPages) } pages</span> •
 									<span>{ strconv.Itoa(v.book.Rating) } / 5</span>
 								</div>
 								<div class="formats">
@@ -96,21 +106,36 @@ templ (v *Book) Html() {
 							Published
 							<br/>
 							ISBN
+							<br/>
+							ISBN13
 						</div>
 						<div class="value">
-							Del Ray Books
+							if v.book.Publisher.Valid {
+								{ v.book.Publisher.String }
+							}
 							<br/>
-							2014-01-28
+							if v.book.DatePublished.Valid {
+								{ v.book.DatePublished.Time.String() }
+							}
 							<br/>
-							{ v.book.ISBN.String }
+							if v.book.ISBN.Valid {
+								{ v.book.ISBN.String }
+							}
+							<br/>
+							if v.book.ISBN13.Valid {
+								{ v.book.ISBN13.String }
+							}
 						</div>
 					</div>
-					<p>{ v.book.Description.String }</p>
+					if v.book.Description.Valid {
+						<p>{ v.book.Description.String }</p>
+					}
 				</details>
-				if v.book.Notes.String != "" {
+				if !v.book.Notes.Valid {
 					<hr/>
+				} else {
+					<div class="notes">{ v.book.Notes.String }</div>
 				}
-				<div class="notes">{ v.book.Notes.String }</div>
 			} else {
 				<p>Something went wrong, please try again.</p>
 			}

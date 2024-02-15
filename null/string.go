@@ -21,6 +21,10 @@ func NewString(s string, valid bool) String {
 }
 
 func StringFrom(s string) String {
+	if s == "" {
+		return NewString("", false)
+	}
+
 	return NewString(s, true)
 }
 
