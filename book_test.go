@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	isbnPass   = null.StringFrom("100")
+	isbnPass   = null.StringFrom("0143039822")
 	isbnFail   = null.StringFrom("abc")
-	isbn13Pass = null.StringFrom("1000")
+	isbn13Pass = null.StringFrom("9780316129084")
 )
 
 func TestValidateBook(t *testing.T) {
@@ -62,7 +62,7 @@ func TestValidateBook(t *testing.T) {
 			ISBN:   isbnFail,
 			Author: []string{"John Doe"},
 		},
-		err: map[string]string{"isbn": "incorrect format"},
+		err: map[string]string{"isbn10": "invalid isbn"},
 	}, {
 		name: "multiple errors",
 		book: &Book{
@@ -70,7 +70,7 @@ func TestValidateBook(t *testing.T) {
 			ISBN:   isbnFail,
 			Author: nil,
 		},
-		err: map[string]string{"author": "value is missing", "isbn": "incorrect format"},
+		err: map[string]string{"author": "value is missing", "isbn10": "invalid isbn"},
 	}, {
 		name: "both isbn",
 		book: &Book{

@@ -1,9 +1,11 @@
 package dusk
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
 
 	"github.com/kennygrant/sanitize"
@@ -50,21 +52,34 @@ func (b Book) Valid() validator.ErrMap {
 	err := validator.New()
 
 	err.Check(b.Title != "", "title", "value is missing")
-
 	err.Check(len(b.Author) != 0, "author", "value is missing")
 
 	err.EitherOr(
-		b.ISBN.ValueOrZero() != "",
-		b.ISBN13.ValueOrZero() != "",
+		b.ISBN.Valid,
+		b.ISBN13.Valid,
 		"isbn",
 		"isbn13",
 		"value is missing",
 	)
-	if b.ISBN.ValueOrZero() != "" {
-		err.Check(validator.Matches(b.ISBN.ValueOrZero(), isbnRgx), "isbn", "incorrect format")
+
+	if b.ISBN.Valid {
+		ok, error := util.IsbnCheck(b.ISBN.ValueOrZero())
+		if errors.Is(error, util.ErrInvalidIsbn) {
+			err.Add("isbn10", "invalid isbn digits")
+		}
+		if !ok {
+			err.Add("isbn10", "invalid isbn")
+		}
 	}
-	if b.ISBN13.ValueOrZero() != "" {
-		err.Check(validator.Matches(b.ISBN13.ValueOrZero(), isbnRgx), "isbn13", "incorrect format")
+
+	if b.ISBN13.Valid {
+		ok, error := util.IsbnCheck(b.ISBN13.ValueOrZero())
+		if errors.Is(error, util.ErrInvalidIsbn) {
+			err.Add("isbn13", "invalid isbn digits")
+		}
+		if !ok {
+			err.Add("isbn13", "invalid isbn")
+		}
 	}
 
 	err.Check(b.NumOfPages >= 0, "numOfPages", "must be >= 0")

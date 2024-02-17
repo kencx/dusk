@@ -8,19 +8,19 @@ import (
 )
 
 var (
-	isbn = regexp.MustCompile(`(?:ISBN(?:-10|-13)?\s*:?\s*)?((?:(?:[\d]-?){9}|(?:[\d]-?){12})[\dxX])(?:[^-\d]|$)`)
+	isbnRegex = regexp.MustCompile(`(?:ISBN(?:-10|-13)?\s*:?\s*)?((?:(?:[\d]-?){9}|(?:[\d]-?){12})[\dxX])(?:[^-\d]|$)`)
 
 	// correct format but invalid isbn digits
 	ErrInvalidIsbn = errors.New("invalid isbn digits")
 )
 
 func IsbnCheck(value string) (bool, error) {
-	if !isbn.MatchString(value) {
+	if !isbnRegex.MatchString(value) {
 		return false, nil
 	}
 
 	value = strings.ReplaceAll(value, "-", "")
-	for _, match := range isbn.FindAllStringSubmatch(value, -1) {
+	for _, match := range isbnRegex.FindAllStringSubmatch(value, -1) {
 		if len(match) > 1 {
 
 			switch i := match[1]; len(i) {
