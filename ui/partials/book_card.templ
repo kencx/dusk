@@ -8,10 +8,14 @@ import (
 	"github.com/kencx/dusk"
 )
 
+func bookPath(b *dusk.Book) string {
+	return path.Join("/book", strconv.Itoa(int(b.ID)))
+}
+
 templ bookCard(b *dusk.Book) {
 	<div class="library__book-card">
 		<div class="cover">
-			<a href={ templ.URL(path.Join("/book", strconv.Itoa(int(b.ID)))) }>
+			<a href={ templ.URL(bookPath(b)) }>
 				if !b.Cover.Valid {
 					<img alt="" src="/static/img/default_cover.jpg"/>
 				} else if strings.HasPrefix(b.Cover.String, "http://") ||
@@ -23,8 +27,8 @@ templ bookCard(b *dusk.Book) {
 			</a>
 		</div>
 		<div class="details">
-			<a href={ templ.URL(path.Join("/book", strconv.Itoa(int(b.ID)))) }>
-				<h4 class="title">{ b.Title }</h4>
+			<a href={ templ.URL(bookPath(b)) }>
+				<h6 class="title">{ b.Title }</h6>
 			</a>
 			<a href="/" class="author">
 				{ strings.Join(b.Author, ", ") }

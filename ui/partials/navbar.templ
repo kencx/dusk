@@ -1,21 +1,25 @@
 package partials
 
 templ Navbar() {
-	<header class="sticky topbar">
-		<a class="logo" href="/">dusk</a>
-		<span class="right">
-			<a class="button" href="/authors">
-				<span class="icon-user"></span>
-			</a>
-			<a class="button" href="/tags">
-				<span class="icon-bookmark"></span>
-			</a>
-			<a class="button" href="/import">
-				<span class="icon-add-box"></span>
-			</a>
-			<a class="button" href="/">
-				<span class="icon-settings"></span>
-			</a>
-		</span>
+	<header>
+		<nav class="container">
+			<ul class="logo">
+				<li><a href="/"><strong>dusk</strong></a></li>
+			</ul>
+			<ul>
+				<li>
+					<a href="/authors" class="contrast">Authors</a>
+				</li>
+				<li>
+					<a href="/tags" class="contrast">Tags</a>
+				</li>
+				<li>
+					<a href="/import" class="contrast">Import</a>
+				</li>
+				<li>
+					<a href="/" class="contrast">Settings</a>
+				</li>
+			</ul>
+		</nav>
 	</header>
 }

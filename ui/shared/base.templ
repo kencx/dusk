@@ -12,18 +12,18 @@ templ Base() {
 			<title>dusk</title>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta name="language" content="English"/>
-			<link rel="stylesheet" href="/static/css/mini-default.css"/>
 			<link rel="stylesheet" href="/static/css/custom.css"/>
+			<link rel="stylesheet" href="/static/css/pico/pico.slate.css"/>
 			<script src="/static/js/htmx.min.js"></script>
 		</head>
 		<body>
-			<main>
-				@partials.Navbar()
-				<div class="body container">
+			@partials.Navbar()
+			<main class="container">
+				<div>
 					{ children... }
 				</div>
-				@partials.Footer()
 			</main>
+			@partials.Footer()
 		</body>
 	</html>
 }

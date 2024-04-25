@@ -25,7 +25,10 @@ func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *Index) Html() {
 	@shared.Base() {
 		if v.books != nil {
-			<h1>Books ({ strconv.Itoa(len(v.books)) })</h1>
+			<hgroup>
+				<h1>Books</h1>
+				<p>Total: { strconv.Itoa(len(v.books)) }</p>
+			</hgroup>
 		} else {
 			<h1>Books</h1>
 		}
