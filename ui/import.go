@@ -3,24 +3,25 @@ package ui
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
-	"regexp"
 
-	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/integrations/openlibrary"
+	ol "github.com/kencx/dusk/integrations/openlibrary"
+	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
+	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
 )
 
 func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
-	// handle tabs
+	// handle htmx tabs
 	if r.URL.Query().Has("tab") {
-		tab := views.TabView(r.URL.Query().Get("tab"))
-		views.Tab(tab).Render(r.Context(), rw)
+		tab := partials.TabName(r.URL.Query().Get("tab"))
+		views.ImportTabs.Select(tab).Render(r.Context(), rw)
 		return
 	}
 
-	views.Import{Tab: views.OPENLIBRARY}.Render(rw, r)
+	views.Search{DefaultTab: views.OPENLIBRARY}.Render(rw, r)
 }
 
 func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {

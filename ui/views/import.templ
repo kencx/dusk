@@ -5,35 +5,44 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/shared"
+	"github.com/kencx/dusk/ui/partials"
+	ol "github.com/kencx/dusk/integrations/openlibrary"
 )
 
-type TabView string
-
 const (
-	OPENLIBRARY TabView = "openlibrary"
-	GOODREADS           = "goodreads"
-	CALIBRE             = "calibre"
-	UPLOAD              = "upload"
+	OPENLIBRARY partials.TabName = "Openlibrary"
+	GOODREADS                    = "Goodreads"
+	CALIBRE                      = "Calibre"
+	UPLOAD                       = "Upload"
 )
 
 var (
+	ImportTabs = partials.Tab{
+		Order: []partials.TabName{OPENLIBRARY, GOODREADS, CALIBRE, UPLOAD},
+		Contents: map[partials.TabName]templ.Component{
+			OPENLIBRARY: openLibraryForm(),
+			GOODREADS:   goodreadsForm(),
+			CALIBRE:     calibreForm(),
+			UPLOAD:      uploadForm(),
+		},
+		RootPath: "/import",
+	}
 	ErrNotValidIsbn = errors.New("invalid isbn")
 )
 
-type Import struct {
-	Tab     TabView
-	Results dusk.Books
-	Message string
-	Err     error
+type Search struct {
+	DefaultTab partials.TabName
+	Results    ol.QueryResults
+	Message    string
+	Err        error
 }
 
-func ImportRenderResults(rw http.ResponseWriter, r *http.Request, res dusk.Books) {
+func ImportRenderResults(rw http.ResponseWriter, r *http.Request, res ol.QueryResults) {
 	ImportResults(res, "", nil).Render(r.Context(), rw)
 }
 
-func ImportResultsMessage(rw http.ResponseWriter, r *http.Request, res dusk.Books, message string) {
+func ImportResultsMessage(rw http.ResponseWriter, r *http.Request, res ol.QueryResults, message string) {
 	ImportResults(res, message, nil).Render(r.Context(), rw)
 }
 
@@ -41,57 +50,32 @@ func ImportResultsError(rw http.ResponseWriter, r *http.Request, err error) {
 	ImportResults(nil, "", err).Render(r.Context(), rw)
 }
 
-func (v Import) Render(rw http.ResponseWriter, r *http.Request) {
+func (v Search) Render(rw http.ResponseWriter, r *http.Request) {
 	v.Html().Render(r.Context(), rw)
 }
 
-templ (v *Import) Html() {
+templ (v *Search) Html() {
 	@shared.Base() {
 		<h2>Add Books</h2>
-		<div hx-target="this" hx-swap="innerHTML" class="import__tabs">
-			@Tab(OPENLIBRARY)
-		</div>
+		@partials.Tabs(v.DefaultTab, ImportTabs)
 		<div class="import__result_list"></div>
 	}
 }
 
-templ Tab(tab TabView) {
-	switch tab {
-		case OPENLIBRARY:
-			<button hx-get="/import?tab=openlibrary" class="selected">OpenLibrary</button>
-			<button hx-get="/import?tab=goodreads">Goodreads</button>
-			<button hx-get="/import?tab=calibre">Calibre</button>
-			<button hx-get="/import?tab=upload">Upload</button>
-			@openLibraryForm()
-		case GOODREADS:
-			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
-			<button hx-get="/import?tab=goodreads" class="selected">Goodreads</button>
-			<button hx-get="/import?tab=calibre">Calibre</button>
-			<button hx-get="/import?tab=upload">Upload</button>
-			@goodreadsForm()
-		case CALIBRE:
-			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
-			<button hx-get="/import?tab=goodreads">Goodreads</button>
-			<button hx-get="/import?tab=calibre" class="selected">Calibre</button>
-			<button hx-get="/import?tab=upload">Upload</button>
-			@calibreForm()
-		case UPLOAD:
-			<button hx-get="/import?tab=openlibrary">OpenLibrary</button>
-			<button hx-get="/import?tab=goodreads">Goodreads</button>
-			<button hx-get="/import?tab=calibre">Calibre</button>
-			<button hx-get="/import?tab=upload" class="selected">Upload</button>
-			@uploadForm()
-	}
-}
-
 templ openLibraryForm() {
-	<form hx-post="/import/openlibrary" hx-target=".import__result_list" hx-swap="innerHTML">
+	<form
+		hx-post="/import/openlibrary"
+		hx-target=".import__result_list"
+		hx-swap="innerHTML"
+		hx-indicator=".spinner"
+	>
 		<div class="openlibrary-form input-group vertical">
 			<label for="search">Add a book from <a href="https://openlibrary.org">OpenLibrary</a>:</label>
 			<input id="search" name="openlibrary" placeholder="Enter an ISBN, Title or Author"/>
 			<small>ISBNs must contain 10 or 13 characters, including dashes and spaces.</small>
 		</div>
 		<button class="small" type="submit">Submit</button>
+		<div class="spinner"></div>
 	</form>
 }
 
@@ -129,7 +113,7 @@ templ uploadForm() {
 	</form>
 }
 
-templ ImportResults(results dusk.Books, message string, err error) {
+templ ImportResults(results ol.QueryResults, message string, err error) {
 	if err == ErrNotValidIsbn {
 		<div class="card error fluid">
 			<p>
@@ -162,33 +146,62 @@ templ ImportResults(results dusk.Books, message string, err error) {
 			Results
 			<small>Found { strconv.Itoa(len(results)) } result(s)</small>
 		</h2>
-		<div class="column-headers">
-			<small>Cover</small>
-			<small>Title</small>
-			<small>Author</small>
-			<small>ISBN</small>
-			<div></div>
-		</div>
-		for _, result := range results {
-			<div class="import__result">
-				<img alt="" src="/static/red-rising.jpg"/>
-				<h5>
-					{ result.Title }
-					<small>Very long subtitle here</small>
-				</h5>
-				<small>
-					for _, author := range result.Author {
-						<span class="author">{ author }</span>
+		<form hx-indicator=".spinner">
+			for _, result := range results {
+				<div class="import__result">
+					<img alt="" src={ result.CoverUrl }/>
+					<div class="details">
+						<h4>
+							{ result.Title }
+							<small>
+								for _, author := range result.Authors {
+									<span class="author">{ author }</span>
+								}
+							</small>
+						</h4>
+						<ul>
+							<li>
+								if len(result.Isbn10) > 0 || len(result.Isbn13) > 0 {
+									ISBN:
+									if len(result.Isbn10) > 0 {
+										{ result.Isbn10[0] }
+									}
+									if len(result.Isbn13) > 0 {
+										{ result.Isbn13[0] }
+									}
+								}
+							</li>
+							<li>
+								if result.PublishDate != "" {
+									Published: { result.PublishDate }
+								}
+							</li>
+						</ul>
+					</div>
+					if len(result.Isbn10) > 0 {
+						<input type="hidden" name="result" value={ result.Isbn10[0] }/>
 					}
-				</small>
-				<small>{ result.ISBN.String }</small>
-				<div class="add-button">
-					<form hx-post="/import/add" hx-target=".import__result_list" hx-swap="innerHTML">
-						<input type="hidden" name="result" value={ result.ISBN.String }/>
-						<button class="small" type="submit">Add</button>
-					</form>
+					if len(result.Isbn13) > 0 {
+						<input type="hidden" name="result" value={ result.Isbn13[0] }/>
+					}
+					<div class="actions">
+						<select
+							name="tag-option"
+							hx-trigger="change"
+							hx-post="/import/add"
+							hx-target=".import__result_list"
+							hx-swap="innerHTML"
+							hx-include="this"
+						>
+							<option value="add">Add book</option>
+							<option value="to-read">To read</option>
+							<option value="reading">Reading</option>
+							<option value="read">Read</option>
+						</select>
+					</div>
 				</div>
-			</div>
-		}
+			}
+			<div class="spinner"></div>
+		</form>
 	}
 }

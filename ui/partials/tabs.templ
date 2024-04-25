@@ -1,0 +1,35 @@
+package partials
+
+import (
+	"fmt"
+)
+
+type TabName string
+
+templ Tabs(defaultTab TabName, t Tab, cssClasses ...string) {
+	<div hx-target="this" hx-swap="innerHTML" class={ "tabs", cssClasses }>
+		@t.Select(defaultTab)
+	</div>
+}
+
+type Tab struct {
+	Order    []TabName
+	Contents map[TabName]templ.Component
+	RootPath string
+}
+
+templ (t Tab) Select(selected TabName) {
+	for _, n := range t.Order {
+		if n == selected {
+			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, n) } class="selected">{ string(n) }</button>
+		} else {
+			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, n) }>{ string(n) }</button>
+		}
+	}
+	// templ does not seem to support slice/map indexing
+	for n, c := range t.Contents {
+		if n == selected {
+			@c
+		}
+	}
+}
