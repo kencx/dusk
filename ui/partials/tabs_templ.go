@@ -14,9 +14,22 @@ import (
 	"fmt"
 )
 
-type TabName string
+type Tab struct {
+	Name      string
+	Link      string
+	Component templ.Component
+}
 
-func Tabs(defaultTab TabName, t Tab, cssClasses ...string) templ.Component {
+type TabGroup struct {
+	RootPath string
+
+	// order of tabs in tab group by link
+	Order []string
+
+	Tabs []Tab
+}
+
+func Tabs(t TabGroup, defaultTab string, cssClasses ...string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -61,13 +74,8 @@ func Tabs(defaultTab TabName, t Tab, cssClasses ...string) templ.Component {
 	})
 }
 
-type Tab struct {
-	Order    []TabName
-	Contents map[TabName]templ.Component
-	RootPath string
-}
-
-func (t Tab) Select(selected TabName) templ.Component {
+// Select tab from tab group and render component
+func (t TabGroup) Select(selected string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -80,13 +88,13 @@ func (t Tab) Select(selected TabName) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		for _, n := range t.Order {
-			if n == selected {
+		for i, link := range t.Order {
+			if link == selected {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button hx-get=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("%s?tab=%s", t.RootPath, n)))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link)))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -95,9 +103,9 @@ func (t Tab) Select(selected TabName) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(string(n))
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(t.Tabs[i].Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 23, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 31, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -112,7 +120,7 @@ func (t Tab) Select(selected TabName) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("%s?tab=%s", t.RootPath, n)))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link)))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -121,9 +129,9 @@ func (t Tab) Select(selected TabName) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(string(n))
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(t.Tabs[i].Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 25, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 33, Col: 91}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -135,9 +143,9 @@ func (t Tab) Select(selected TabName) templ.Component {
 				}
 			}
 		}
-		for n, c := range t.Contents {
-			if n == selected {
-				templ_7745c5c3_Err = c.Render(ctx, templ_7745c5c3_Buffer)
+		for _, tab := range t.Tabs {
+			if tab.Link == selected {
+				templ_7745c5c3_Err = tab.Component.Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

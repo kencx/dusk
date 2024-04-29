@@ -10,29 +10,38 @@ import (
 	ol "github.com/kencx/dusk/integrations/openlibrary"
 )
 
-const (
-	OPENLIBRARY partials.TabName = "Openlibrary"
-	GOODREADS                    = "Goodreads"
-	CALIBRE                      = "Calibre"
-	UPLOAD                       = "Upload"
-)
-
 var (
-	ImportTabs = partials.Tab{
-		Order: []partials.TabName{OPENLIBRARY, GOODREADS, CALIBRE, UPLOAD},
-		Contents: map[partials.TabName]templ.Component{
-			OPENLIBRARY: openLibraryForm(),
-			GOODREADS:   goodreadsForm(),
-			CALIBRE:     calibreForm(),
-			UPLOAD:      uploadForm(),
-		},
+	ImportTabs = partials.TabGroup{
 		RootPath: "/import",
+		Order:    []string{"search", "upload", "goodreads", "calibre"},
+		Tabs: []partials.Tab{
+			{
+				Name:      "Search",
+				Link:      "search",
+				Component: searchForm(),
+			},
+			{
+				Name:      "Upload File",
+				Link:      "upload",
+				Component: uploadForm(),
+			},
+			{
+				Name:      "Goodreads",
+				Link:      "goodreads",
+				Component: goodreadsForm(),
+			},
+			{
+				Name:      "Calibre",
+				Link:      "calibre",
+				Component: calibreForm(),
+			},
+		},
 	}
 	ErrNotValidIsbn = errors.New("invalid isbn")
 )
 
 type Search struct {
-	DefaultTab partials.TabName
+	DefaultTab string
 	Results    ol.QueryResults
 	Message    string
 	Err        error
@@ -57,24 +66,25 @@ func (v Search) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *Search) Html() {
 	@shared.Base() {
 		<h2>Add Books</h2>
-		@partials.Tabs(v.DefaultTab, ImportTabs)
+		@partials.Tabs(ImportTabs, v.DefaultTab)
 		<div class="import__result_list"></div>
 	}
 }
 
-templ openLibraryForm() {
+templ searchForm() {
 	<form
 		hx-post="/import/openlibrary"
 		hx-target=".import__result_list"
 		hx-swap="innerHTML"
 		hx-indicator=".spinner"
 	>
-		<div class="openlibrary-form input-group vertical">
-			<label for="search">Add a book from <a href="https://openlibrary.org">OpenLibrary</a>:</label>
-			<input id="search" name="openlibrary" placeholder="Enter an ISBN, Title or Author"/>
-			<small>ISBNs must contain 10 or 13 characters, including dashes and spaces.</small>
-		</div>
-		<button class="small" type="submit">Submit</button>
+		<fieldset role="group">
+			<input id="search" name="openlibrary" placeholder="Search for an ISBN, title or author"/>
+			<input type="submit" value="Submit"/>
+		</fieldset>
+		<small>
+			<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
+		</small>
 		<div class="spinner"></div>
 	</form>
 }

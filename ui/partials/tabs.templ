@@ -4,32 +4,40 @@ import (
 	"fmt"
 )
 
-type TabName string
+type Tab struct {
+	Name      string
+	Link      string
+	Component templ.Component
+}
 
-templ Tabs(defaultTab TabName, t Tab, cssClasses ...string) {
+type TabGroup struct {
+	RootPath string
+
+	// order of tabs in tab group by link
+	Order []string
+
+	Tabs []Tab
+}
+
+templ Tabs(t TabGroup, defaultTab string, cssClasses ...string) {
 	<div hx-target="this" hx-swap="innerHTML" class={ "tabs", cssClasses }>
 		@t.Select(defaultTab)
 	</div>
 }
 
-type Tab struct {
-	Order    []TabName
-	Contents map[TabName]templ.Component
-	RootPath string
-}
-
-templ (t Tab) Select(selected TabName) {
-	for _, n := range t.Order {
-		if n == selected {
-			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, n) } class="selected">{ string(n) }</button>
+// Select tab from tab group and render component
+templ (t TabGroup) Select(selected string) {
+	for i, link := range t.Order {
+		if link == selected {
+			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) } class="selected">{ t.Tabs[i].Name }</button>
 		} else {
-			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, n) }>{ string(n) }</button>
+			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }>{ t.Tabs[i].Name }</button>
 		}
 	}
-	// templ does not seem to support slice/map indexing
-	for n, c := range t.Contents {
-		if n == selected {
-			@c
+	// cannot fetch from map as templ does not seem to support slice/map indexing
+	for _, tab := range t.Tabs {
+		if tab.Link == selected {
+			@tab.Component
 		}
 	}
 }

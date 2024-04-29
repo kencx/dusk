@@ -16,12 +16,12 @@ import (
 func (s *Handler) importPage(rw http.ResponseWriter, r *http.Request) {
 	// handle htmx tabs
 	if r.URL.Query().Has("tab") {
-		tab := partials.TabName(r.URL.Query().Get("tab"))
+		tab := r.URL.Query().Get("tab")
 		views.ImportTabs.Select(tab).Render(r.Context(), rw)
 		return
 	}
 
-	views.Search{DefaultTab: views.OPENLIBRARY}.Render(rw, r)
+	views.Search{DefaultTab: "search"}.Render(rw, r)
 }
 
 func (s *Handler) importOpenLibrary(rw http.ResponseWriter, r *http.Request) {

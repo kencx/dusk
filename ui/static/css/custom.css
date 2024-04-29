@@ -1,8 +1,3 @@
-:root {
-  --dark-back-color: #18181b;
-  --button-back-color: transparent;
-}
-
 .container {
   max-width: 50rem !important;
 }
@@ -239,50 +234,19 @@ footer {
   }
 }
 
-.tabs button {
+.tabs > button {
   margin-top: calc(0.5 * var(--pico-spacing));
   margin-bottom: calc(1.5 * var(--pico-spacing));
+  color: var(--pico-muted-color);
   background-color: unset;
   border: none;
   border-radius: 0;
+  border-bottom: 0.1rem solid var(--pico-muted-border-color);
 
 	&.selected {
 		font-weight: bold;
+    color: var(--pico-color);
 		border-bottom: 0.2rem solid var(--pico-contrast);
-	}
-}
-
-.import__tabs {
-	form {
-		margin-top: 0;
-	}
-
-	.openlibrary-form {
-		small {
-			padding: calc(var(--universal-margin) / 2);
-		}
-	}
-
-	.goodreads-form {
-		input {
-			margin: var(--universal-margin);
-			padding: calc(2 * var(--universal-padding)) var(--universal-padding);
-			margin-bottom: 0;
-		}
-
-		button {
-			margin-top: 0;
-			margin-left: calc(2 * var(--universal-margin));
-		}
-	}
-
-	/* reset mini.css rule */
-	.goodreads-form .input-group.vertical > input {
-		flex-basis: unset;
-	}
-
-	.upload-form .input-group.vertical > input {
-		flex-basis: unset;
 	}
 }
 
