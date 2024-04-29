@@ -250,6 +250,26 @@ footer {
 	}
 }
 
+.filedrop-container {
+  width: 100%;
+  display: inline-block;
+  padding: calc(0.5 * var(--pico-spacing));
+  margin-bottom: var(--pico-spacing);
+
+  input[type="file"] {
+    cursor: pointer;
+  }
+
+  small {
+    padding-top: calc(0.5 * var(--pico-spacing));
+    border-top: 0.1rem solid var(--pico-muted-border-color);
+  }
+
+  & + button[type="submit"] {
+    width: 15% !important;
+  }
+}
+
 .import__result_list {
   margin: 1.5rem 0;
 
@@ -305,7 +325,6 @@ footer {
 .htmx-request.spinner {
     opacity:1
 }
-
 
 /* AUTHOR LIST VIEW */
 .list__author-view ul {

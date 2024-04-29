@@ -89,23 +89,6 @@ templ searchForm() {
 	</form>
 }
 
-templ goodreadsForm() {
-	<form class="goodreads-form" action="/import/goodreads" method="POST">
-		<div class="input-group vertical">
-			<label class="goodreads" for="goodreads">Choose a Goodreads csv file:</label>
-			<input type="file" name="goodreads" accept=".csv" required/>
-		</div>
-		<button class="small" type="submit">Submit</button>
-	</form>
-}
-
-templ calibreForm() {
-	<form action="/import/calibre" method="POST">
-		<input id="calibre" name="calibre" required/>
-		<button type="submit">Submit</button>
-	</form>
-}
-
 templ uploadForm() {
 	<form
 		class="upload-form"
@@ -114,12 +97,27 @@ templ uploadForm() {
 		hx-swap="innerHTML"
 		enctype="multipart/form-data"
 	>
-		<div class="input-group vertical">
-			<label class="upload" for="upload">Upload a file:</label>
+		<div class="filedrop-container">
 			<input type="file" name="upload" accept=".epub,.mobi,.pdf,.txt,.html" required/>
-			<small>EPUB, MOBI, PDF supported</small>
+			<small>Supported file types: epub, mobi, pdf</small>
 		</div>
-		<button class="small" type="submit">Submit</button>
+		<button type="submit">Submit</button>
+	</form>
+}
+
+templ goodreadsForm() {
+	<form class="goodreads-form" action="/import/goodreads" method="POST">
+		<div class="filedrop-container">
+			<input type="file" name="goodreads" accept=".csv" required/>
+			<small>Supported file types: csv</small>
+		</div>
+		<button type="submit">Submit</button>
+	</form>
+}
+
+templ calibreForm() {
+	<form action="/import/calibre" method="POST">
+		<input id="calibre" type="file" webkitdirectory directory/>
 	</form>
 }
 
