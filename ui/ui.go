@@ -53,14 +53,16 @@ func Router(db Store, fs *file.Service) chi.Router {
 		c.Delete("/{id:[0-9]+}", s.deleteBook)
 	})
 
-	ui.Post("/upload", s.upload)
 	ui.Route("/import", func(c chi.Router) {
-		c.Get("/", s.importPage)
-		c.Post("/openlibrary", s.importOpenLibrary)
+		c.Get("/", s.importTabsPage)
 		// c.Post("/goodreads", s.importGoodreads)
 		// c.Post("/calibre", s.importCalibre)
-		c.Post("/add", s.importAddResult)
 	})
+	ui.Route("/search", func(c chi.Router) {
+		c.Post("/", s.search)
+		c.Post("/add", s.searchAddResult)
+	})
+	ui.Post("/upload", s.upload)
 
 	ui.HandleFunc("/authors", s.authorList)
 	ui.Route("/author", func(c chi.Router) {

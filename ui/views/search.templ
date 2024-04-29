@@ -1,0 +1,155 @@
+package views
+
+import (
+	"errors"
+	"net/http"
+	"strconv"
+
+	"github.com/kencx/dusk/ui/shared"
+	"github.com/kencx/dusk/ui/partials"
+	ol "github.com/kencx/dusk/integrations/openlibrary"
+)
+
+var ErrNotValidIsbn = errors.New("invalid isbn")
+
+type Search struct {
+	DefaultTab string
+	Results    ol.QueryResults
+	Message    string
+	Err        error
+}
+
+func ImportRenderResults(rw http.ResponseWriter, r *http.Request, res ol.QueryResults) {
+	ImportResults(res, "", nil).Render(r.Context(), rw)
+}
+
+func ImportResultsMessage(rw http.ResponseWriter, r *http.Request, res ol.QueryResults, message string) {
+	ImportResults(res, message, nil).Render(r.Context(), rw)
+}
+
+func ImportResultsError(rw http.ResponseWriter, r *http.Request, err error) {
+	ImportResults(nil, "", err).Render(r.Context(), rw)
+}
+
+func (v Search) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *Search) Html() {
+	@shared.Base() {
+		<h2>Add Books</h2>
+		@partials.Tabs(ImportTabs, v.DefaultTab)
+		<div class="import__result_list"></div>
+	}
+}
+
+templ searchForm() {
+	<form
+		hx-post="/search"
+		hx-target=".import__result_list"
+		hx-swap="innerHTML"
+		hx-indicator=".spinner"
+	>
+		<fieldset role="group">
+			<input id="search" name="openlibrary" placeholder="Search for an ISBN, title or author"/>
+			<button type="submit">Submit</button>
+		</fieldset>
+		<small>
+			<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
+		</small>
+		<div class="spinner" aria-busy="true"></div>
+	</form>
+}
+
+templ ImportResults(results ol.QueryResults, message string, err error) {
+	if err == ErrNotValidIsbn {
+		<div class="card error fluid">
+			<p>
+				You entered an invalid ISBN. A book's ISBN is usually found on the
+				back cover, near the barcode. It will contain 10 or 13 characters, plus
+				any dashes and spaces.
+			</p>
+			<p>
+				Valid examples: 978-0495011606, 9780136006176, 0077354761,
+				013603599X
+			</p>
+			<p>
+				Alternatively, you can try searching for the book's title or
+				author.
+			</p>
+		</div>
+	} else if err != nil {
+		<div class="card error fluid">
+			<p>Something went wrong, please try again</p>
+		</div>
+	}
+	if message != "" {
+		<div class="card fluid message">
+			@templ.Raw(message)
+		</div>
+	}
+	// TODO split results list and messages
+	if err == nil {
+		<h2>
+			Results
+			<small>Found { strconv.Itoa(len(results)) } result(s)</small>
+		</h2>
+		<form hx-indicator=".spinner">
+			for _, result := range results {
+				<div class="import__result">
+					<img alt="" src={ result.CoverUrl }/>
+					<div class="details">
+						<h4>
+							{ result.Title }
+							<small>
+								for _, author := range result.Authors {
+									<span class="author">{ author }</span>
+								}
+							</small>
+						</h4>
+						<ul>
+							<li>
+								if len(result.Isbn10) > 0 || len(result.Isbn13) > 0 {
+									ISBN:
+									if len(result.Isbn10) > 0 {
+										{ result.Isbn10[0] }
+									}
+									if len(result.Isbn13) > 0 {
+										{ result.Isbn13[0] }
+									}
+								}
+							</li>
+							<li>
+								if result.PublishDate != "" {
+									Published: { result.PublishDate }
+								}
+							</li>
+						</ul>
+					</div>
+					if len(result.Isbn10) > 0 {
+						<input type="hidden" name="result" value={ result.Isbn10[0] }/>
+					}
+					if len(result.Isbn13) > 0 {
+						<input type="hidden" name="result" value={ result.Isbn13[0] }/>
+					}
+					<div class="actions">
+						<select
+							name="tag-option"
+							hx-trigger="change"
+							hx-post="/search/add"
+							hx-target=".import__result_list"
+							hx-swap="innerHTML"
+							hx-include="this"
+						>
+							<option value="add">Add book</option>
+							<option value="to-read">To read</option>
+							<option value="reading">Reading</option>
+							<option value="read">Read</option>
+						</select>
+					</div>
+				</div>
+			}
+			<div class="spinner"></div>
+		</form>
+	}
+}
