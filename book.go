@@ -3,13 +3,19 @@ package dusk
 import (
 	"errors"
 	"regexp"
+	"strings"
+	"time"
 
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/kennygrant/sanitize"
 )
+
+var en = language.English
 
 type Book struct {
 	ID       int64       `json:"id" db:"id"`
@@ -17,8 +23,9 @@ type Book struct {
 	Subtitle null.String `json:"subtitle,omitempty" db:"subtitle"`
 	Author   []string    `json:"author"`
 
-	ISBN   null.String `json:"isbn" db:"isbn"`
-	ISBN13 null.String `json:"isbn13" db:"isbn13"`
+	ISBN        null.String       `json:"isbn" db:"isbn"`
+	ISBN13      null.String       `json:"isbn13" db:"isbn13"`
+	Identifiers map[string]string `json:"identifiers"`
 
 	NumOfPages int `json:"num_of_pages" db:"numOfPages"`
 	Progress   int `json:"progress" db:"progress"`
@@ -41,6 +48,57 @@ type Book struct {
 }
 
 type Books []*Book
+
+func NewBook(
+	title, subtitle, isbn, isbn13 string,
+	numOfPages, progress, rating int,
+	publisher, description, notes, cover string,
+	author, tag, formats []string,
+	identifiers map[string]string,
+	datePublished, dateStarted, dateCompleted time.Time,
+) *Book {
+	tcaser := cases.Title(en)
+	scaser := cases.Lower(en)
+
+	var titleAuthor []string
+	for _, a := range author {
+		titleAuthor = append(titleAuthor, tcaser.String(a))
+	}
+
+	var smallTag []string
+	for _, a := range tag {
+		smallTag = append(smallTag, scaser.String(a))
+	}
+
+	b := &Book{
+		Title:    tcaser.String(strings.TrimSpace(title)),
+		Subtitle: null.StringFrom(tcaser.String(subtitle)),
+		Author:   titleAuthor,
+
+		ISBN:        null.StringFrom(isbn),
+		ISBN13:      null.StringFrom(isbn13),
+		Identifiers: identifiers,
+
+		NumOfPages: numOfPages,
+		Progress:   progress,
+		Rating:     rating,
+
+		Publisher:     null.StringFrom(tcaser.String(publisher)),
+		DatePublished: null.TimeFrom(datePublished),
+
+		Tag:         smallTag,
+		Description: null.StringFrom(description),
+		Notes:       null.StringFrom(notes),
+
+		Formats: formats,
+		Cover:   null.StringFrom(cover),
+
+		DateStarted:   null.TimeFrom(dateStarted),
+		DateCompleted: null.TimeFrom(dateCompleted),
+	}
+
+	return b
+}
 
 func (b Book) SafeTitle() string {
 	return sanitize.BaseName(b.Title)

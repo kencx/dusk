@@ -3,6 +3,7 @@ package openlibrary
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"strconv"
 )
 
@@ -55,9 +56,7 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 				CoverUrl:      fmt.Sprintf(coverIdEndpoint, strconv.Itoa(r.CoverId), "M"),
 			}
 
-			if len(r.PublishDate) > 0 {
-				m.PublishDate = r.PublishDate[0]
-			}
+			m.PublishDate = getFirst(r.PublishDate)
 
 			if len(r.Isbn) > 0 {
 				for _, i := range r.Isbn {
@@ -72,7 +71,7 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 			// fallback to works with key
 			if len(m.Authors) == 0 || m.Title == "" {
 				if work.Key == "" {
-					return ErrInvalidResult
+					continue
 				}
 
 				var worksMetadata struct {
@@ -82,12 +81,12 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 							Key string `json:"key"`
 						} `json:"author"`
 					} `json:"authors"`
-					Description string `json:"description"`
 				}
 
 				url := fmt.Sprintf(olEndpoint, work.Key)
 				if err := fetch(url, &worksMetadata); err != nil {
-					return fmt.Errorf("failed to fetch by works: %w", err)
+					slog.Warn("failed to fetch by works", slog.Any("err", err))
+					continue
 				}
 
 				if m.Title == "" {
@@ -102,7 +101,8 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 						}
 
 						if err := fetch(authorUrl, &author); err != nil {
-							return fmt.Errorf("failed to fetch author: %w", err)
+							slog.Warn("failed to fetch by author", slog.Any("err", err))
+							continue
 						}
 
 						m.Authors = append(m.Authors, author.Name)

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/kencx/dusk"
 )
 
@@ -65,7 +66,6 @@ func (m *Metadata) UnmarshalJSON(buf []byte) error {
 					Key string `json:"key"`
 				} `json:"author"`
 			} `json:"authors"`
-			Description string `json:"description"`
 		}
 
 		url := fmt.Sprintf(olEndpoint, im.Works[0].Key)
@@ -119,20 +119,15 @@ func (m *Metadata) UnmarshalJSON(buf []byte) error {
 func (m *Metadata) ToBook() *dusk.Book {
 	var (
 		isbn, isbn13, publisher string
-		identifiers             map[string]string = make(map[string]string)
+		identifiers             = make(map[string]string)
 		tags                    []string
 		datePublished           time.Time
 	)
 
-	if len(m.Isbn10) > 0 {
-		isbn = m.Isbn10[0]
-	}
-	if len(m.Isbn13) > 0 {
-		isbn13 = m.Isbn13[0]
-	}
-	if len(m.Publishers) > 0 {
-		publisher = m.Publishers[0]
-	}
+	isbn = getFirst(m.Isbn10)
+	isbn13 = getFirst(m.Isbn13)
+	publisher = getFirst(m.Publishers)
+
 	if len(m.Series) > 0 {
 		series := strings.ReplaceAll(m.Series[0], ",", "")
 		tags = append(tags, fmt.Sprintf("series.%s", series))
@@ -146,13 +141,9 @@ func (m *Metadata) ToBook() *dusk.Book {
 		}
 	}
 
-	// there is no standardized format so only handle year for now
-	if len(m.PublishDate) == 4 {
-		var err error
-		datePublished, err = time.Parse("2006", m.PublishDate)
-		if err != nil {
-			slog.Warn("failed to parse publish date", slog.Any("err", err))
-		}
+	datePublished, err := dateparse.ParseAny(m.PublishDate)
+	if err != nil {
+		slog.Warn("failed to parse publish date", slog.Any("err", err))
 	}
 
 	return dusk.NewBook(

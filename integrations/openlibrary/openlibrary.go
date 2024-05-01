@@ -67,3 +67,10 @@ func fetch(url string, dest interface{}) error {
 	}
 	return nil
 }
+
+func getFirst(sl []string) string {
+	if len(sl) > 0 {
+		return sl[0]
+	}
+	return ""
+}

@@ -42,6 +42,7 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 			return nil, fmt.Errorf("db: retrieve book id %d failed: %w", id, err)
 		}
 
+		//  TODO handle commas
 		dest.Author = strings.Split(dest.AuthorString, ",")
 		dest.Tag = dest.TagString.Split(",")
 		return dest.Book, nil
