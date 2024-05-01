@@ -1,12 +1,14 @@
 package views
 
 import (
+	"fmt"
 	"net/http"
 	"path"
 	"strconv"
 	"strings"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/partials/icons"
 	"github.com/kencx/dusk/ui/shared"
@@ -32,105 +34,25 @@ templ (v *Book) Html() {
 				@partials.NotFound()
 			} else if v.book != nil {
 				<div class="book__details">
-					<div class="cover">
-						if !v.book.Cover.Valid {
-							<img alt="" src="/static/img/default_cover.jpg"/>
-						} else if strings.HasPrefix(v.book.Cover.String, "http://") ||
-							strings.HasPrefix(v.book.Cover.String, "https://") {
-							<img alt="" src={ v.book.Cover.String }/>
-						} else {
-							<img alt="" src={ path.Join("/files", v.book.Cover.String) }/>
-						}
-					</div>
+					@bookCover(v.book.Cover)
 					<div class="header">
-						<h1>
-							{ v.book.Title }
+						<hgroup>
+							<h3>
+								{ v.book.Title }
+							</h3>
 							if v.book.Subtitle.Valid {
-								<small>{ v.book.Subtitle.String }</small>
+								<small class="subtitle">{ v.book.Subtitle.String }</small>
 							}
-						</h1>
-						<h4>
-							for _, author := range v.book.Author {
-								<span class="author"><a href={ templ.URL(path.Join("/author", author)) }>{ author }</a></span>
-							}
-						</h4>
-						<div class="secondary">
-							<div class="tags">
-								for _, tag := range v.book.Tag {
-									<a href={ templ.URL(path.Join("/tag", tag)) } tt={ tag }>{ tag }</a>
-								}
-							</div>
-							<div class="footer">
-								<div>
-									<span>{ strconv.Itoa(v.book.NumOfPages) } pages</span> •
-									<span>{ strconv.Itoa(v.book.Rating) } / 5</span>
-								</div>
-								<div class="formats">
-									<a href="#" class="small button">
-										@icons.Edit()
-									</a>
-									<a href="#" class="small button">
-										@icons.Download()
-									</a>
-									<a href="#" class="small button">
-										@icons.Book()
-									</a>
-									@partials.ModalButton() {
-										@icons.Delete()
-									}
-									@partials.ModalDialog() {
-										<h3 class="section">Delete book?</h3>
-										<div class="section confirm">
-											<label
-												class="small button cancel"
-												for="modal-control"
-											>Cancel</label>
-											<button
-												hx-delete={ path.Join("/book", strconv.FormatInt(v.book.ID, 10)) }
-												hx-target="body"
-												class="small"
-											>Confirm</button>
-										</div>
-									}
-								</div>
-							</div>
+						</hgroup>
+						@bookAuthors(v.book.Author)
+						@bookRating(v.book.Rating)
+						<div class="details">
+							@bookTags(v.book.Tag)
+							@bookDetails(v.book)
 						</div>
+						@bookActions(v.book)
 					</div>
 				</div>
-				<details>
-					<summary>See details</summary>
-					<div class="metadata">
-						<div class="key">
-							Publisher
-							<br/>
-							Published
-							<br/>
-							ISBN
-							<br/>
-							ISBN13
-						</div>
-						<div class="value">
-							if v.book.Publisher.Valid {
-								{ v.book.Publisher.String }
-							}
-							<br/>
-							if v.book.DatePublished.Valid {
-								{ v.book.DatePublished.Time.String() }
-							}
-							<br/>
-							if v.book.ISBN.Valid {
-								{ v.book.ISBN.String }
-							}
-							<br/>
-							if v.book.ISBN13.Valid {
-								{ v.book.ISBN13.String }
-							}
-						</div>
-					</div>
-					if v.book.Description.Valid {
-						<p>{ v.book.Description.String }</p>
-					}
-				</details>
 				if !v.book.Notes.Valid {
 					<hr/>
 				} else {
@@ -141,4 +63,170 @@ templ (v *Book) Html() {
 			}
 		</div>
 	}
+}
+
+templ bookCover(cover null.String) {
+	<div class="cover">
+		if !cover.Valid {
+			<img alt="" src="/static/img/default_cover.jpg"/>
+		} else if strings.HasPrefix(cover.String, "http://") || strings.HasPrefix(cover.String, "https://") {
+			<img alt="" src={ cover.String }/>
+		} else {
+			<img alt="" src={ path.Join("/files", cover.String) }/>
+		}
+	</div>
+}
+
+templ bookAuthors(authors []string) {
+	<p>
+		for _, a := range authors {
+			<span class="author"><a href={ templ.URL(path.Join("/author", a)) }>{ a }</a></span>
+		}
+	</p>
+}
+
+templ bookTags(tags []string) {
+	<div class="tags">
+		for _, tag := range tags {
+			<span class="tag">
+				if len(tag) > 25 {
+					<a href={ templ.URL(path.Join("/tag", tag)) } data-tooltip={ tag }>{ tag[:25] + "..." }</a>
+				} else {
+					<a href={ templ.URL(path.Join("/tag", tag)) }>{ tag }</a>
+				}
+			</span>
+		}
+	</div>
+}
+
+templ bookRating(rating int) {
+	<div class="rating">
+		if rating == 0 {
+			for _ = range 5 {
+				@icons.StarEmpty()
+			}
+		} else if halfRating(rating) {
+			for _ = range (rating/2) {
+				@icons.StarFilled()
+			}
+			@icons.StarHalf()
+		} else {
+			for _ = range (rating/2) {
+				@icons.StarFilled()
+			}
+		}
+	</div>
+}
+
+templ bookDetails(book *dusk.Book) {
+	<details class="desc-excerpt">
+		if book.Description.Valid {
+			<summary>
+				<span>
+					if len(book.Description.String) > 200 {
+						{ book.Description.String[:200] + "..." }
+					} else {
+						{ book.Description.String + "..." }
+					}
+				</span>
+			</summary>
+			<div class="desc">{ book.Description.String }</div>
+		} else {
+			<summary>
+				<span>Details...</span>
+			</summary>
+		}
+		@bookMetadata(book)
+	</details>
+}
+
+templ bookMetadata(book *dusk.Book) {
+	<div class="metadata">
+		<div class="key">
+			Publisher
+			<br/>
+			Published
+			<br/>
+			ISBN
+			<br/>
+			ISBN13
+			<br/>
+			Pages
+		</div>
+		<div class="value">
+			if book.Publisher.Valid {
+				{ book.Publisher.String }
+			}
+			<br/>
+			if book.DatePublished.Valid {
+				{ printDateFormat(book.DatePublished) }
+			}
+			<br/>
+			if book.ISBN.Valid {
+				{ book.ISBN.String }
+			}
+			<br/>
+			if book.ISBN13.Valid {
+				{ book.ISBN13.String }
+			}
+			<br/>
+			{ strconv.Itoa(book.NumOfPages) }
+		</div>
+	</div>
+}
+
+templ bookActions(book *dusk.Book) {
+	<div class="actions">
+		<details class="dropdown">
+			if len(book.Formats) > 0 {
+				<summary role="button" class="icon">
+					@icons.Download()
+				</summary>
+				<ul>
+					for _, format := range book.Formats {
+						<li><a href="#">{ format }</a></li>
+					}
+				</ul>
+			} else {
+				<summary role="button" class="icon" disabled>
+					@icons.Download()
+				</summary>
+			}
+		</details>
+		<button class="icon" data-tooltip="Edit details">
+			@icons.Edit()
+		</button>
+		<button class="icon" data-tooltip="Add notes">
+			@icons.Book()
+		</button>
+		<button class="icon" data-tooltip="Delete book">
+			@icons.Delete()
+		</button>
+		// @partials.ModalButton() {
+		// 	@icons.Delete()
+		// }
+		// @partials.ModalDialog() {
+		// 	<h3 class="section">Delete book?</h3>
+		// 	<div class="section confirm">
+		// 		<label
+		// 			class="button cancel"
+		// 			for="modal-control"
+		// 		>Cancel</label>
+		// 		<button
+		// 			hx-delete={ path.Join("/book", strconv.FormatInt(book.ID, 10)) }
+		// 			hx-target="body"
+		// 		>Confirm</button>
+		// 	</div>
+		// }
+	</div>
+}
+
+func halfRating(rating int) bool {
+	rating5 := float64(rating) / 2
+	return rating5 != float64(int64(rating5))
+}
+
+func printDateFormat(date null.Time) string {
+	year, month, _ := date.ValueOrZero().Date()
+	return fmt.Sprintf("%s %d", month.String()[:3], year)
 }

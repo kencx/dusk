@@ -2108,6 +2108,7 @@ details.dropdown summary + ul li a {
   overflow: hidden;
   border-radius: 0;
   color: var(--pico-dropdown-color);
+  font-size: 0.75rem;
   text-decoration: none;
   text-overflow: ellipsis;
 }
@@ -2632,7 +2633,7 @@ progress::-moz-progress-bar {
   color: var(--pico-tooltip-color);
   font-style: normal;
   font-weight: var(--pico-font-weight);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;

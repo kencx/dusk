@@ -1,5 +1,9 @@
 package partials
 
+import (
+	"github.com/kencx/dusk/ui/partials/icons"
+)
+
 templ Navbar() {
 	<header>
 		<nav class="container">
@@ -17,7 +21,15 @@ templ Navbar() {
 					<a href="/import" class="contrast">Import</a>
 				</li>
 				<li>
-					<a href="/" class="contrast">Settings</a>
+					<details class="dropdown">
+						<summary role="button" class="icon">
+							@icons.OverflowMenuVertical()
+						</summary>
+						<ul>
+							<li><a href="#">Options</a></li>
+							<li><a href="#">Logout</a></li>
+						</ul>
+					</details>
 				</li>
 			</ul>
 		</nav>

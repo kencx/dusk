@@ -1,11 +1,15 @@
 package partials
 
+import (
+	"github.com/kencx/dusk/ui/partials/icons"
+)
+
 templ Footer() {
 	<footer>
 		<div class="container">
-			2024 •
+			Licensed by MIT •
 			<a href="https://github.com/kencx/dusk">
-				<span class="icon-github"></span>
+				@icons.Github()
 			</a>
 		</div>
 	</footer>

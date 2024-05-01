@@ -7,7 +7,7 @@ INSERT INTO author (
 
 INSERT INTO tag (
     name
-) VALUES ('testTag'), ('Favourites'), ('Starred');
+) VALUES ('testTag'), ('Favourites'), ('Starred'), ('Super duper long tag for testing');
 
 INSERT INTO book (
     title, isbn, numOfPages, rating
@@ -39,8 +39,8 @@ INSERT INTO book_author_link (
 );
 
 INSERT INTO book (
-    title, isbn
-) VALUES ('Many Authors', '3000000000');
+    title, isbn, description, rating
+) VALUES ('Many Authors', '3000000000', 'Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.', 7);
 
 INSERT INTO book_author_link (
     book, author
@@ -53,7 +53,8 @@ INSERT INTO book_tag_link (
     book, tag
     ) VALUES
     ((SELECT id FROM book WHERE title = 'Many Authors'), (SELECT id FROM tag WHERE name = 'Favourites')),
-    ((SELECT id FROM book WHERE title = 'Many Authors'), (SELECT id FROM tag WHERE name = 'Starred'));
+    ((SELECT id FROM book WHERE title = 'Many Authors'), (SELECT id FROM tag WHERE name = 'Starred')),
+    ((SELECT id FROM book WHERE title = 'Many Authors'), (SELECT id FROM tag WHERE name = 'Super duper long tag for testing'));
 
 INSERT INTO book (
     title, isbn

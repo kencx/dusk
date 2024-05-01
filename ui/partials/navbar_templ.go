@@ -10,6 +10,10 @@ import "context"
 import "io"
 import "bytes"
 
+import (
+	"github.com/kencx/dusk/ui/partials/icons"
+)
+
 func Navbar() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -23,7 +27,15 @@ func Navbar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header><nav class=\"container\"><ul class=\"logo\"><li><a href=\"/\"><strong>dusk</strong></a></li></ul><ul><li><a href=\"/authors\" class=\"contrast\">Authors</a></li><li><a href=\"/tags\" class=\"contrast\">Tags</a></li><li><a href=\"/import\" class=\"contrast\">Import</a></li><li><a href=\"/\" class=\"contrast\">Settings</a></li></ul></nav></header>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header><nav class=\"container\"><ul class=\"logo\"><li><a href=\"/\"><strong>dusk</strong></a></li></ul><ul><li><a href=\"/authors\" class=\"contrast\">Authors</a></li><li><a href=\"/tags\" class=\"contrast\">Tags</a></li><li><a href=\"/import\" class=\"contrast\">Import</a></li><li><details class=\"dropdown\"><summary role=\"button\" class=\"icon\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = icons.OverflowMenuVertical().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</summary><ul><li><a href=\"#\">Options</a></li><li><a href=\"#\">Logout</a></li></ul></details></li></ul></nav></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
