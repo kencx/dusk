@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -140,7 +141,7 @@ templ bookDetails(book *dusk.Book) {
 			<div class="desc">{ book.Description.String }</div>
 		} else {
 			<summary>
-				<span>Details...</span>
+				<span>Show details...</span>
 			</summary>
 		}
 		@bookMetadata(book)
@@ -200,6 +201,13 @@ templ bookActions(book *dusk.Book) {
 				</summary>
 			}
 		</details>
+		<button class="icon" data-tooltip="Mark as read">
+			if slices.Contains(book.Tag, "read") {
+				@icons.RadioButtonChecked()
+			} else {
+				@icons.RadioButton()
+			}
+		</button>
 		<button class="icon" data-tooltip="Edit details">
 			@icons.Edit()
 		</button>

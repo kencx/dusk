@@ -207,7 +207,7 @@ details.dropdown:has(> summary[role="button"].icon) {
     &[open] summary::before {
       font-style: italic;
       color: var(--pico-muted-color);
-      content: "Collapse"
+      content: "Collapse details..."
     }
 
     .desc {
