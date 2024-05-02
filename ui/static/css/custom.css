@@ -139,15 +139,16 @@ details.dropdown:has(> summary[role="button"].icon) {
 .book__details {
   --max-cover-width: 232px;
   display: grid;
-  gap: 0 76px;
   grid-template-columns: var(--max-cover-width) 1fr;
-  grid-template-areas:
-    "a b"
-    "a c";
+  gap: 0 76px;
   margin: 0 1.2rem 1.2rem 1.2rem;
 
 	.cover {
-		grid-area: a;
+    /* sticky scrolling */
+    position: sticky;
+    align-self: start;
+    top: 1rem;
+
 		display: flex;
 		align-items: start;
 		justify-content: center;
@@ -155,27 +156,19 @@ details.dropdown:has(> summary[role="button"].icon) {
 		max-width: var(--max-cover-width);
 	}
 
-	.header {
-		grid-area: b;
+  .subtitle {
+    color: var(--pico-muted-color);
+  }
 
-    .subtitle {
-      color: var(--pico-muted-color);
-    }
+  .author {
+    color: var(--pico-primary);
+  }
 
-    .author {
-      color: var(--pico-primary);
-    }
-
-		.author + .author::before {
-			display: inline-block;
-			white-space: pre;
-			content: ", ";
-		}
-	}
-
-	.details {
-		grid-area: c;
-	}
+  .author + .author::before {
+    display: inline-block;
+    white-space: pre;
+    content: ", ";
+  }
 
   .rating {
     display: inline-flex;
@@ -275,8 +268,6 @@ details.dropdown:has(> summary[role="button"].icon) {
         text-align: left;
       }
     }
-
-    .actions {}
   }
 }
 
