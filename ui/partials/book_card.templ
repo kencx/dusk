@@ -2,14 +2,13 @@ package partials
 
 import (
 	"path"
-	"strconv"
 	"strings"
 
 	"github.com/kencx/dusk"
 )
 
 func bookPath(b *dusk.Book) string {
-	return path.Join("/b", strconv.Itoa(int(b.ID)))
+	return path.Join("/b", b.Slugify())
 }
 
 templ bookCard(b *dusk.Book) {

@@ -2,7 +2,6 @@ package partials
 
 import (
 	"path"
-	"strconv"
 
 	"github.com/kencx/dusk"
 )
@@ -14,7 +13,7 @@ templ List(authors dusk.Authors, err error) {
 		} else if authors != nil {
 			<ul>
 				for _, author := range authors {
-					<li><a href={ templ.URL(path.Join("a", strconv.FormatInt(author.ID, 10))) }>{ author.Name }</a></li>
+					<li><a href={ templ.URL(path.Join("a", author.Slugify())) }>{ author.Name }</a></li>
 				}
 			</ul>
 		} else {
@@ -30,7 +29,7 @@ templ ListTag(tags dusk.Tags, err error) {
 		} else if tags != nil {
 			<ul>
 				for _, tag := range tags {
-					<li><a href={ templ.URL(path.Join("t", strconv.FormatInt(tag.ID, 10))) }>{ tag.Name }</a></li>
+					<li><a href={ templ.URL(path.Join("t", tag.Slugify())) }>{ tag.Name }</a></li>
 				}
 			</ul>
 		} else {

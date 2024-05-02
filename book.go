@@ -2,6 +2,7 @@ package dusk
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -102,6 +103,10 @@ func NewBook(
 
 func (b Book) SafeTitle() string {
 	return sanitize.BaseName(b.Title)
+}
+
+func (b Book) Slugify() string {
+	return sanitize.Path(fmt.Sprintf("%s-%d", b.Title, b.ID))
 }
 
 var isbnRgx = regexp.MustCompile(`[0-9]+`)

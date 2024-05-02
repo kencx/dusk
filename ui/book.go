@@ -20,7 +20,7 @@ func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
-	id := request.HandleInt64("id", rw, r)
+	id := request.FetchIdFromSlug(rw, r)
 	if id == -1 {
 		return
 	}
@@ -35,7 +35,7 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
-	id := request.HandleInt64("id", rw, r)
+	id := request.FetchIdFromSlug(rw, r)
 	if id == -1 {
 		return
 	}

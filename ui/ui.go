@@ -47,10 +47,10 @@ func Router(db Store, fs *file.Service) chi.Router {
 
 	ui.HandleFunc("/", s.index)
 	ui.Route("/b", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.bookPage)
+		c.Get("/{slug:[a-zA-Z0-9-]+}", s.bookPage)
 		// c.Post("/{id[0-9]+}", s.formAddBook)
 		// c.Put("/{id[0-9]+}", s.formUpdateBook)
-		c.Delete("/{id:[0-9]+}", s.deleteBook)
+		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
 	})
 
 	ui.Route("/import", func(c chi.Router) {
@@ -66,7 +66,7 @@ func Router(db Store, fs *file.Service) chi.Router {
 
 	ui.HandleFunc("/authors", s.authorList)
 	ui.Route("/a", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.authorPage)
+		c.Get("/{slug:[a-zA-Z0-9-]+}", s.authorPage)
 		// c.Post("/{id[0-9]+}", s.formAddAuthor)
 		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
 		// c.Delete("/{id[0-9]+}", s.formDeleteAuthor)
@@ -74,7 +74,7 @@ func Router(db Store, fs *file.Service) chi.Router {
 
 	ui.HandleFunc("/tags", s.tagList)
 	ui.Route("/t", func(c chi.Router) {
-		c.Get("/{id:[0-9]+}", s.tagPage)
+		c.Get("/{slug:[a-zA-Z0-9-]+}", s.tagPage)
 		// c.Post("/{id[0-9]+}", s.formAddtag)
 		// c.Put("/{id[0-9]+}", s.formUpdatetag)
 		// c.Delete("/{id[0-9]+}", s.formDeletetag)

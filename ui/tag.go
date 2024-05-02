@@ -19,7 +19,7 @@ func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
-	id := request.HandleInt64("id", rw, r)
+	id := request.FetchIdFromSlug(rw, r)
 	if id == -1 {
 		return
 	}
