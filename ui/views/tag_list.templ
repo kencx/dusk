@@ -25,9 +25,12 @@ func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *TagList) Html() {
 	@shared.Base() {
 		if v.tags != nil {
-			<h1>Tags ({ strconv.Itoa(len(v.tags)) })</h1>
+			<hgroup>
+				<h2>Tags</h2>
+				<small>{ strconv.Itoa(len(v.tags)) }</small>
+			</hgroup>
 		} else {
-			<h1>Tags</h1>
+			<h2>Tags</h2>
 		}
 		<div>
 			@partials.ListTag(v.tags, v.err)

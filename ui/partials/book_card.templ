@@ -9,7 +9,7 @@ import (
 )
 
 func bookPath(b *dusk.Book) string {
-	return path.Join("/book", strconv.Itoa(int(b.ID)))
+	return path.Join("/b", strconv.Itoa(int(b.ID)))
 }
 
 templ bookCard(b *dusk.Book) {

@@ -46,7 +46,7 @@ func Router(db Store, fs *file.Service) chi.Router {
 	ui.Handle("/files/*", http.StripPrefix("/files/", dfs))
 
 	ui.HandleFunc("/", s.index)
-	ui.Route("/book", func(c chi.Router) {
+	ui.Route("/b", func(c chi.Router) {
 		c.Get("/{id:[0-9]+}", s.bookPage)
 		// c.Post("/{id[0-9]+}", s.formAddBook)
 		// c.Put("/{id[0-9]+}", s.formUpdateBook)
@@ -65,7 +65,7 @@ func Router(db Store, fs *file.Service) chi.Router {
 	ui.Post("/upload", s.upload)
 
 	ui.HandleFunc("/authors", s.authorList)
-	ui.Route("/author", func(c chi.Router) {
+	ui.Route("/a", func(c chi.Router) {
 		c.Get("/{id:[0-9]+}", s.authorPage)
 		// c.Post("/{id[0-9]+}", s.formAddAuthor)
 		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
@@ -73,7 +73,7 @@ func Router(db Store, fs *file.Service) chi.Router {
 	})
 
 	ui.HandleFunc("/tags", s.tagList)
-	ui.Route("/tag", func(c chi.Router) {
+	ui.Route("/t", func(c chi.Router) {
 		c.Get("/{id:[0-9]+}", s.tagPage)
 		// c.Post("/{id[0-9]+}", s.formAddtag)
 		// c.Put("/{id[0-9]+}", s.formUpdatetag)

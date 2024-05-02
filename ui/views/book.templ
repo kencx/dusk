@@ -87,7 +87,7 @@ templ bookCover(cover null.String) {
 templ bookAuthors(authors []string) {
 	<p>
 		for _, a := range authors {
-			<span class="author"><a href={ templ.URL(path.Join("/author", a)) }>{ a }</a></span>
+			<span class="author"><a href={ templ.URL(path.Join("/a", a)) }>{ a }</a></span>
 		}
 	</p>
 }
@@ -97,9 +97,9 @@ templ bookTags(tags []string) {
 		for _, tag := range tags {
 			<span class="tag">
 				if len(tag) > 25 {
-					<a href={ templ.URL(path.Join("/tag", tag)) } data-tooltip={ tag }>{ tag[:25] + "..." }</a>
+					<a href={ templ.URL(path.Join("/t", tag)) } data-tooltip={ tag }>{ tag[:25] + "..." }</a>
 				} else {
-					<a href={ templ.URL(path.Join("/tag", tag)) }>{ tag }</a>
+					<a href={ templ.URL(path.Join("/t", tag)) }>{ tag }</a>
 				}
 			</span>
 		}

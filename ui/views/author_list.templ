@@ -25,9 +25,12 @@ func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *AuthorList) Html() {
 	@shared.Base() {
 		if v.authors != nil {
-			<h1>Authors ({ strconv.Itoa(len(v.authors)) })</h1>
+			<hgroup>
+				<h2>Authors</h2>
+				<small>{ strconv.Itoa(len(v.authors)) }</small>
+			</hgroup>
 		} else {
-			<h1>Authors</h1>
+			<h2>Authors</h2>
 		}
 		<div>
 			@partials.List(v.authors, v.err)

@@ -86,6 +86,6 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
-	rawMessage := fmt.Sprintf("<p><a href=\"/book/%d\">%s</a> added</p>", book.ID, book.Title)
+	rawMessage := fmt.Sprintf("<p><a href=\"/b/%d\">%s</a> added</p>", book.ID, book.Title)
 	views.ImportResultsMessage(rw, r, ol.QueryResults{metadata}, rawMessage)
 }
