@@ -19,25 +19,40 @@ type TabGroup struct {
 	Tabs []Tab
 }
 
-templ Tabs(t TabGroup, defaultTab string, cssClasses ...string) {
-	<div hx-target="this" hx-swap="innerHTML" class={ "tabs", cssClasses }>
+templ Tabs(t TabGroup, defaultTab string) {
+	<div hx-target="this" hx-swap="innerHTML">
 		@t.Select(defaultTab)
 	</div>
 }
 
 // Select tab from tab group and render component
 templ (t TabGroup) Select(selected string) {
-	for i, link := range t.Order {
-		if link == selected {
-			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) } class="selected">{ t.Tabs[i].Name }</button>
-		} else {
-			<button hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }>{ t.Tabs[i].Name }</button>
+	<div class="tabs" role="tablist">
+		for i, link := range t.Order {
+			if link == selected {
+				<button
+					hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
+					class="selected"
+					role="tab"
+					aria-selected="true"
+					aria-controls={ "tab-content-" + link }
+				>{ t.Tabs[i].Name }</button>
+			} else {
+				<button
+					hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
+					role="tab"
+					aria-selected="false"
+					aria-controls={ "tab-content-" + link }
+				>{ t.Tabs[i].Name }</button>
+			}
 		}
-	}
+	</div>
 	// cannot fetch from map as templ does not seem to support slice/map indexing
 	for _, tab := range t.Tabs {
 		if tab.Link == selected {
-			@tab.Component
+			<div role="tabpanel" id={ "tab-content-" + tab.Link }>
+				@tab.Component
+			</div>
 		}
 	}
 }
