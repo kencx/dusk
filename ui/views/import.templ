@@ -7,7 +7,7 @@ import (
 var (
 	ImportTabs = partials.TabGroup{
 		RootPath: "/import",
-		Order:    []string{"search", "upload", "goodreads", "calibre"},
+		Order:    []string{"search", "upload", "manual", "goodreads", "calibre"},
 		Tabs: []partials.Tab{
 			{
 				Name:      "Search",
@@ -18,6 +18,11 @@ var (
 				Name:      "Upload File",
 				Link:      "upload",
 				Component: uploadForm(),
+			},
+			{
+				Name:      "Manual Entry",
+				Link:      "manual",
+				Component: manualEntryForm(),
 			},
 			{
 				Name:      "Goodreads",
