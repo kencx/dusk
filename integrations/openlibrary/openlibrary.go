@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const (
@@ -19,6 +20,8 @@ const (
 	searchEndpoint = "https://openlibrary.org/search.json?q=%s&%s&%s"
 	searchFields   = "fields=key,title,editions,editions.title,editions.subtitle,editions.author_name,editions.isbn,editions.publisher,editions.cover_i,editions.publish_date,editions.number_of_pages_median"
 	searchLimit    = "limit=5&offset=0"
+
+	clientTimeout = 5 * time.Second
 )
 
 var (
@@ -51,7 +54,11 @@ func FetchByQuery(query string) (*QueryResults, error) {
 }
 
 func fetch(url string, dest interface{}) error {
-	resp, err := http.Get(url)
+	client := http.Client{
+		Timeout: clientTimeout,
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		return err
 	}

@@ -69,8 +69,11 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 			}
 
 			// fallback to works with key
-			if len(m.Authors) == 0 || m.Title == "" {
+			if len(m.Authors) == 0 || m.Authors == nil || m.Title == "" {
+				slog.Warn("no title or authors found, fallback to works")
+
 				if work.Key == "" {
+					slog.Warn("no work key found, skipping...")
 					continue
 				}
 

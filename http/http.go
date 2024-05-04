@@ -17,7 +17,7 @@ import (
 
 var (
 	idleTimeout      = time.Minute
-	readWriteTimeout = 3 * time.Second
+	readWriteTimeout = 20 * time.Second
 	closeTimeout     = 5 * time.Second
 )
 
@@ -90,7 +90,15 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.StripSlashes)
+	r.Use(timeoutHandler(2 * readWriteTimeout / 3))
 
 	r.Mount("/api", api.Router(s.db, s.fs))
 	r.Mount("/", ui.Router(s.db, s.fs))
+}
+
+// middleware to add http.TimeoutHandler.
+func timeoutHandler(timeout time.Duration) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.TimeoutHandler(next, timeout, "Timeout")
+	}
 }
