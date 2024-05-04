@@ -13,3 +13,7 @@ func HxRedirect(rw http.ResponseWriter, r *http.Request, path string) {
 
 	res.write()
 }
+
+func AddHxTriggerAfterSwap(rw http.ResponseWriter, value string) {
+	rw.Header().Add("HX-Trigger-After-Swap", value)
+}

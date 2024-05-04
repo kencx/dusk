@@ -276,7 +276,7 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
 	}
 	if count == 0 {
-		return nil, errors.New("db: no books removed")
+		return nil, errors.New("db: no books added")
 	}
 	id, err := res.LastInsertId()
 	if err != nil {

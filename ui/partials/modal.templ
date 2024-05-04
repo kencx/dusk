@@ -1,18 +1,15 @@
 package partials
 
-templ ModalButton() {
-	<label for="modal-control" class="small button">
+templ ModalButton(attrs templ.Attributes) {
+	<button hx-target="#modal-content" { attrs... }>
 		{ children... }
-	</label>
-	<input type="checkbox" id="modal-control" class="modal" autocomplete="off"/>
+	</button>
 }
 
 templ ModalDialog() {
-	<div class="modal__dialog" role="dialog">
-		<label for="modal-control" class="overlay"></label>
-		<div class="card">
-			<label for="modal-control" class="modal-close"></label>
+	<dialog open>
+		<article>
 			{ children... }
-		</div>
-	</div>
+		</article>
+	</dialog>
 }

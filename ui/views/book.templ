@@ -214,26 +214,31 @@ templ bookActions(book *dusk.Book) {
 		<button class="icon" data-tooltip="Add notes">
 			@icons.Book()
 		</button>
-		<button class="icon" data-tooltip="Delete book">
+		@partials.ModalButton(templ.Attributes{
+			"class":        "icon",
+			"data-tooltip": "Delete book",
+			"hx-get":       fmt.Sprintf("/b/%s?delete", book.Slugify()),
+		}) {
 			@icons.Delete()
-		</button>
-		// @partials.ModalButton() {
-		// 	@icons.Delete()
-		// }
-		// @partials.ModalDialog() {
-		// 	<h3 class="section">Delete book?</h3>
-		// 	<div class="section confirm">
-		// 		<label
-		// 			class="button cancel"
-		// 			for="modal-control"
-		// 		>Cancel</label>
-		// 		<button
-		// 			hx-delete={ path.Join("/book", strconv.FormatInt(book.ID, 10)) }
-		// 			hx-target="body"
-		// 		>Confirm</button>
-		// 	</div>
-		// }
+		}
+		<div id="modal-content"></div>
 	</div>
+}
+
+templ DeleteBookModal(book *dusk.Book) {
+	@partials.ModalDialog() {
+		<h5>Delete { book.Title }?</h5>
+		<p>This action is irreversible.</p>
+		<footer>
+			<button class="secondary" id="modal-cancel-btn">Cancel</button>
+			<button
+				hx-delete={ path.Join("/b", book.Slugify()) }
+				hx-target="body"
+			>
+				Confirm
+			</button>
+		</footer>
+	}
 }
 
 func halfRating(rating int) bool {

@@ -31,6 +31,13 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 		views.NewBook(nil, err).Render(rw, r)
 		return
 	}
+
+	if r.URL.Query().Has("delete") {
+		response.AddHxTriggerAfterSwap(rw, `{"openModal": ""}`)
+		views.DeleteBookModal(book).Render(r.Context(), rw)
+		return
+	}
+
 	views.NewBook(book, nil).Render(rw, r)
 }
 
