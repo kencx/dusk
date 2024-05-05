@@ -8,7 +8,7 @@ import (
 )
 
 templ table(books dusk.Books) {
-	<table class="hoverable">
+	<table class="striped">
 		<thead>
 			<tr>
 				<th>Title</th>
@@ -21,10 +21,7 @@ templ table(books dusk.Books) {
 			for _, b := range books {
 				<tr>
 					<td data-label="Title">
-						<a
-							href={ templ.URL(path.Join("/book", strconv.FormatInt(b.ID,
-                        10))) }
-						>
+						<a href={ templ.URL(path.Join("/b", b.Slugify())) }>
 							{ b.Title }
 						</a>
 					</td>

@@ -2,36 +2,78 @@ package partials
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/ui/partials/icons"
 )
 
-type LibraryViewToggle string
+type LibraryView string
 
 const (
-	CARD  LibraryViewToggle = "card"
-	TABLE                   = "table"
+	CARD  LibraryView = "card"
+	TABLE             = "table"
 )
 
-templ toggleButton(view LibraryViewToggle) {
+templ toggleButton(view LibraryView) {
+	if view == CARD {
+		<button
+			class="icon"
+			hx-get={ fmt.Sprintf("?show=%s", string(view)) }
+			hx-target="#library"
+			data-tooltip="Card view"
+		>
+			@icons.Card()
+		</button>
+	} else {
+		<button
+			class="icon"
+			hx-get={ fmt.Sprintf("?show=%s", string(view)) }
+			hx-target="#library"
+			data-tooltip="Table view"
+		>
+			@icons.Table()
+		</button>
+	}
+}
+
+templ sortButton() {
 	<button
-		hx-get={ fmt.Sprintf("?show=%s", string(view)) }
-		hx-trigger="click"
+		class="icon"
+		hx-get=""
 		hx-target="#library"
-		hx-swap="innerHTML"
+		data-tooltip="Sort"
 	>
-		if view == CARD {
-			<span class="icon-card"></span>
-		} else {
-			<span class="icon-table"></span>
-		}
+		@icons.SortAsc()
 	</button>
 }
 
-templ Library(books dusk.Books, view LibraryViewToggle, err error) {
-	<div class="options">
-		@toggleButton(TABLE)
+templ filterButton() {
+	<button
+		class="icon"
+		hx-get=""
+		hx-target="#library"
+		data-tooltip="Filter"
+	>
+		@icons.Filter()
+	</button>
+}
+
+templ Toolbar(total int) {
+	<div class="toolbar">
+		<div class="info">
+			<p>Total: { strconv.Itoa(total) }</p>
+		</div>
+		<div class="options">
+			@sortButton()
+			@toggleButton(TABLE)
+			@filterButton()
+		</div>
 	</div>
+}
+
+templ Library(books dusk.Books, view LibraryView, err error) {
+	@Toolbar(len(books))
 	<div id="library">
 		if err == dusk.ErrNoRows {
 			@EmptyLibrary()
@@ -58,7 +100,7 @@ templ EmptyLibrary() {
 	</div>
 }
 
-templ ViewToggle(books dusk.Books, view LibraryViewToggle) {
+templ ViewToggle(books dusk.Books, view LibraryView) {
 	switch view {
 		case CARD:
 			<div hx-swap-oob="innerHTML:.options">

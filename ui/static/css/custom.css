@@ -60,6 +60,23 @@ details.dropdown:has(> summary[role="button"].icon) {
 }
 
 /* LIBRARY CARD VIEW */
+.toolbar {
+	width: 100%;
+	padding: calc(1.5 * var(--pico-spacing)) calc(0.5 * var(--pico-spacing));
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+
+	.info * {
+		color: var(--pico-muted-color);
+	}
+
+	.options {
+		display: inline-flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+}
 
 .library__card-view {
   display: flex;

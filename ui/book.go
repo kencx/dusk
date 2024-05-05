@@ -11,7 +11,6 @@ import (
 )
 
 func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
-
 	books, err := s.db.GetAllBooks()
 	if err != nil {
 		log.Println(err)
@@ -21,7 +20,7 @@ func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 
 	// handle toggle
 	if r.URL.Query().Has("show") {
-		show := partials.LibraryViewToggle(r.URL.Query().Get("show"))
+		show := partials.LibraryView(r.URL.Query().Get("show"))
 		partials.ViewToggle(books, show).Render(r.Context(), rw)
 		return
 	}
