@@ -31,7 +31,7 @@ func toastSkeleton(level toastLevel) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if level == info {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"toast\" role=\"status\" aria-live=\"polite\" aria-atomic=\"true\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"toast hide\" role=\"status\" aria-live=\"polite\" aria-atomic=\"true\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -44,7 +44,7 @@ func toastSkeleton(level toastLevel) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"toast error\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"toast hide error\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

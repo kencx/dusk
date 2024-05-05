@@ -10,7 +10,7 @@ const (
 templ toastSkeleton(level toastLevel) {
 	if level == info {
 		<div
-			class="toast"
+			class="toast hide"
 			role="status"
 			aria-live="polite"
 			aria-atomic="true"
@@ -19,7 +19,7 @@ templ toastSkeleton(level toastLevel) {
 		</div>
 	} else {
 		<div
-			class="toast error"
+			class="toast hide error"
 			role="alert"
 			aria-live="assertive"
 			aria-atomic="true"

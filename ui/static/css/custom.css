@@ -373,7 +373,7 @@ details.dropdown:has(> summary[role="button"].icon) {
 }
 
 /* TOAST */
-#toast-container:has(div.toast) {
+#toast-container:has(.toast) {
   font-size: 16px;
   max-width: 420px;
   width: 100%;
@@ -390,21 +390,6 @@ details.dropdown:has(> summary[role="button"].icon) {
   row-gap: 1rem;
   justify-content: center;
 
-  /* --duration: 3s; */
-  /* --travel-distance: 0; */
-  /**/
-  /* @keyframes fade-in { */
-  /*   from { opacity: 0 } */
-  /* } */
-  /**/
-  /* @keyframes fade-out { */
-  /*   to { opacity: 0 } */
-  /* } */
-  /**/
-  /* @keyframes slide-in { */
-  /*   from { transform: translateY(var(--travel-distance, 10px)) } */
-  /* } */
-
   .toast {
     display: flex;
     padding: calc(0.65 * var(--pico-spacing));
@@ -415,12 +400,6 @@ details.dropdown:has(> summary[role="button"].icon) {
     cursor: pointer;
     overflow: hidden;
     opacity: 100%;
-
-    /* will-change: transform; */
-    /* animation: */
-    /*   fade-in: .3s ease, */
-    /*   slide-in: .3s ease, */
-    /*   fade-out: .3s ease var(--duration); */
 
     .toast-content {
       width: 100%;
@@ -474,5 +453,27 @@ details.dropdown:has(> summary[role="button"].icon) {
     & :is(a, button)[rel=prev]:is([aria-current]:not([aria-current=false]), :hover, :active, :focus) {
       opacity: 1;
     }
+  }
+}
+
+.hide {
+  will-change: transform;
+  animation:
+    fadeOut 3s ease 5s forwards,
+    destroy 10s ease-in 1.5s forwards;
+}
+
+@keyframes fadeOut {
+  0%   {opacity: 1;}
+  90%  {opacity: 1;}
+  100% {opacity: 0; pointer-events: none;}
+}
+
+@keyframes destroy {
+  to {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
   }
 }

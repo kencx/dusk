@@ -38,3 +38,7 @@ func HandleInt64(key string, rw http.ResponseWriter, r *http.Request) int64 {
 	}
 	return int64(id)
 }
+
+func FetchKey(r *http.Request, key string) string {
+	return chi.URLParam(r, key)
+}

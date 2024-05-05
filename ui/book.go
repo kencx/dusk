@@ -55,8 +55,6 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("book %d deleted", id)
-
 	// redirect to index page
-	// TODO show deleted message
 	response.HxRedirect(rw, r, "/")
 }
