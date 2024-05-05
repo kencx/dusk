@@ -18,3 +18,12 @@ document.body.addEventListener("openModal", function(event) {
 		}
 	});
 });
+
+document.body.addEventListener("onToast", function(event) {
+	const toasts = document.querySelectorAll(".toast");
+	toasts.forEach(t => {
+		const closeBtn = t.querySelector("button[aria-label='close']")
+		t.addEventListener("click", () => t.remove());
+		closeBtn.addEventListener("click", () => t.remove());
+	});
+});

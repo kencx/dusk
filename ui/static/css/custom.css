@@ -372,3 +372,107 @@ details.dropdown:has(> summary[role="button"].icon) {
 	}
 }
 
+/* TOAST */
+#toast-container:has(div.toast) {
+  font-size: 16px;
+  max-width: 420px;
+  width: 100%;
+
+  z-index: 1;
+	position: fixed;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  padding-block-end: 0.75rem;
+  padding-inline-end: 0.75rem;
+
+	display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  justify-content: center;
+
+  /* --duration: 3s; */
+  /* --travel-distance: 0; */
+  /**/
+  /* @keyframes fade-in { */
+  /*   from { opacity: 0 } */
+  /* } */
+  /**/
+  /* @keyframes fade-out { */
+  /*   to { opacity: 0 } */
+  /* } */
+  /**/
+  /* @keyframes slide-in { */
+  /*   from { transform: translateY(var(--travel-distance, 10px)) } */
+  /* } */
+
+  .toast {
+    display: flex;
+    padding: calc(0.65 * var(--pico-spacing));
+    background: var(--pico-background-color);
+    color: var(--pico-primary);
+    border: var(--pico-border-width) solid var(--pico-primary-border);
+    border-radius: var(--pico-border-radius);
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 100%;
+
+    /* will-change: transform; */
+    /* animation: */
+    /*   fade-in: .3s ease, */
+    /*   slide-in: .3s ease, */
+    /*   fade-out: .3s ease var(--duration); */
+
+    .toast-content {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 75% 25%;
+      align-items: center;
+
+      .toast-body * {
+        margin-bottom: 0;
+      }
+
+      .toast-body > p:has(+ small) {
+        font-weight: 800;
+      }
+
+      button:not(button[rel=prev]) {
+        padding: 0.25rem 0.5rem;
+        margin-left: auto;
+        font-size: unset;
+      }
+    }
+
+    &.error {
+      background: maroon;
+      color: var(--pico-contrast);
+      border: var(--pico-border-width) solid maroon;
+      opacity: 0.85;
+
+      button:not(button[rel=prev]) {
+        color: var(--pico-contrast);
+        border-color: var(--pico-contrast-border);
+      }
+    }
+
+    & :is(a, button)[rel=prev] {
+      display: block;
+      float: right;
+      width: 1rem;
+      height: 1rem;
+      margin-left: auto;
+      border: none;
+      background-image: var(--pico-icon-close);
+      background-position: center;
+      background-size: auto 1rem;
+      background-repeat: no-repeat;
+      background-color: transparent;
+      opacity: 0.5;
+      transition: opacity var(--pico-transition);
+    }
+
+    & :is(a, button)[rel=prev]:is([aria-current]:not([aria-current=false]), :hover, :active, :focus) {
+      opacity: 1;
+    }
+  }
+}

@@ -1,0 +1,80 @@
+package partials
+
+type toastLevel int
+
+const (
+	info toastLevel = iota
+	err
+)
+
+templ toastSkeleton(level toastLevel) {
+	if level == info {
+		<div
+			class="toast"
+			role="status"
+			aria-live="polite"
+			aria-atomic="true"
+		>
+			{ children... }
+		</div>
+	} else {
+		<div
+			class="toast error"
+			role="alert"
+			aria-live="assertive"
+			aria-atomic="true"
+		>
+			{ children... }
+		</div>
+	}
+}
+
+templ toast(level toastLevel, title, message, button string) {
+	@toastSkeleton(level) {
+		<div class="toast-content">
+			<div class="toast-body">
+				<p>{ title }</p>
+				if message != "" {
+					<small>{ message }</small>
+				}
+			</div>
+			if button != "" {
+				<button class="outline secondary">{ button }</button>
+			}
+		</div>
+		<button aria-label="close" rel="prev"></button>
+	}
+}
+
+templ toastRaw(level toastLevel, title, message, button string) {
+	@toastSkeleton(level) {
+		<div class="toast-content">
+			<div class="toast-body">
+				<p>
+					@templ.Raw(title)
+				</p>
+				if message != "" {
+					<small>
+						@templ.Raw(message)
+					</small>
+				}
+			</div>
+			if button != "" {
+				<button class="outline secondary">{ button }</button>
+			}
+		</div>
+		<button aria-label="close" rel="prev"></button>
+	}
+}
+
+templ ToastInfo(title, message, button string) {
+	@toast(info, title, message, button)
+}
+
+templ ToastRawInfo(title, message, button string) {
+	@toastRaw(info, title, message, button)
+}
+
+templ ToastError(title, message, button string) {
+	@toast(err, title, message, button)
+}
