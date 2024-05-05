@@ -1,49 +1,45 @@
 package views
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials"
 	ol "github.com/kencx/dusk/integrations/openlibrary"
+	"github.com/kencx/dusk/util"
 )
-
-var ErrNotValidIsbn = errors.New("invalid isbn")
 
 type Search struct {
 	DefaultTab string
 	Results    ol.QueryResults
-	Message    string
 	Err        error
 }
 
-func ImportRenderResults(rw http.ResponseWriter, r *http.Request, res ol.QueryResults) {
-	ImportResults(res, "", nil).Render(r.Context(), rw)
+func (s *Search) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
+	s.Err = err
+	s.error().Render(r.Context(), rw)
 }
 
-func ImportResultsMessage(rw http.ResponseWriter, r *http.Request, res ol.QueryResults, message string) {
-	ImportResults(res, message, nil).Render(r.Context(), rw)
+func (s *Search) RenderResults(rw http.ResponseWriter, r *http.Request, res ol.QueryResults) {
+	s.Results = res
+	s.results().Render(r.Context(), rw)
 }
 
-func ImportResultsError(rw http.ResponseWriter, r *http.Request, err error) {
-	ImportResults(nil, "", err).Render(r.Context(), rw)
+func (s Search) Render(rw http.ResponseWriter, r *http.Request) {
+	s.Html().Render(r.Context(), rw)
 }
 
-func (v Search) Render(rw http.ResponseWriter, r *http.Request) {
-	v.Html().Render(r.Context(), rw)
-}
-
-templ (v *Search) Html() {
+templ (s *Search) Html() {
 	@shared.Base() {
 		<h2>Add Books</h2>
-		@partials.Tabs(ImportTabs, v.DefaultTab)
+		@partials.Tabs(ImportTabs, s.DefaultTab)
 		<div class="import__result_list"></div>
 	}
 }
 
 templ searchForm() {
+	// TODO handle 503 timeouts
 	<form
 		hx-post="/search"
 		hx-target=".import__result_list"
@@ -61,95 +57,110 @@ templ searchForm() {
 	</form>
 }
 
-templ ImportResults(results ol.QueryResults, message string, err error) {
-	if err == ErrNotValidIsbn {
-		<div class="card error fluid">
-			<p>
-				You entered an invalid ISBN. A book's ISBN is usually found on the
-				back cover, near the barcode. It will contain 10 or 13 characters, plus
-				any dashes and spaces.
-			</p>
-			<p>
-				Valid examples: 978-0495011606, 9780136006176, 0077354761,
-				013603599X
-			</p>
-			<p>
-				Alternatively, you can try searching for the book's title or
-				author.
-			</p>
-		</div>
-	} else if err != nil {
-		<div class="card error fluid">
-			<p>Something went wrong, please try again</p>
-		</div>
-	}
-	if message != "" {
-		<div class="card fluid message">
-			@templ.Raw(message)
-		</div>
-	}
-	// TODO split results list and messages
-	if err == nil {
-		<h2>
-			Results
-			<small>Found { strconv.Itoa(len(results)) } result(s)</small>
-		</h2>
-		<form hx-indicator=".spinner">
-			for _, result := range results {
-				<div class="import__result">
-					<img alt="" src={ result.CoverUrl }/>
-					<div class="details">
-						<h4>
-							{ result.Title }
-							<small>
-								for _, author := range result.Authors {
-									<span class="author">{ author }</span>
-								}
-							</small>
-						</h4>
-						<ul>
-							<li>
-								if len(result.Isbn10) > 0 || len(result.Isbn13) > 0 {
-									ISBN:
-									if len(result.Isbn10) > 0 {
-										{ result.Isbn10[0] }
-									}
-									if len(result.Isbn13) > 0 {
-										{ result.Isbn13[0] }
-									}
-								}
-							</li>
-							<li>
-								if result.PublishDate != "" {
-									Published: { result.PublishDate }
-								}
-							</li>
-						</ul>
-					</div>
-					if len(result.Isbn10) > 0 {
-						<input type="hidden" name="result" value={ result.Isbn10[0] }/>
-					}
-					if len(result.Isbn13) > 0 {
-						<input type="hidden" name="result" value={ result.Isbn13[0] }/>
-					}
-					<div class="actions">
-						<select
-							name="tag-option"
-							hx-trigger="change"
-							hx-post="/search/add"
-							hx-target=".import__result_list"
-							hx-swap="innerHTML"
-							hx-include="this"
-						>
-							<option value="add">Add book</option>
-							<option value="to-read">To read</option>
-							<option value="reading">Reading</option>
-							<option value="read">Read</option>
-						</select>
-					</div>
-				</div>
+templ (s Search) error() {
+	if s.Err != nil {
+		<div class="card error">
+			if s.Err == util.ErrInvalidIsbn {
+				<p>
+					You entered an invalid ISBN. A book's ISBN is usually found on the
+					back cover, near the barcode. It will contain 10 or 13 characters, plus
+					any dashes and spaces.
+				</p>
+				<p>
+					Valid examples: 978-0495011606, 9780136006176, 0077354761,
+					013603599X
+				</p>
+				<p>
+					Alternatively, you can try searching for the book's title or
+					author.
+				</p>
+			} else {
+				<p>Something went wrong, please try again</p>
 			}
-			<div class="spinner"></div>
+		</div>
+	}
+}
+
+templ (s Search) results() {
+	<h2>
+		Results
+		<small>Found { strconv.Itoa(len(s.Results)) } result(s)</small>
+	</h2>
+	for _, result := range s.Results {
+		<form
+			hx-post="/search/add"
+			hx-target="#toast-container"
+			hx-trigger="change #to-read, change #reading, change #read"
+			hx-include="this"
+		>
+			<div class="import__result">
+				<img alt="" src={ result.CoverUrl }/>
+				<div class="details">
+					<hgroup>
+						<h5>
+							{ result.Title }
+						</h5>
+						<small>
+							for _, author := range result.Authors {
+								<span class="author">{ author }</span>
+							}
+						</small>
+					</hgroup>
+					<ul>
+						<li>
+							if len(result.Isbn10) > 0 || len(result.Isbn13) > 0 {
+								ISBN:
+								if len(result.Isbn10) > 0 {
+									{ result.Isbn10[0] }
+								}
+								if len(result.Isbn13) > 0 {
+									{ result.Isbn13[0] }
+								}
+							}
+						</li>
+						<li>
+							if result.PublishDate != "" {
+								Published: { result.PublishDate }
+							}
+						</li>
+					</ul>
+				</div>
+				if len(result.Isbn10) > 0 {
+					<input type="hidden" name="result" value={ result.Isbn10[0] }/>
+				}
+				if len(result.Isbn13) > 0 {
+					<input type="hidden" name="result" value={ result.Isbn13[0] }/>
+				}
+				@addAction()
+			</div>
 		</form>
 	}
+}
+
+templ addAction() {
+	<div class="actions">
+		<details class="dropdown">
+			<summary>Add book</summary>
+			<ul>
+				<li>
+					<label>
+						<input type="radio" id="to-read" name="read-status" value="to-read"/>
+						To read
+					</label>
+				</li>
+				<li>
+					<label>
+						<input type="radio" id="reading" name="read-status" value="reading"/>
+						Reading
+					</label>
+				</li>
+				<li>
+					<label>
+						<input type="radio" id="read" name="read-status" value="read"/>
+						Read
+					</label>
+				</li>
+			</ul>
+		</details>
+	</div>
 }

@@ -3,9 +3,12 @@ package ui
 import (
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 
+	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
@@ -16,10 +19,13 @@ import (
 func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 	value := r.FormValue("openlibrary")
 
+	sv := views.Search{}
+
 	ok, err := util.IsbnCheck(value)
 	if err != nil {
 		slog.Error("failed to fetch isbn", slog.Any("err", err))
-		views.ImportResultsError(rw, r, err)
+		sv.RenderError(rw, r, err)
+		return
 	}
 
 	if ok {
@@ -27,27 +33,30 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			// TODO openlibrary request err
 			slog.Error("failed to fetch isbn", slog.Any("err", err))
-			views.ImportResultsError(rw, r, err)
+			sv.RenderError(rw, r, err)
 			return
 		}
 		results := ol.QueryResults{metadata}
 		slog.Info("Fetched results", slog.Any("results", results[0]))
-		views.ImportResults(results, "", nil).Render(r.Context(), rw)
-
+		sv.RenderResults(rw, r, results)
 	} else {
 		results, err := ol.FetchByQuery(value)
 		if err != nil {
 			slog.Error("failed to fetch query", slog.Any("err", err))
-			views.ImportResultsError(rw, r, err)
+			sv.RenderError(rw, r, err)
 			return
 		}
 		slog.Info("Fetched results", slog.Any("results", results))
-		views.ImportResults(*results, "", nil).Render(r.Context(), rw)
+		sv.RenderResults(rw, r, *results)
 	}
 }
 
 func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	isbn := r.FormValue("result")
+	readStatus := r.FormValue("read-status")
+	log.Println(readStatus)
+
+	sv := views.Search{}
 
 	// TODO We are fetching this endpoint and performing the same operations twice. It
 	// would be good if we can cache the previously fetched data in importOpenLibrary on
@@ -58,23 +67,24 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	metadata, err := ol.FetchByIsbn(isbn)
 	if err != nil {
 		// TODO openlibrary request err
-		views.ImportResultsError(rw, r, err)
+		sv.RenderError(rw, r, err)
 		return
 	}
 
 	b := metadata.ToBook()
+	b.Tag = append(b.Tag, readStatus)
 
 	errMap := validator.Validate(b)
 	if len(errMap) > 0 {
 		slog.Error("book validation failed", slog.Any("err", errMap))
-		views.ImportResultsError(rw, r, errors.New("TODO"))
+		sv.RenderError(rw, r, errors.New("TODO"))
 		return
 	}
 
 	book, err := s.db.CreateBook(b)
 	if err != nil {
 		slog.Error("create book failed", slog.Any("err", err))
-		views.ImportResultsError(rw, r, err)
+		sv.RenderError(rw, r, err)
 		return
 	}
 
@@ -86,6 +96,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
-	rawMessage := fmt.Sprintf("<p><a href=\"/b/%d\">%s</a> added</p>", book.ID, book.Title)
-	views.ImportResultsMessage(rw, r, ol.QueryResults{metadata}, rawMessage)
+	response.AddHxTriggerAfterSwap(rw, `{"onToast": ""}`)
+	rawMessage := fmt.Sprintf("<a href=\"/b/%s\">%s</a> added", book.Slugify(), book.Title)
+	partials.ToastRawInfo(rawMessage, "", "").Render(r.Context(), rw)
 }

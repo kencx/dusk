@@ -23,6 +23,15 @@ footer {
   text-align: end;
 }
 
+
+.error {
+	padding: var(--pico-spacing);
+	background: maroon;
+	color: var(--pico-contrast);
+	border: var(--pico-border-width) solid maroon;
+	border-radius: var(--pico-border-radius);
+}
+
 /* ICONS */
 
 summary[role="button"].icon,
