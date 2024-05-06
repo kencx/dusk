@@ -18,3 +18,17 @@ templ NotFound() {
 		@partials.NotFound()
 	}
 }
+
+templ ServerError() {
+	@shared.Base() {
+		<hgroup>
+			<h2>502</h2>
+			<small>Item does not exist.</small>
+		</hgroup>
+		<p>
+			<a href="/">
+				Return to home.
+			</a>
+		</p>
+	}
+}

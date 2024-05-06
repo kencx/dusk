@@ -16,6 +16,10 @@ import (
 	ol "github.com/kencx/dusk/integrations/openlibrary"
 )
 
+func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
+	views.Search{DefaultTab: "search"}.Render(rw, r)
+}
+
 func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 	value := r.FormValue("openlibrary")
 

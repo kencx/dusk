@@ -48,37 +48,60 @@ func Router(db Store, fs *file.Service) chi.Router {
 	ui.HandleFunc("/", s.index)
 	ui.Route("/b", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.bookPage)
-		// c.Post("/{id[0-9]+}", s.formAddBook)
-		// c.Put("/{id[0-9]+}", s.formUpdateBook)
+		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
 		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
-	})
 
-	ui.Route("/import", func(c chi.Router) {
-		c.Get("/", s.importTabsPage)
-		// c.Post("/goodreads", s.importGoodreads)
-		// c.Post("/calibre", s.importCalibre)
+		// c.Get("/partials/rating", s.bookRatingPartial)
+		// c.Get("/partials/tags", s.bookTagsPartial)
+		// c.Get("/partials/cover", s.bookCoverPartial)
+		// c.Get("/partials/actions", s.bookActionsPartial)
+		// c.Get("/modal/delete", s.bookDeleteModal)
 	})
-	ui.Route("/search", func(c chi.Router) {
-		c.Post("/", s.search)
-		c.Post("/add", s.searchAddResult)
-	})
-	ui.Post("/upload", s.upload)
 
 	ui.HandleFunc("/authors", s.authorList)
 	ui.Route("/a", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.authorPage)
-		// c.Post("/{id[0-9]+}", s.formAddAuthor)
-		// c.Put("/{id[0-9]+}", s.formUpdateAuthor)
-		// c.Delete("/{id[0-9]+}", s.formDeleteAuthor)
+		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateAuthor)
+		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteAuthor)
 	})
 
 	ui.HandleFunc("/tags", s.tagList)
 	ui.Route("/t", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.tagPage)
-		// c.Post("/{id[0-9]+}", s.formAddtag)
-		// c.Put("/{id[0-9]+}", s.formUpdatetag)
-		// c.Delete("/{id[0-9]+}", s.formDeletetag)
+		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updatetag)
+		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deletetag)
 	})
+
+	ui.HandleFunc("/import", s.importIndexPage)
+
+	ui.Route("/search", func(c chi.Router) {
+		c.Get("/", s.searchPage)
+		c.Post("/", s.search)
+		// c.Get("/partials/error", s.searchErrorPartial)
+		// TODO with pagination
+		// c.Get("/partials/results", s.searchResultsPartial)
+		c.Post("/add", s.searchAddResult)
+	})
+
+	ui.Route("/upload", func(c chi.Router) {
+		c.Get("/", s.uploadPage)
+		c.Post("/upload", s.upload)
+	})
+
+	// ui.Route("/manual", func(c chi.Router) {
+	// 	c.Get("/", s.manualPage)
+	// 	c.Post("/manual", s.manual)
+	// })
+
+	// ui.Route("/goodreads", func(c chi.Router) {
+	// 	c.Get("/", s.goodreadsPage)
+	// 	c.Post("/", s.goodreads)
+	// })
+
+	// ui.Route("/calibre", func(c chi.Router) {
+	// 	c.Get("/", s.calibrePage)
+	// 	c.Post("/", s.calibre)
+	// })
 
 	ui.NotFound(s.notFound)
 	return ui

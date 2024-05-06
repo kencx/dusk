@@ -23,7 +23,7 @@ func NotFound() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>404 <small>Item does not exist.</small></h1><p><a href=\"/\">Return to home.</a></p>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hgroup><h2>404</h2><small>Item does not exist.</small></hgroup><p><a href=\"/\">Return to home.</a></p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
