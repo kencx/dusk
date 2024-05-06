@@ -1,0 +1,25 @@
+package partials
+
+type BreadcrumbGroup struct {
+	Current string
+	Order   []string
+	LinkMap map[string]string
+}
+
+templ BreadCrumb(b BreadcrumbGroup) {
+	<nav aria-label="breadcrumb">
+		<ul>
+			for _, crumb := range b.Order {
+				if crumb == b.Current {
+					<li>
+						<a href={ templ.SafeURL(b.LinkMap[crumb]) } aria-current="true">{ crumb }</a>
+					</li>
+				} else {
+					<li>
+						<a href={ templ.SafeURL(b.LinkMap[crumb]) }>{ crumb }</a>
+					</li>
+				}
+			}
+		</ul>
+	</nav>
+}
