@@ -7,6 +7,7 @@ import (
 )
 
 func (s *Handler) importIndexPage(rw http.ResponseWriter, r *http.Request) {
+
 	// handle htmx tabs
 	if r.URL.Query().Has("tab") {
 		tab := r.URL.Query().Get("tab")
@@ -14,5 +15,5 @@ func (s *Handler) importIndexPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	views.Search{DefaultTab: "search"}.Render(rw, r)
+	views.ImportIndex("search").Render(r.Context(), rw)
 }

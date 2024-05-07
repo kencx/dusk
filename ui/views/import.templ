@@ -2,6 +2,7 @@ package views
 
 import (
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 var (
@@ -37,6 +38,13 @@ var (
 		},
 	}
 )
+
+templ ImportIndex(defaultTab string) {
+	@shared.Base() {
+		<h2>Import Books</h2>
+		@partials.Tabs(ImportTabs, defaultTab)
+	}
+}
 
 templ uploadForm() {
 	<form

@@ -15,7 +15,10 @@ templ toastSkeleton(level toastLevel) {
 			aria-live="polite"
 			aria-atomic="true"
 		>
-			{ children... }
+			<div class="toast-content">
+				{ children... }
+			</div>
+			<button aria-label="close" rel="prev"></button>
 		</div>
 	} else {
 		<div
@@ -24,46 +27,43 @@ templ toastSkeleton(level toastLevel) {
 			aria-live="assertive"
 			aria-atomic="true"
 		>
-			{ children... }
+			<div class="toast-content">
+				{ children... }
+			</div>
+			<button aria-label="close" rel="prev"></button>
 		</div>
 	}
 }
 
 templ toast(level toastLevel, title, message, button string) {
 	@toastSkeleton(level) {
-		<div class="toast-content">
-			<div class="toast-body">
-				<p>{ title }</p>
-				if message != "" {
-					<small>{ message }</small>
-				}
-			</div>
-			if button != "" {
-				<button class="outline secondary">{ button }</button>
+		<div class="toast-body">
+			<p>{ title }</p>
+			if message != "" {
+				<small>{ message }</small>
 			}
 		</div>
-		<button aria-label="close" rel="prev"></button>
+		if button != "" {
+			<button class="outline secondary">{ button }</button>
+		}
 	}
 }
 
 templ toastRaw(level toastLevel, title, message, button string) {
 	@toastSkeleton(level) {
-		<div class="toast-content">
-			<div class="toast-body">
-				<p>
-					@templ.Raw(title)
-				</p>
-				if message != "" {
-					<small>
-						@templ.Raw(message)
-					</small>
-				}
-			</div>
-			if button != "" {
-				<button class="outline secondary">{ button }</button>
+		<div class="toast-body">
+			<p>
+				@templ.Raw(title)
+			</p>
+			if message != "" {
+				<small>
+					@templ.Raw(message)
+				</small>
 			}
 		</div>
-		<button aria-label="close" rel="prev"></button>
+		if button != "" {
+			<button class="outline secondary">{ button }</button>
+		}
 	}
 }
 
@@ -75,6 +75,8 @@ templ ToastRawInfo(title, message, button string) {
 	@toastRaw(info, title, message, button)
 }
 
-templ ToastError(title, message, button string) {
-	@toast(err, title, message, button)
+templ ToastOOBSwap() {
+	<div hx-swap-oob="beforeend:#toast-container">
+		{ children... }
+	</div>
 }

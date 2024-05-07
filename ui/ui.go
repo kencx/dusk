@@ -77,9 +77,8 @@ func Router(db Store, fs *file.Service) chi.Router {
 	ui.Route("/search", func(c chi.Router) {
 		c.Get("/", s.searchPage)
 		c.Post("/", s.search)
-		// c.Get("/partials/error", s.searchErrorPartial)
 		// TODO with pagination
-		// c.Get("/partials/results", s.searchResultsPartial)
+		// c.Get("/results/{page:[0-9]+}", s.searchResultsPage)
 		c.Post("/add", s.searchAddResult)
 	})
 

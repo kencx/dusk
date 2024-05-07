@@ -1,53 +1,21 @@
 package views
 
 import (
-	"net/http"
 	"strconv"
 
-	"github.com/kencx/dusk/ui/shared"
-	"github.com/kencx/dusk/ui/partials"
 	ol "github.com/kencx/dusk/integrations/openlibrary"
 	"github.com/kencx/dusk/util"
 )
 
-type Search struct {
-	DefaultTab string
-	Results    ol.QueryResults
-	Err        error
-}
-
-func (s *Search) RenderError(rw http.ResponseWriter, r *http.Request, err error) {
-	s.Err = err
-	s.error().Render(r.Context(), rw)
-}
-
-func (s *Search) RenderResults(rw http.ResponseWriter, r *http.Request, res ol.QueryResults) {
-	s.Results = res
-	s.results().Render(r.Context(), rw)
-}
-
-func (s Search) Render(rw http.ResponseWriter, r *http.Request) {
-	s.Html().Render(r.Context(), rw)
-}
-
-templ (s *Search) Html() {
-	@shared.Base() {
-		<h2>Add Books</h2>
-		@partials.Tabs(ImportTabs, s.DefaultTab)
-		<div class="import__result_list"></div>
-	}
-}
-
 templ searchForm() {
-	// TODO handle 503 timeouts
 	<form
 		hx-post="/search"
-		hx-target=".import__result_list"
+		hx-target="#search__result_list"
 		hx-swap="innerHTML"
 		hx-indicator=".spinner"
 	>
 		<fieldset role="group">
-			<input id="search" name="openlibrary" placeholder="Search for an ISBN, title or author"/>
+			<input id="search" name="search" placeholder="Search for an ISBN, title or author"/>
 			<button type="submit">Submit</button>
 		</fieldset>
 		<small>
@@ -55,96 +23,102 @@ templ searchForm() {
 		</small>
 		<div class="spinner" aria-busy="true"></div>
 	</form>
+	<div id="search__result_list"></div>
 }
 
-templ (s Search) error() {
-	if s.Err != nil {
+templ SearchError(err error) {
+	if err != nil {
 		<div class="card error">
-			if s.Err == util.ErrInvalidIsbn {
-				<p>
-					You entered an invalid ISBN. A book's ISBN is usually found on the
-					back cover, near the barcode. It will contain 10 or 13 characters, plus
-					any dashes and spaces.
-				</p>
-				<p>
-					Valid examples: 978-0495011606, 9780136006176, 0077354761,
-					013603599X
-				</p>
-				<p>
-					Alternatively, you can try searching for the book's title or
-					author.
-				</p>
-			} else {
-				<p>Something went wrong, please try again</p>
+			switch err {
+				case util.ErrInvalidIsbn:
+					<p>
+						You entered an invalid ISBN. A book's ISBN is usually found on the
+						back cover, near the barcode. It will contain 10 or 13 characters, plus
+						any dashes and spaces.
+					</p>
+					<p>
+						Valid examples: 978-0495011606, 9780136006176, 0077354761,
+						013603599X
+					</p>
+					<p>
+						Alternatively, you can try searching for the book's title or
+						author.
+					</p>
+				default:
+					<p>Something went wrong, please try again</p>
 			}
 		</div>
 	}
 }
 
-templ (s Search) results() {
+templ SearchResults(results ol.QueryResults, pagesize ...int) {
 	<h2>
 		Results
-		<small>Found { strconv.Itoa(len(s.Results)) } result(s)</small>
+		<small>Total: { strconv.Itoa(len(results)) }</small>
 	</h2>
-	for _, result := range s.Results {
-		<form
-			hx-post="/search/add"
-			hx-target="#toast-container"
-			hx-trigger="change #to-read, change #reading, change #read"
-			hx-include="this"
-		>
-			<div class="import__result">
-				<img alt="" src={ result.CoverUrl }/>
-				<div class="details">
-					<hgroup>
-						<h5>
-							{ result.Title }
-						</h5>
-						<small>
-							for _, author := range result.Authors {
-								<span class="author">{ author }</span>
-							}
-						</small>
-					</hgroup>
-					<ul>
-						<li>
-							if len(result.Isbn10) > 0 || len(result.Isbn13) > 0 {
-								ISBN:
-								if len(result.Isbn10) > 0 {
-									{ result.Isbn10[0] }
-								}
-								if len(result.Isbn13) > 0 {
-									{ result.Isbn13[0] }
-								}
-							}
-						</li>
-						<li>
-							if result.PublishDate != "" {
-								Published: { result.PublishDate }
-							}
-						</li>
-					</ul>
-				</div>
-				if len(result.Isbn10) > 0 {
-					<input type="hidden" name="result" value={ result.Isbn10[0] }/>
-				}
-				if len(result.Isbn13) > 0 {
-					<input type="hidden" name="result" value={ result.Isbn13[0] }/>
-				}
-				@addAction()
-			</div>
-		</form>
+	for _, r := range results {
+		@searchResult(r)
 	}
 }
 
-templ addAction() {
+templ searchResult(r *ol.Metadata) {
+	<form
+		hx-post="/search/add"
+		hx-target="#toast-container"
+		hx-trigger="change #unread, change #reading, change #read"
+		hx-include="this"
+	>
+		<div class="search__result">
+			<img alt="" src={ r.CoverUrl }/>
+			<div class="details">
+				<hgroup>
+					<h5>
+						{ r.Title }
+					</h5>
+					<small>
+						for _, author := range r.Authors {
+							<span class="author">{ author }</span>
+						}
+					</small>
+				</hgroup>
+				<ul>
+					<li>
+						if len(r.Isbn10) > 0 || len(r.Isbn13) > 0 {
+							ISBN:
+							if len(r.Isbn10) > 0 {
+								{ r.Isbn10[0] }
+							}
+							if len(r.Isbn13) > 0 {
+								{ r.Isbn13[0] }
+							}
+						}
+					</li>
+					<li>
+						if r.PublishDate != "" {
+							Published: { r.PublishDate }
+						}
+					</li>
+				</ul>
+			</div>
+			if len(r.Isbn10) > 0 {
+				<input type="hidden" name="result" value={ r.Isbn10[0] }/>
+			}
+			if len(r.Isbn13) > 0 {
+				<input type="hidden" name="result" value={ r.Isbn13[0] }/>
+			}
+			@searchAddAction()
+		</div>
+	</form>
+}
+
+templ searchAddAction() {
 	<div class="actions">
 		<details class="dropdown">
 			<summary>Add book</summary>
 			<ul>
 				<li>
 					<label>
-						<input type="radio" id="to-read" name="read-status" value="to-read"/>
+						<input type="radio" id="unread" name="read-status" value="unread"/>
 						To read
 					</label>
 				</li>

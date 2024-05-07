@@ -316,7 +316,7 @@ details.dropdown:has(> summary[role="button"].icon) {
   }
 }
 
-.import__result {
+.search__result {
   display: flex;
   gap: 0.125rem;
   align-items: center;

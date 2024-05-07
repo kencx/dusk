@@ -1,14 +1,11 @@
 package ui
 
 import (
-	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
+	"strings"
 
-	"github.com/kencx/dusk/http/response"
-	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
@@ -17,61 +14,57 @@ import (
 )
 
 func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
-	views.Search{DefaultTab: "search"}.Render(rw, r)
+	views.ImportIndex("search").Render(r.Context(), rw)
 }
 
+// TODO handle timeouts, 5XX errors
 func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
-	value := r.FormValue("openlibrary")
-
-	sv := views.Search{}
+	value := r.FormValue("search")
 
 	ok, err := util.IsbnCheck(value)
 	if err != nil {
-		slog.Error("failed to fetch isbn", slog.Any("err", err))
-		sv.RenderError(rw, r, err)
+		slog.Error("invalid isbn", slog.String("isbn", value))
+		views.SearchError(err).Render(r.Context(), rw)
 		return
 	}
 
 	if ok {
 		metadata, err := ol.FetchByIsbn(value)
 		if err != nil {
-			// TODO openlibrary request err
-			slog.Error("failed to fetch isbn", slog.Any("err", err))
-			sv.RenderError(rw, r, err)
+			slog.Error(err.Error())
+			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
+
 		results := ol.QueryResults{metadata}
-		slog.Info("Fetched results", slog.Any("results", results[0]))
-		sv.RenderResults(rw, r, results)
+		slog.Debug(fmt.Sprintf("Fetched %d results", len(results)))
+		views.SearchResults(results).Render(r.Context(), rw)
+
 	} else {
 		results, err := ol.FetchByQuery(value)
 		if err != nil {
-			slog.Error("failed to fetch query", slog.Any("err", err))
-			sv.RenderError(rw, r, err)
+			slog.Error(err.Error())
+			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
-		slog.Info("Fetched results", slog.Any("results", results))
-		sv.RenderResults(rw, r, *results)
+
+		slog.Debug(fmt.Sprintf("Fetched %d results", len(*results)))
+		views.SearchResults(*results).Render(r.Context(), rw)
 	}
 }
 
 func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	isbn := r.FormValue("result")
 	readStatus := r.FormValue("read-status")
-	log.Println(readStatus)
-
-	sv := views.Search{}
 
 	// TODO We are fetching this endpoint and performing the same operations twice. It
 	// would be good if we can cache the previously fetched data in importOpenLibrary on
 	// the client side to send it here. This might require Alpine.js.
 
-	// TODO handle book already added
-
 	metadata, err := ol.FetchByIsbn(isbn)
 	if err != nil {
-		// TODO openlibrary request err
-		sv.RenderError(rw, r, err)
+		slog.Error(err.Error())
+		views.SearchError(err).Render(r.Context(), rw)
 		return
 	}
 
@@ -80,18 +73,26 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 
 	errMap := validator.Validate(b)
 	if len(errMap) > 0 {
-		slog.Error("book validation failed", slog.Any("err", errMap))
-		sv.RenderError(rw, r, errors.New("TODO"))
+		slog.Error("failed to validate book", slog.Any("err", errMap))
+		views.SearchError(err).Render(r.Context(), rw)
 		return
 	}
 
-	book, err := s.db.CreateBook(b)
+	_, err = s.db.CreateBook(b)
 	if err != nil {
-		slog.Error("create book failed", slog.Any("err", err))
-		sv.RenderError(rw, r, err)
+		// TODO handle book that already exists
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			slog.Error("failed to create book", slog.Any("err", err))
+			SendToastMessage(rw, r, "Book already exists!")
+			return
+		}
+
+		slog.Error("failed to create book", slog.Any("err", err))
+		views.SearchError(err).Render(r.Context(), rw)
 		return
 	}
 
+	// TODO download book cover
 	// if b.Cover.Valid {
 	// 	if err := s.fs.UploadBookCoverFromUrl(b.Cover.String, book); err != nil {
 	// 		slog.Warn("failed to upload cover image", slog.Any("err", err))
@@ -100,7 +101,5 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
-	response.AddHxTriggerAfterSwap(rw, `{"onToast": ""}`)
-	rawMessage := fmt.Sprintf("<a href=\"/b/%s\">%s</a> added", book.Slugify(), book.Title)
-	partials.ToastRawInfo(rawMessage, "", "").Render(r.Context(), rw)
+	SendToastMessage(rw, r, "Book added!")
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Handler) uploadPage(rw http.ResponseWriter, r *http.Request) {
-	views.Search{DefaultTab: "upload"}.Render(rw, r)
+	views.ImportIndex("upload").Render(r.Context(), rw)
 }
 
 func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
