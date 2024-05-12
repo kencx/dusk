@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+
+	"github.com/kencx/dusk/integration"
 )
 
 type QueryJson struct {
@@ -36,9 +38,9 @@ type QueryJson struct {
 	} `json:"docs"`
 }
 
-type QueryResults []*Metadata
+type OlQueryResults []*integration.Metadata
 
-func (q *QueryResults) UnmarshalJSON(buf []byte) error {
+func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 	var qj QueryJson
 
 	if err := json.Unmarshal(buf, &qj); err != nil {
@@ -47,7 +49,7 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 
 	for _, work := range qj.Results {
 		for _, r := range work.Editions.Results {
-			m := &Metadata{
+			m := &integration.Metadata{
 				Title:         r.Title,
 				Subtitle:      r.Subtitle,
 				Authors:       r.Authors,
@@ -56,7 +58,7 @@ func (q *QueryResults) UnmarshalJSON(buf []byte) error {
 				CoverUrl:      fmt.Sprintf(coverIdEndpoint, strconv.Itoa(r.CoverId), "M"),
 			}
 
-			m.PublishDate = getFirst(r.PublishDate)
+			m.PublishDate = integration.GetFirst(r.PublishDate)
 
 			if len(r.Isbn) > 0 {
 				for _, i := range r.Isbn {

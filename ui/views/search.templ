@@ -3,8 +3,8 @@ package views
 import (
 	"strconv"
 
-	ol "github.com/kencx/dusk/integrations/openlibrary"
 	"github.com/kencx/dusk/util"
+	"github.com/kencx/dusk/integration"
 )
 
 templ searchForm() {
@@ -51,17 +51,20 @@ templ SearchError(err error) {
 	}
 }
 
-templ SearchResults(results ol.QueryResults, pagesize ...int) {
+templ SearchResults(results integration.QueryResults, pagesize ...int) {
 	<h2>
 		Results
 		<small>Total: { strconv.Itoa(len(results)) }</small>
 	</h2>
+	if len(results) == 0 {
+		No results found!
+	}
 	for _, r := range results {
 		@searchResult(r)
 	}
 }
 
-templ searchResult(r *ol.Metadata) {
+templ searchResult(r *integration.Metadata) {
 	<form
 		hx-post="/search/add"
 		hx-target="#toast-container"

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/kencx/dusk/integration"
 )
 
 const (
@@ -28,29 +30,34 @@ var (
 	ErrInvalidResult = errors.New("invalid openlibrary result")
 )
 
-func FetchByIsbn(isbn string) (*Metadata, error) {
+func FetchByIsbn(isbn string) (*integration.Metadata, error) {
 	url := fmt.Sprintf(isbnEndpoint, isbn)
-	var m Metadata
+	var m OlMetadata
 
 	err := fetch(url, &m)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch by isbn: %w", err)
 	}
 
-	return &m, nil
+	return &m.Metadata, nil
 }
 
-func FetchByQuery(query string) (*QueryResults, error) {
+func FetchByQuery(query string) (*integration.QueryResults, error) {
 	query = url.QueryEscape(query)
 	url := fmt.Sprintf(searchEndpoint, query, searchFields, searchLimit)
-	var q QueryResults
+	var q OlQueryResults
 
 	err := fetch(url, &q)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch by query: %w", err)
 	}
 
-	return &q, nil
+	var res integration.QueryResults
+	for _, qr := range q {
+		res = append(res, qr)
+	}
+
+	return &res, nil
 }
 
 func fetch(url string, dest interface{}) error {
@@ -73,11 +80,4 @@ func fetch(url string, dest interface{}) error {
 		return err
 	}
 	return nil
-}
-
-func getFirst(sl []string) string {
-	if len(sl) > 0 {
-		return sl[0]
-	}
-	return ""
 }

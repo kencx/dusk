@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/kencx/dusk/integration"
+	gb "github.com/kencx/dusk/integration/googlebooks"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
-
-	ol "github.com/kencx/dusk/integrations/openlibrary"
 )
 
 func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
@@ -23,25 +23,24 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 
 	ok, err := util.IsbnCheck(value)
 	if err != nil {
-		slog.Error("invalid isbn", slog.String("isbn", value))
+		slog.Error("[search] invalid isbn", slog.String("isbn", value))
 		views.SearchError(err).Render(r.Context(), rw)
 		return
 	}
 
 	if ok {
-		metadata, err := ol.FetchByIsbn(value)
+		metadata, err := gb.FetchByIsbn(value)
 		if err != nil {
 			slog.Error(err.Error())
 			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
 
-		results := ol.QueryResults{metadata}
-		slog.Debug(fmt.Sprintf("Fetched %d results", len(results)))
+		results := integration.QueryResults{metadata}
 		views.SearchResults(results).Render(r.Context(), rw)
 
 	} else {
-		results, err := ol.FetchByQuery(value)
+		results, err := gb.FetchByQuery(value)
 		if err != nil {
 			slog.Error(err.Error())
 			views.SearchError(err).Render(r.Context(), rw)
@@ -61,7 +60,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	// would be good if we can cache the previously fetched data in importOpenLibrary on
 	// the client side to send it here. This might require Alpine.js.
 
-	metadata, err := ol.FetchByIsbn(isbn)
+	metadata, err := gb.FetchByIsbn(isbn)
 	if err != nil {
 		slog.Error(err.Error())
 		views.SearchError(err).Render(r.Context(), rw)
