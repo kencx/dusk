@@ -13,6 +13,7 @@ import (
 
 	"github.com/kencx/dusk/file"
 	dhttp "github.com/kencx/dusk/http"
+	"github.com/kencx/dusk/integration/googlebooks"
 	"github.com/kencx/dusk/storage"
 )
 
@@ -54,7 +55,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := dhttp.New(store, fw)
+	// TODO allow multiple fetchers
+	fetcher := new(googlebooks.Fetcher)
+
+	srv := dhttp.New(store, fw, fetcher)
 	go func() error {
 		slog.Info(fmt.Sprintf("Starting server on port %d", config.port))
 		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tlsCert, config.tlsKey)

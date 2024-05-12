@@ -5,6 +5,7 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/ui/views"
 
 	"github.com/go-chi/chi/v5"
@@ -32,13 +33,19 @@ type Store interface {
 	DeleteTag(id int64) error
 }
 
+type Fetcher interface {
+	FetchByIsbn(isbn string) (*integration.Metadata, error)
+	FetchByQuery(query string) (*integration.QueryResults, error)
+}
+
 type Handler struct {
 	db Store
 	fs *file.Service
+	f  Fetcher
 }
 
-func Router(db Store, fs *file.Service) chi.Router {
-	s := Handler{db, fs}
+func Router(db Store, fs *file.Service, f Fetcher) chi.Router {
+	s := Handler{db, fs, f}
 	ui := chi.NewRouter()
 
 	staticFiles(ui)

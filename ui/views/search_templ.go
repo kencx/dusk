@@ -66,7 +66,7 @@ func SearchError(err error) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			default:
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Something went wrong, please try again</p>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>An error occurred. Please check the logs for more information.</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

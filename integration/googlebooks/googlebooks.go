@@ -27,7 +27,9 @@ var (
 	ErrInvalidResult = errors.New("invalid googlebooks result")
 )
 
-func FetchByIsbn(isbn string) (*integration.Metadata, error) {
+type Fetcher struct{}
+
+func (f *Fetcher) FetchByIsbn(isbn string) (*integration.Metadata, error) {
 	url := fmt.Sprintf(isbnEndpoint, isbn)
 	var m GbMetadata
 
@@ -39,7 +41,7 @@ func FetchByIsbn(isbn string) (*integration.Metadata, error) {
 	return &m.Metadata, nil
 }
 
-func FetchByQuery(query string) (*integration.QueryResults, error) {
+func (f *Fetcher) FetchByQuery(query string) (*integration.QueryResults, error) {
 	query = url.QueryEscape(query)
 	url := fmt.Sprintf(searchEndpoint, query, searchFields, searchLimit)
 	var q GbQueryResults

@@ -8,7 +8,7 @@ import (
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/api"
 	"github.com/kencx/dusk/file"
-	"github.com/kencx/dusk/storage"
+	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/ui"
 
 	"github.com/go-chi/chi/v5"
@@ -43,13 +43,19 @@ type Store interface {
 	DeleteTag(id int64) error
 }
 
+type Fetcher interface {
+	FetchByIsbn(isbn string) (*integration.Metadata, error)
+	FetchByQuery(query string) (*integration.QueryResults, error)
+}
+
 type Server struct {
 	*http.Server
 	db Store
 	fs *file.Service
+	f  Fetcher
 }
 
-func New(db *storage.Store, fs *file.Service) *Server {
+func New(db Store, fs *file.Service, f Fetcher) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
@@ -59,6 +65,7 @@ func New(db *storage.Store, fs *file.Service) *Server {
 		},
 		db: db,
 		fs: fs,
+		f:  f,
 	}
 	s.RegisterRoutes()
 	return s
@@ -93,7 +100,7 @@ func (s *Server) RegisterRoutes() {
 	r.Use(timeoutHandler(2 * readWriteTimeout / 3))
 
 	r.Mount("/api", api.Router(s.db, s.fs))
-	r.Mount("/", ui.Router(s.db, s.fs))
+	r.Mount("/", ui.Router(s.db, s.fs, s.f))
 }
 
 // middleware to add http.TimeoutHandler.

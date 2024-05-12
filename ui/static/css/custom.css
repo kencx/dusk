@@ -10,22 +10,15 @@
   text-decoration: none !important;
 }
 
-/* span[class^='icon-'] { */
-/*   height: 1.2em; */
-/*   width: 1.2em; */
-/*   vertical-align: -0.25em; */
-/* } */
-
-
 footer {
   font-size: 0.6rem;
   color: var(--pico-muted-color);
   text-align: end;
 }
 
-
 .error {
 	padding: var(--pico-spacing);
+  margin: 0;
 	background: maroon;
 	color: var(--pico-contrast);
 	border: var(--pico-border-width) solid maroon;

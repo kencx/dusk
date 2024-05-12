@@ -72,10 +72,10 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 
 			// fallback to works with key
 			if len(m.Authors) == 0 || m.Authors == nil || m.Title == "" {
-				slog.Warn("no title or authors found, fallback to works")
+				slog.Debug("result has no title or authors, falling back to works")
 
 				if work.Key == "" {
-					slog.Warn("no work key found, skipping...")
+					slog.Debug("no work key found, skipping...")
 					continue
 				}
 
@@ -90,7 +90,7 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 
 				url := fmt.Sprintf(olEndpoint, work.Key)
 				if err := fetch(url, &worksMetadata); err != nil {
-					slog.Warn("failed to fetch by works", slog.Any("err", err))
+					slog.Debug("failed to fetch by works", slog.Any("err", err))
 					continue
 				}
 
@@ -106,7 +106,7 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 						}
 
 						if err := fetch(authorUrl, &author); err != nil {
-							slog.Warn("failed to fetch by author", slog.Any("err", err))
+							slog.Debug("failed to fetch by author", slog.Any("err", err))
 							continue
 						}
 

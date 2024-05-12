@@ -2,6 +2,7 @@ package googlebooks
 
 import (
 	"encoding/json"
+	"log/slog"
 	"strings"
 
 	"github.com/kencx/dusk/integration"
@@ -18,6 +19,11 @@ func (q *GbQueryResults) UnmarshalJSON(buf []byte) error {
 
 	for _, item := range qj.Items {
 		vol := item.VolumeInfo
+
+		if vol.Title == "" || len(vol.Authors) == 0 {
+			slog.Debug("volume has no title or authors, skipping...")
+			continue
+		}
 
 		m := &integration.Metadata{
 			Title:         vol.Title,
