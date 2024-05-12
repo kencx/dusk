@@ -1,7 +1,6 @@
 package googlebooks
 
 import (
-	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +15,7 @@ import (
 const (
 	isbnEndpoint = "https://www.googleapis.com/books/v1/volumes?q=isbn:%s"
 
+	// https://developers.google.com/books/docs/v1/performance#partial-response
 	searchEndpoint = "https://www.googleapis.com/books/v1/volumes?q=%s&%s&%s"
 	searchFields   = "fields=totalItems,items(id,selfLink,volumeInfo(title,subtitle,authors,publisher,publishedDate,description,industryIdentifiers,pageCount,imageLinks,language,infoLink))"
 	searchLimit    = "searchIndex=0&maxResults=10"
@@ -67,7 +67,17 @@ func fetch(url string, dest interface{}) error {
 		return err
 	}
 
-	req.Header.Add("Accept-Encoding", "gzip")
+	// To receive a gzip-encoded response, Google Books API expects
+	// the following headers:
+	//   1. Accept-Encoding: gzip
+	//   2. User-Agent must contain the string gzip
+	// See https://developers.google.com/books/docs/v1/performance
+
+	// The request header "Accept-Encoding: gzip" is automatically
+	// set, and the response body is automatically decompressed when
+	// DisableCompression is true. However, if the user explicitly
+	// adds the header manually, the response body is not automatically
+	// uncompressed.
 	req.Header.Add("User-Agent", "dusk (gzip)")
 
 	resp, err := client.Do(req)
@@ -76,24 +86,12 @@ func fetch(url string, dest interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	var data io.ReadCloser
-	switch resp.Header.Get("Content-Encoding") {
-	case "gzip":
-		data, err = gzip.NewReader(resp.Body)
-		if err != nil {
-			return err
-		}
-		defer data.Close()
-	default:
-		data = resp.Body
-	}
-
-	d, err := io.ReadAll(data)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	if err := json.Unmarshal(d, &dest); err != nil {
+	if err := json.Unmarshal(data, &dest); err != nil {
 		return err
 	}
 	return nil
