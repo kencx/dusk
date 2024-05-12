@@ -45,10 +45,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = store.MigrateUp("testdata.sql")
-	if err != nil {
-		slog.Error("Migration step failed", slog.Any("err", err))
-	}
+	// err = store.MigrateUp("testdata.sql")
+	// if err != nil {
+	// 	slog.Error("Migration step failed", slog.Any("err", err))
+	// }
 
 	fw, err := file.NewService(config.dataDir)
 	if err != nil {

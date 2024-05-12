@@ -66,7 +66,7 @@ details.dropdown:has(> summary[role="button"].icon) {
 .library__card-view {
   display: flex;
   flex-wrap: wrap;
-  column-gap: 4rem;
+  column-gap: 2.8rem;
   justify-content: start;
 }
 

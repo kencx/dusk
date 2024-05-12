@@ -40,6 +40,32 @@ func IsbnCheck(value string) (bool, error) {
 	return false, nil
 }
 
+func IsbnExtract(value string) (string, error) {
+	if !isbnRegex.MatchString(value) {
+		return "", nil
+	}
+
+	value = strings.ReplaceAll(value, "-", "")
+	for _, match := range isbnRegex.FindAllStringSubmatch(value, -1) {
+		if len(match) > 1 {
+
+			switch i := match[1]; len(i) {
+			case 10:
+				if !isbn10Validate(i) {
+					return "", ErrInvalidIsbn
+				}
+				return match[1], nil
+			case 13:
+				if !isbn13Validate(i) {
+					return "", ErrInvalidIsbn
+				}
+				return match[1], nil
+			}
+		}
+	}
+	return "", nil
+}
+
 func isbn10Validate(isbn string) bool {
 	var sum int
 	var mul = 10

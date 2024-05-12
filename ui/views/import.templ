@@ -63,7 +63,13 @@ templ uploadForm() {
 }
 
 templ goodreadsForm() {
-	<form class="goodreads-form" action="/import/goodreads" method="POST">
+	<form
+		class="goodreads-form"
+		action="/import/goodreads"
+		method="POST"
+		hx-target="body"
+		enctype="multipart/form-data"
+	>
 		<div class="filedrop-container">
 			<input type="file" name="goodreads" accept=".csv" required/>
 			<small>Supported file types: csv</small>
@@ -76,4 +82,15 @@ templ calibreForm() {
 	<form action="/import/calibre" method="POST">
 		<input id="calibre" type="file" webkitdirectory directory/>
 	</form>
+}
+
+templ ImportError(err error) {
+	if err != nil {
+		<div class="card error">
+			switch err {
+				default:
+					<p>An error occurred. Please check the logs for more information.</p>
+			}
+		</div>
+	}
 }

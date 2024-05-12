@@ -99,10 +99,10 @@ func Router(db Store, fs *file.Service, f Fetcher) chi.Router {
 	// 	c.Post("/manual", s.manual)
 	// })
 
-	// ui.Route("/goodreads", func(c chi.Router) {
-	// 	c.Get("/", s.goodreadsPage)
-	// 	c.Post("/", s.goodreads)
-	// })
+	ui.Route("/goodreads", func(c chi.Router) {
+		c.Get("/", s.goodreadsPage)
+		c.Post("/", s.goodreads)
+	})
 
 	// ui.Route("/calibre", func(c chi.Router) {
 	// 	c.Get("/", s.calibrePage)
