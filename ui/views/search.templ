@@ -68,6 +68,7 @@ templ searchResult(r *integration.Metadata) {
 	<form
 		hx-post="/search/add"
 		hx-target="#toast-container"
+		hx-swap="beforeend"
 		hx-trigger="change #unread, change #reading, change #read"
 		hx-include="this"
 	>
