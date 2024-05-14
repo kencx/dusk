@@ -16,12 +16,12 @@ const (
 	olEndpoint   = "https://openlibrary.org%s.json"
 	isbnEndpoint = "https://openlibrary.org/isbn/%s.json"
 
-	coverIdEndpoint   = "https://covers.openlibrary.org/b/id/%s-%s.jpg"
-	coverIsbnEndpoint = "https://covers.openlibrary.org/b/isbn/%s-%s.jpg"
-
 	searchEndpoint = "https://openlibrary.org/search.json?q=%s&%s&%s"
 	searchFields   = "fields=key,title,editions,editions.title,editions.subtitle,editions.author_name,editions.isbn,editions.publisher,editions.cover_i,editions.publish_date,editions.number_of_pages_median"
 	searchLimit    = "limit=5&offset=0"
+
+	coverIdEndpoint   = "https://covers.openlibrary.org/b/id/%s-%s.jpg"
+	coverIsbnEndpoint = "https://covers.openlibrary.org/b/isbn/%s-%s.jpg"
 
 	clientTimeout = 5 * time.Second
 )
@@ -60,6 +60,11 @@ func (f *Fetcher) FetchByQuery(query string) (*integration.QueryResults, error) 
 	}
 
 	return &res, nil
+}
+
+// TODO
+func (f *Fetcher) FetchByWork() error {
+	return nil
 }
 
 func fetch(url string, dest interface{}) error {

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/kencx/dusk/integration"
@@ -15,12 +16,12 @@ import (
 const (
 	isbnEndpoint = "https://www.googleapis.com/books/v1/volumes?q=isbn:%s"
 
-	coverFields = "fields=volumeInfo(imageLinks)"
-
 	// https://developers.google.com/books/docs/v1/performance#partial-response
 	searchEndpoint = "https://www.googleapis.com/books/v1/volumes?q=%s&%s&%s"
 	searchFields   = "fields=totalItems,items(id,selfLink,volumeInfo(title,subtitle,authors,publisher,publishedDate,description,industryIdentifiers,pageCount,imageLinks,language,infoLink))"
 	searchLimit    = "searchIndex=0&maxResults=10"
+
+	coverFields = "fields=volumeInfo(imageLinks)"
 
 	clientTimeout = 5 * time.Second
 )
@@ -61,6 +62,36 @@ func (f *Fetcher) FetchByQuery(query string) (*integration.QueryResults, error) 
 	return &res, nil
 }
 
+func FetchCover(volumeLink string) (string, error) {
+	var coverJson struct {
+		VolumeInfo struct {
+			ImageLinks struct {
+				ThumbNail string `json:"thumbnail"`
+				Small     string `json:"small"`
+				Medium    string `json:"medium"`
+				Large     string `json:"large"`
+			} `json:"imageLinks"`
+		} `json:"volumeInfo"`
+	}
+
+	coverLink := fmt.Sprintf("%s?%s", volumeLink, coverFields)
+	err := fetch(coverLink, &coverJson)
+	if err != nil {
+		return "", err
+	}
+
+	image := coverJson.VolumeInfo.ImageLinks
+	if image.Medium != "" {
+		return image.Medium, nil
+	} else if image.Small != "" {
+		return image.Small, nil
+	} else if image.Large != "" {
+		return image.Large, nil
+	} else {
+		return "", nil
+	}
+}
+
 func fetch(url string, dest interface{}) error {
 	client := http.Client{
 		Timeout: clientTimeout,
@@ -99,4 +130,34 @@ func fetch(url string, dest interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func (m *GbMetadata) getIdentifiers(vol Volume) {
+	for _, id := range vol.IndustryIdentifiers {
+		switch id.Type {
+		case "ISBN_10":
+			m.Isbn10 = append(m.Isbn10, id.Identifier)
+		case "ISBN_13":
+			m.Isbn13 = append(m.Isbn13, id.Identifier)
+		case "OTHER":
+			temp := strings.Split(id.Identifier, ":")
+			if len(temp) == 2 {
+				t, id := temp[0], temp[1]
+
+				_, ok := m.Identifiers[t]
+				if !ok {
+					m.Identifiers[t] = []string{id}
+				} else {
+					m.Identifiers[t] = append(m.Identifiers[t], id)
+				}
+			}
+		default:
+			_, ok := m.Identifiers[id.Type]
+			if !ok {
+				m.Identifiers[id.Type] = []string{id.Identifier}
+			} else {
+				m.Identifiers[id.Type] = append(m.Identifiers[id.Type], id.Identifier)
+			}
+		}
+	}
 }

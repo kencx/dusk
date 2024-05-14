@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strconv"
 
+	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/integration"
 )
 
@@ -45,6 +46,10 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 
 	if err := json.Unmarshal(buf, &qj); err != nil {
 		return err
+	}
+
+	if len(qj.Results) == 0 {
+		return dusk.ErrNoRows
 	}
 
 	for _, work := range qj.Results {
