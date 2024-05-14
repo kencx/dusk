@@ -208,6 +208,8 @@ details.dropdown:has(> summary[role="button"].icon) {
   }
 
   .desc-excerpt {
+    width: max-content;
+    min-width: 12rem;
     font-size: 0.65rem;
 
     & > summary span {
@@ -260,6 +262,7 @@ details.dropdown:has(> summary[role="button"].icon) {
 
     .cover {
       margin: auto;
+      position: unset;
     }
 
     .header {
@@ -269,6 +272,10 @@ details.dropdown:has(> summary[role="button"].icon) {
 
     .tags {
       text-align: center;
+    }
+
+    .desc-excerpt {
+      margin: var(--pico-spacing) auto;
     }
 
     .metadata {
