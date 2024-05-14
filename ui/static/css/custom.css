@@ -17,12 +17,12 @@ footer {
 }
 
 .error {
-	padding: var(--pico-spacing);
+  padding: var(--pico-spacing);
   margin: 0;
-	background: maroon;
-	color: var(--pico-contrast);
-	border: var(--pico-border-width) solid maroon;
-	border-radius: var(--pico-border-radius);
+  background: maroon;
+  color: var(--pico-contrast);
+  border: var(--pico-border-width) solid maroon;
+  border-radius: var(--pico-border-radius);
 }
 
 /* ICONS */
@@ -64,66 +64,79 @@ details.dropdown:has(> summary[role="button"].icon) {
 /* LIBRARY CARD VIEW */
 
 .library__card-view {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 2.8rem;
-  justify-content: start;
+  /* auto scaling grid with max num of columns and min width*/
+  /* https://css-tricks.com/an-auto-filling-css-grid-with-max-columns/ */
+  --grid-layout-gap: 1.8rem;
+  --grid-column-count: 6;
+  --grid-item--min-width: 140px;
+
+  --gap-count: calc(var(--grid-column-count) - 1);
+  --total-gap-width: calc(var(--gap-count) * var(--grid-layout-gap));
+  --grid-item--max-width: calc((100% - var(--total-gap-width)) / var(--grid-column-count));
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
+  grid-gap: var(--grid-layout-gap);
 }
 
 .library__empty {
-	align-self: center;
-	margin: auto;
-	text-align: center;
-	padding: 5rem 0;
+  grid-column: 3;
+  margin: auto;
+  padding: 5rem 0;
 }
 
 .library__book-card {
-  --max-library-width: 160px;
   display: flex;
   flex-direction: column;
-  max-width: var(--max-library-width);
-  /* max-height: 260px; */
   cursor: pointer;
   transition: all 0.3s ease-in-out 0s;
 
-	a:hover, a:focus {
-		text-decoration: none;
-	}
+  a:hover, a:focus {
+    text-decoration: none;
+  }
 
-	.cover {
-		max-width: 180px;
+  .cover {
+    aspect-ratio: 5/8;
 
-		img {
-			max-width: 100%;
-			max-height: 100%;
-			margin: auto;
-		}
-	}
+    img {
+      margin: auto;
+      border-radius: 0.2rem;
+      width: 0;
+      height: 0;
+      inset: 0;
+      display: block;
+      min-width: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      max-height: 100%;
+    }
+  }
 
-	.details {
-		margin-top: 0.75rem;
-		margin-bottom: 1.5rem;
-	}
+  .details {
+    margin-top: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
 
-	.title {
-		margin: 0;
-		color: var(--pico-color);
-	}
+  .title {
+    margin: 0;
+    color: var(--pico-color);
+  }
 
-	.author {
-		margin: 0;
-		font-size: 0.75rem;
-		color: var(--pico-secondary);
-	}
+  .author {
+    margin: 0;
+    font-size: 0.7rem;
+    color: var(--pico-secondary);
+    font-weight: normal;
+  }
 }
 
 .library__book-card:hover {
-	transform: translateY(4px);
+  transform: translateY(4px);
 
-	img {
-		transform: scale3d(1.02, 1.02, 1.02);
-		opacity: 0.2;
-	}
+  img {
+    transform: scale3d(1.02, 1.02, 1.02);
+    opacity: 0.2;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -145,18 +158,18 @@ details.dropdown:has(> summary[role="button"].icon) {
   gap: 0 76px;
   margin: 0 1.2rem 1.2rem 1.2rem;
 
-	.cover {
+  .cover {
     /* sticky scrolling */
     position: sticky;
     align-self: start;
     top: 1rem;
 
-		display: flex;
-		align-items: start;
-		justify-content: center;
-		min-width: var(--max-cover-width);
-		max-width: var(--max-cover-width);
-	}
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    min-width: var(--max-cover-width);
+    max-width: var(--max-cover-width);
+  }
 
   .subtitle {
     color: var(--pico-muted-color);
@@ -178,21 +191,21 @@ details.dropdown:has(> summary[role="button"].icon) {
     margin-bottom: 1rem;
   }
 
-	.tags {
+  .tags {
     margin-bottom: 1rem;
 
-		.tag a {
+    .tag a {
       font-size: 0.75rem;
       color: var(--pico-secondary);
-			border-bottom: 0.01rem solid var(--pico-secondary-underline);
-		}
+      border-bottom: 0.01rem solid var(--pico-secondary-underline);
+    }
 
     .tag + .tag::before {
       display: inline-block;
       white-space: pre;
       content: "  ";
     }
-	}
+  }
 
   .desc-excerpt {
     font-size: 0.65rem;
@@ -229,10 +242,10 @@ details.dropdown:has(> summary[role="button"].icon) {
     }
   }
 
-	.actions {
+  .actions {
     display: inline-flex;
     gap: 0.5rem;
-	}
+  }
 
 }
 
@@ -245,18 +258,18 @@ details.dropdown:has(> summary[role="button"].icon) {
     display: block;
     margin-bottom: 0;
 
-		.cover {
-			margin: auto;
-		}
+    .cover {
+      margin: auto;
+    }
 
-		.header {
-			text-align: center;
+    .header {
+      text-align: center;
       margin-top: 1.2rem;
-		}
+    }
 
-		.tags {
-			text-align: center;
-		}
+    .tags {
+      text-align: center;
+    }
 
     .metadata {
       justify-content: center;
@@ -282,11 +295,11 @@ details.dropdown:has(> summary[role="button"].icon) {
   border-radius: 0;
   border-bottom: 0.1rem solid var(--pico-muted-border-color);
 
-	&.selected {
-		font-weight: bold;
+  &.selected {
+    font-weight: bold;
     color: var(--pico-color);
-		border-bottom: 0.2rem solid var(--pico-contrast);
-	}
+    border-bottom: 0.2rem solid var(--pico-contrast);
+  }
 }
 
 .filedrop-container {
@@ -325,11 +338,11 @@ details.dropdown:has(> summary[role="button"].icon) {
     width: 100%;
     max-width: 70%;
 
-		.author + .author::before {
-			display: inline-block;
-			white-space: pre;
-			content: ", ";
-		}
+    .author + .author::before {
+      display: inline-block;
+      white-space: pre;
+      content: ", ";
+    }
   }
 
   .details ul {
@@ -341,9 +354,9 @@ details.dropdown:has(> summary[role="button"].icon) {
     font-size: 0.75rem;
   }
 
-	img, .cover {
+  img, .cover {
     width: 100px;
-	}
+  }
 
   &:hover {
     border: 0.0625rem solid var(--pico-muted-color);
@@ -369,9 +382,9 @@ details.dropdown:has(> summary[role="button"].icon) {
 .list__author-view ul {
   padding-left: 0;
 
-	li {
-		list-style: none;
-	}
+  li {
+    list-style: none;
+  }
 }
 
 /* TOAST */
@@ -381,13 +394,13 @@ details.dropdown:has(> summary[role="button"].icon) {
   width: 100%;
 
   z-index: 1;
-	position: fixed;
+  position: fixed;
   inset-block-end: 0;
   inset-inline-end: 0;
   padding-block-end: 0.75rem;
   padding-inline-end: 0.75rem;
 
-	display: flex;
+  display: flex;
   flex-direction: column;
   row-gap: 1rem;
   justify-content: center;

@@ -15,6 +15,8 @@ import (
 const (
 	isbnEndpoint = "https://www.googleapis.com/books/v1/volumes?q=isbn:%s"
 
+	coverFields = "fields=volumeInfo(imageLinks)"
+
 	// https://developers.google.com/books/docs/v1/performance#partial-response
 	searchEndpoint = "https://www.googleapis.com/books/v1/volumes?q=%s&%s&%s"
 	searchFields   = "fields=totalItems,items(id,selfLink,volumeInfo(title,subtitle,authors,publisher,publishedDate,description,industryIdentifiers,pageCount,imageLinks,language,infoLink))"

@@ -35,10 +35,10 @@ func (q *GbQueryResults) UnmarshalJSON(buf []byte) error {
 			Identifiers:   make(map[string][]string),
 		}
 
-		if vol.ImageLinks.Small != "" {
-			m.CoverUrl = vol.ImageLinks.Small
-		} else {
+		if vol.ImageLinks.ThumbNail != "" {
 			m.CoverUrl = vol.ImageLinks.ThumbNail
+		} else {
+			m.CoverUrl = vol.ImageLinks.SmallThumbNail
 		}
 
 		for _, id := range vol.IndustryIdentifiers {

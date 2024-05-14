@@ -2,6 +2,7 @@ package googlebooks
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 
 	"github.com/kencx/dusk/integration"
@@ -29,8 +30,8 @@ type QueryJson struct {
 			} `json:"IndustryIdentifiers"`
 			NumberOfPages int `json:"pageCount"`
 			ImageLinks    struct {
-				ThumbNail string `json:"thumbnail"`
-				Small     string `json:"small"`
+				SmallThumbNail string `json:"smallThumbnail"`
+				ThumbNail      string `json:"thumbnail"`
 			} `json:"imageLinks"`
 			Language string `json:"language"`
 			InfoLink string `json:"infoLink"`
@@ -52,6 +53,7 @@ func (m *GbMetadata) UnmarshalJSON(buf []byte) error {
 		slog.Debug("[googlebooks] more than 1 item fetched for 1 ISBN")
 	}
 
+	link := im.Items[0].SelfLink
 	vol := im.Items[0].VolumeInfo
 
 	if vol.Title == "" || len(vol.Authors) == 0 {
@@ -65,11 +67,11 @@ func (m *GbMetadata) UnmarshalJSON(buf []byte) error {
 	m.Publishers = append(m.Publishers, vol.Publisher)
 	m.PublishDate = vol.PublishDate
 
-	if vol.ImageLinks.Small != "" {
-		m.CoverUrl = vol.ImageLinks.Small
-	} else {
-		m.CoverUrl = vol.ImageLinks.ThumbNail
+	cover, err := fetchCover(link)
+	if err != nil {
+		slog.Warn("[googlebooks] failed to fetch cover")
 	}
+	m.CoverUrl = cover
 
 	for _, id := range vol.IndustryIdentifiers {
 		switch id.Type {
@@ -87,4 +89,27 @@ func (m *GbMetadata) UnmarshalJSON(buf []byte) error {
 		}
 	}
 	return nil
+}
+
+func fetchCover(volumeLink string) (string, error) {
+	type coverJson struct {
+		VolumeInfo struct {
+			ImageLinks struct {
+				ThumbNail string `json:"thumbnail"`
+				Small     string `json:"small"`
+				Medium    string `json:"medium"`
+				Large     string `json:"large"`
+			} `json:"imageLinks"`
+		} `json:"volumeInfo"`
+	}
+	var coverResp coverJson
+
+	coverLink := fmt.Sprintf("%s?%s", volumeLink, coverFields)
+	err := fetch(coverLink, &coverResp)
+	if err != nil {
+		return "", err
+	}
+
+	// TODO select appropriate cover size
+	return coverResp.VolumeInfo.ImageLinks.Medium, nil
 }
