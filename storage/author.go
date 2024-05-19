@@ -88,7 +88,7 @@ func (s *Store) CreateAuthor(a *dusk.Author) (*dusk.Author, error) {
 			return nil, err
 		}
 
-		a.ID = id
+		a.Id = id
 		return a, nil
 	})
 

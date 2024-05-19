@@ -31,7 +31,7 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	books, err := s.db.GetAllBooksFromTag(tag.ID)
+	books, err := s.db.GetAllBooksFromTag(tag.Id)
 	if err != nil {
 		log.Println(err)
 		views.NewTag(nil, nil, err).Render(rw, r)

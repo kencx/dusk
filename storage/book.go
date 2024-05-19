@@ -18,19 +18,28 @@ type BookQuery struct {
 	*dusk.Book
 	AuthorString string      `db:"author_string"`
 	TagString    null.String `db:"tag_string"`
+	Isbn10String null.String `db:"isbn10_string"`
+	Isbn13String null.String `db:"isbn13_string"`
+	FormatString null.String `db:"format_string"`
 }
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest BookQuery
-		stmt := `SELECT b.*, GROUP_CONCAT(DISTINCT a.name) AS author_string, GROUP_CONCAT(DISTINCT t.name) AS tag_string
+		stmt := `SELECT b.*,
+			GROUP_CONCAT(DISTINCT a.name) AS author_string,
+			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
+			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
+			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
+			GROUP_CONCAT(DISTINCT f.filepath) AS format_string
             FROM book b
                 INNER JOIN book_author_link ba ON ba.book=b.id
                 INNER JOIN author a ON ba.author=a.id
                 LEFT JOIN  book_tag_link bt ON b.id=bt.book
                 LEFT JOIN  tag t ON bt.tag=t.id
-                LEFT JOIN  book_format_link bf ON b.id=bf.book
-                LEFT JOIN  format f ON bf.format=f.id
+                LEFT JOIN  isbn10 it ON it.bookId=b.id
+                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
+                LEFT JOIN  format f ON f.bookId=b.id
             WHERE b.id=$1
             GROUP BY b.id;`
 
@@ -45,6 +54,9 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 		//  TODO handle commas
 		dest.Author = strings.Split(dest.AuthorString, ",")
 		dest.Tag = dest.TagString.Split(",")
+		dest.Isbn10 = dest.Isbn10String.Split(",")
+		dest.Isbn13 = dest.Isbn13String.Split(",")
+		dest.Formats = dest.FormatString.Split(",")
 		return dest.Book, nil
 	})
 
@@ -57,14 +69,20 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 func (s *Store) GetAllBooks() (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQuery
-		stmt := `SELECT b.*, GROUP_CONCAT(DISTINCT a.name) AS author_string, GROUP_CONCAT(DISTINCT t.name) AS tag_string
+		stmt := `SELECT b.*,
+			GROUP_CONCAT(DISTINCT a.name) AS author_string,
+			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
+			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
+			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
+			GROUP_CONCAT(DISTINCT f.filepath) AS format_string
             FROM book b
                 INNER JOIN book_author_link ba ON ba.book=b.id
                 INNER JOIN author a ON ba.author=a.id
                 LEFT JOIN  book_tag_link bt ON b.id=bt.book
                 LEFT JOIN  tag t ON bt.tag=t.id
-                LEFT JOIN  book_format_link bf ON b.id=bf.book
-                LEFT JOIN  format f ON bf.format=f.id
+                LEFT JOIN  isbn10 it ON it.bookId=b.id
+                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
+                LEFT JOIN  format f ON f.bookId=b.id
             GROUP BY b.id
             ORDER BY b.id;`
 
@@ -108,7 +126,7 @@ func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = linkBookToAuthors(tx, book.ID, author_ids)
+		err = linkBookToAuthors(tx, book.Id, author_ids)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +136,27 @@ func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
 			if err != nil {
 				return nil, err
 			}
-			err = linkBookToTags(tx, book.ID, tag_ids)
+			err = linkBookToTags(tx, book.Id, tag_ids)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if len(b.Isbn10) > 0 {
+			_, err = insertIsbn10s(tx, book.Id, b.Isbn10)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if len(b.Isbn13) > 0 {
+			_, err = insertIsbn13s(tx, book.Id, b.Isbn13)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if len(b.Formats) > 0 {
+			_, err = insertFormats(tx, book.Id, []string{}, b.Formats)
 			if err != nil {
 				return nil, err
 			}
@@ -139,7 +177,7 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			return nil, err
 		}
 
-		current_authors, err := getAuthorsFromBook(tx, b.ID)
+		current_authors, err := getAuthorsFromBook(tx, b.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -157,12 +195,14 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			if err := linkBookToAuthors(tx, id, authorIDs); err != nil {
 				return nil, err
 			}
+
+			// remove existing links for authors not in new list of ids
 			if err := unlinkBookFromAuthors(tx, id, authorIDs); err != nil {
 				return nil, err
 			}
 		}
 
-		current_tags, err := getTagsFromBook(tx, b.ID)
+		current_tags, err := getTagsFromBook(tx, b.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -185,10 +225,55 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			}
 		}
 
+		current_isbn10, err := getIsbn10FromBook(tx, b.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		util.Sort(b.Isbn10)
+		if !reflect.DeepEqual(current_isbn10, b.Isbn10) {
+			if _, err = insertIsbn10s(tx, b.Id, b.Isbn10); err != nil {
+				return nil, err
+			}
+		}
+
+		current_isbn13, err := getIsbn13FromBook(tx, b.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		util.Sort(b.Isbn13)
+		if !reflect.DeepEqual(current_isbn13, b.Isbn13) {
+			if _, err = insertIsbn13s(tx, b.Id, b.Isbn13); err != nil {
+				return nil, err
+			}
+		}
+
+		current_formats, err := getFormatsFromBook(tx, b.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		util.Sort(b.Formats)
+		if !reflect.DeepEqual(current_formats, b.Formats) {
+			if _, err = insertFormats(tx, b.Id, []string{}, b.Formats); err != nil {
+				return nil, err
+			}
+		}
+
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 		if err := deleteTagsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteIsbn10WithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteIsbn13WithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteFormatsWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 
@@ -208,8 +293,16 @@ func (s *Store) DeleteBook(id int64) error {
 		}
 
 		// TODO do batch delete instead
-		// delete authors with no books
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteIsbn10WithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteIsbn13WithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteFormatsWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 		return nil, nil
@@ -228,6 +321,15 @@ func (s *Store) DeleteBooks(ids []int64) error {
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
 			return nil, err
 		}
+		if err := deleteIsbn10WithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteIsbn13WithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteFormatsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	})
 	return err
@@ -238,8 +340,6 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 	stmt := `INSERT INTO book (
 		title,
 		subtitle,
-		isbn,
-		isbn13,
 		numOfPages,
 		progress,
 		rating,
@@ -254,8 +354,6 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 	) VALUES (
 		:title,
 		:subtitle,
-		:isbn,
-		:isbn13,
 		:numOfPages,
 		:progress,
 		:rating,
@@ -283,18 +381,16 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
 	}
 
-	b.ID = id
+	b.Id = id
 	return b, nil
 }
 
 func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
-	b.ID = id
+	b.Id = id
 	stmt := `UPDATE book
 		SET
 			title=:title,
 			subtitle=:subtitle,
-			isbn=:isbn,
-			isbn13=:isbn13,
 			numOfPages=:numOfPages,
 			progress=:progress,
 			rating=:rating,
@@ -306,7 +402,7 @@ func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
 			dateStarted=:dateStarted,
 			dateCompleted=:dateCompleted,
 			dateAdded=:dateAdded
-			WHERE id=:id;`
+		WHERE id=:id;`
 	res, err := tx.NamedExec(stmt, b)
 
 	if err != nil {

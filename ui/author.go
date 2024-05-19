@@ -31,7 +31,7 @@ func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	books, err := s.db.GetAllBooksFromAuthor(author.ID)
+	books, err := s.db.GetAllBooksFromAuthor(author.Id)
 	if err != nil {
 		log.Println(err)
 		views.NewAuthor(nil, nil, err).Render(rw, r)

@@ -109,16 +109,16 @@ templ bookTags(tags []string) {
 templ bookRating(rating int) {
 	<div class="rating">
 		if rating == 0 {
-			for _ = range 5 {
+			for range 5 {
 				@icons.StarEmpty()
 			}
 		} else if halfRating(rating) {
-			for _ = range (rating/2) {
+			for range (rating/2) {
 				@icons.StarFilled()
 			}
 			@icons.StarHalf()
 		} else {
-			for _ = range (rating/2) {
+			for range (rating/2) {
 				@icons.StarFilled()
 			}
 		}
@@ -169,12 +169,12 @@ templ bookMetadata(book *dusk.Book) {
 				{ printDateFormat(book.DatePublished) }
 			}
 			<br/>
-			if book.ISBN.Valid {
-				{ book.ISBN.String }
+			for _, i := range book.Isbn10 {
+				{ i }
 			}
 			<br/>
-			if book.ISBN13.Valid {
-				{ book.ISBN13.String }
+			for _, i := range book.Isbn13 {
+				{ i }
 			}
 			<br/>
 			{ strconv.Itoa(book.NumOfPages) }

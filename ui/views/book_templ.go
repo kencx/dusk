@@ -449,14 +449,14 @@ func bookRating(rating int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if rating == 0 {
-			for _ = range 5 {
+			for range 5 {
 				templ_7745c5c3_Err = icons.StarEmpty().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		} else if halfRating(rating) {
-			for _ = range rating / 2 {
+			for range rating / 2 {
 				templ_7745c5c3_Err = icons.StarFilled().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -471,7 +471,7 @@ func bookRating(rating int) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			for _ = range rating / 2 {
+			for range rating / 2 {
 				templ_7745c5c3_Err = icons.StarFilled().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -617,11 +617,11 @@ func bookMetadata(book *dusk.Book) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if book.ISBN.Valid {
+		for _, i := range book.Isbn10 {
 			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(book.ISBN.String)
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/book.templ`, Line: 173, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/book.templ`, Line: 173, Col: 7}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
@@ -632,11 +632,11 @@ func bookMetadata(book *dusk.Book) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if book.ISBN13.Valid {
+		for _, i := range book.Isbn13 {
 			var templ_7745c5c3_Var28 string
-			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(book.ISBN13.String)
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/book.templ`, Line: 177, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/book.templ`, Line: 177, Col: 7}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {

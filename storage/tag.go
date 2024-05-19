@@ -84,7 +84,7 @@ func (s *Store) CreateTag(t *dusk.Tag) (*dusk.Tag, error) {
 		if err != nil {
 			return nil, err
 		}
-		t.ID = id
+		t.Id = id
 		return t, nil
 	})
 

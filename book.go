@@ -3,7 +3,6 @@ package dusk
 import (
 	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -19,27 +18,29 @@ import (
 var en = language.English
 
 type Book struct {
-	ID       int64       `json:"id" db:"id"`
+	Id       int64       `json:"id" db:"id"`
 	Title    string      `json:"title" db:"title"`
 	Subtitle null.String `json:"subtitle,omitempty" db:"subtitle"`
-	Author   []string    `json:"author"`
 
-	ISBN        null.String       `json:"isbn" db:"isbn"`
-	ISBN13      null.String       `json:"isbn13" db:"isbn13"`
-	Identifiers map[string]string `json:"identifiers"`
+	// one to many
+	Author []string `json:"author"`
+	Tag    []string `json:"tag,omitempty"`
+	Isbn10 []string `json:"isbn,omitempty"`
+	Isbn13 []string `json:"isbn13,omitempty"`
+	// Identifiers map[string][]string `json:"identifiers"`
 
 	NumOfPages int `json:"num_of_pages" db:"numOfPages"`
-	Progress   int `json:"progress" db:"progress"`
 	Rating     int `json:"rating" db:"rating"`
+	Progress   int `json:"progress" db:"progress"`
 
 	Publisher     null.String `json:"publisher" db:"publisher"`
 	DatePublished null.Time   `json:"date_published" db:"datePublished"`
 
-	Tag         []string    `json:"tag,omitempty" db:"tag"`
 	Description null.String `json:"description,omitempty" db:"description"`
 	Notes       null.String `json:"notes,omitempty" db:"notes"`
 
 	// files
+	// one to many
 	Formats []string    `json:"formats,omitempty"`
 	Cover   null.String `json:"cover,omitempty" db:"cover"`
 
@@ -51,34 +52,42 @@ type Book struct {
 type Books []*Book
 
 func NewBook(
-	title, subtitle, isbn, isbn13 string,
+	title, subtitle string,
+	author, tag, formats, isbn, isbn13 []string,
 	numOfPages, progress, rating int,
 	publisher, description, notes, cover string,
-	author, tag, formats []string,
-	identifiers map[string]string,
 	datePublished, dateStarted, dateCompleted time.Time,
 ) *Book {
 	tcaser := cases.Title(en)
 	scaser := cases.Lower(en)
 
+	// TODO handle initials
 	var titleAuthor []string
 	for _, a := range author {
+		if a == "" {
+			continue
+		}
+		a = strings.TrimSpace(a)
 		titleAuthor = append(titleAuthor, tcaser.String(a))
 	}
 
 	var smallTag []string
 	for _, a := range tag {
+		if a == "" {
+			continue
+		}
+		a = strings.TrimSpace(a)
 		smallTag = append(smallTag, scaser.String(a))
 	}
 
 	b := &Book{
 		Title:    tcaser.String(strings.TrimSpace(title)),
 		Subtitle: null.StringFrom(tcaser.String(subtitle)),
-		Author:   titleAuthor,
 
-		ISBN:        null.StringFrom(isbn),
-		ISBN13:      null.StringFrom(isbn13),
-		Identifiers: identifiers,
+		Author: titleAuthor,
+		Tag:    smallTag,
+		Isbn10: isbn,
+		Isbn13: isbn13,
 
 		NumOfPages: numOfPages,
 		Progress:   progress,
@@ -87,7 +96,6 @@ func NewBook(
 		Publisher:     null.StringFrom(tcaser.String(publisher)),
 		DatePublished: null.TimeFrom(datePublished),
 
-		Tag:         smallTag,
 		Description: null.StringFrom(description),
 		Notes:       null.StringFrom(notes),
 
@@ -97,59 +105,57 @@ func NewBook(
 		DateStarted:   null.TimeFrom(dateStarted),
 		DateCompleted: null.TimeFrom(dateCompleted),
 	}
-
 	return b
 }
 
 func (b Book) SafeTitle() string {
-	return sanitize.BaseName(b.Title)
+	return sanitize.BaseName(fmt.Sprintf("%s-%d", b.Title, b.Id))
 }
 
 func (b Book) Slugify() string {
-	return sanitize.Path(fmt.Sprintf("%s-%d", b.Title, b.ID))
+	title := strings.ReplaceAll(b.Title, ".", "")
+	return sanitize.Path(fmt.Sprintf("%s-%d", title, b.Id))
 }
 
-var isbnRgx = regexp.MustCompile(`[0-9]+`)
-
 func (b Book) Valid() validator.ErrMap {
-	err := validator.New()
+	errMap := validator.New()
 
-	err.Check(b.Title != "", "title", "value is missing")
-	err.Check(len(b.Author) != 0, "author", "value is missing")
+	errMap.Check(b.Title != "", "title", "value is missing")
+	errMap.Check(len(b.Author) != 0, "author", "value is missing")
 
-	err.EitherOr(
-		b.ISBN.Valid,
-		b.ISBN13.Valid,
-		"isbn",
-		"isbn13",
-		"value is missing",
-	)
+	for _, isbn := range b.Isbn10 {
+		if isbn == "" {
+			continue
+		}
 
-	if b.ISBN.Valid {
-		ok, error := util.IsbnCheck(b.ISBN.ValueOrZero())
-		if errors.Is(error, util.ErrInvalidIsbn) {
-			err.Add("isbn10", "invalid isbn digits")
+		ok, err := util.IsbnCheck(isbn)
+		if errors.Is(err, util.ErrInvalidIsbn) {
+			errMap.Add("isbn10", "invalid isbn digits")
 		}
 		if !ok {
-			err.Add("isbn10", "invalid isbn")
+			errMap.Add("isbn10", fmt.Sprintf("invalid isbn: %s", isbn))
 		}
 	}
 
-	if b.ISBN13.Valid {
-		ok, error := util.IsbnCheck(b.ISBN13.ValueOrZero())
-		if errors.Is(error, util.ErrInvalidIsbn) {
-			err.Add("isbn13", "invalid isbn digits")
+	for _, isbn13 := range b.Isbn13 {
+		if isbn13 == "" {
+			continue
+		}
+
+		ok, err := util.IsbnCheck(isbn13)
+		if errors.Is(err, util.ErrInvalidIsbn) {
+			errMap.Add("isbn13", "invalid isbn digits")
 		}
 		if !ok {
-			err.Add("isbn13", "invalid isbn")
+			errMap.Add("isbn10", fmt.Sprintf("invalid isbn: %s", isbn13))
 		}
 	}
 
-	err.Check(b.NumOfPages >= 0, "numOfPages", "must be >= 0")
-	err.Check(b.Progress >= 0, "progress", "must be >= 0")
+	errMap.Check(b.NumOfPages >= 0, "numOfPages", "must be >= 0")
+	errMap.Check(b.Progress >= 0, "progress", "must be >= 0")
+	errMap.Check(b.Progress >= 0, "progress", "must be <= 100")
+	errMap.Check(b.Rating >= 0, "rating", "must be >= 0")
+	errMap.Check(b.Rating <= 10, "rating", "must be <= 10")
 
-	err.Check(b.Rating >= 0, "rating", "must be >= 0")
-	err.Check(b.Rating <= 10, "rating", "must be <= 10")
-
-	return err
+	return errMap
 }

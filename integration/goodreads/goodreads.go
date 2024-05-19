@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/araddon/dateparse"
 	"github.com/kencx/dusk"
@@ -41,16 +40,6 @@ var headers = []string{
 func RecordToBook(record []string) (*dusk.Book, error) {
 	title, subtitle := extractSubtitle(record[1])
 
-	rating, err := strconv.Atoi(record[7])
-	if err != nil {
-		return nil, err
-	}
-
-	numOfPages, err := strconv.Atoi(record[11])
-	if err != nil {
-		return nil, err
-	}
-
 	authors := []string{record[2]}
 	if record[4] != "" {
 		authors = append(authors, strings.Split(record[4], ",")...)
@@ -60,50 +49,29 @@ func RecordToBook(record []string) (*dusk.Book, error) {
 	// title, series := extractSeries(title)
 	// tags = append(tags, "series."+series)
 
-	isbn10, err := util.IsbnExtract(record[5])
-	if err != nil {
-		return nil, err
-	}
-	isbn13, err := util.IsbnExtract(record[6])
-	if err != nil {
-		return nil, err
-	}
+	isbn10, _ := util.IsbnExtract(record[5])
+	isbn13, _ := util.IsbnExtract(record[6])
 
-	datePublished, err := dateparse.ParseAny(record[12])
-	if err != nil {
-		return nil, err
-	}
+	rating, _ := strconv.Atoi(record[7])
+	numOfPages, _ := strconv.Atoi(record[11])
 
-	var dateRead time.Time
-	if record[14] != "" {
-		dateRead, err = dateparse.ParseAny(record[14])
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	var dateAdded time.Time
-	if record[15] != "" {
-		dateAdded, err = dateparse.ParseAny(record[15])
-		if err != nil {
-			return nil, err
-		}
-	}
+	datePublished, _ := dateparse.ParseAny(record[12])
+	dateRead, _ := dateparse.ParseAny(record[14])
+	dateAdded, _ := dateparse.ParseAny(record[15])
 
 	b := dusk.NewBook(
 		title, subtitle,
-		isbn10, isbn13,
+		authors, tags, nil,
+		[]string{isbn10}, []string{isbn13},
 		numOfPages, 0, rating,
-		record[9], "", record[21],
-		"", authors,
-		tags, nil, nil, datePublished, dateAdded, dateRead,
+		record[9], "", record[21], "",
+		datePublished, dateAdded, dateRead,
 	)
 
 	errMap := b.Valid()
 	if len(errMap) > 0 {
 		return nil, errMap
 	}
-
 	return b, nil
 }
 
@@ -124,7 +92,7 @@ func extractSubtitle(full string) (string, string) {
 func extractSeries(full string) (string, string) {
 	var title, series string
 
-	rx := regexp.MustCompile(``)
+	rx := regexp.MustCompile(`([a-zA-Z ',:]+)[(]([a-zA-Z ]+)[,][ ](#\d+)[)]$`)
 	for _, match := range rx.FindAllStringSubmatch(full, -1) {
 		if len(match) > 1 {
 

@@ -2,20 +2,22 @@ package dusk
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kencx/dusk/validator"
 	"github.com/kennygrant/sanitize"
 )
 
 type Author struct {
-	ID   int64  `json:"id"`
+	Id   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
 type Authors []*Author
 
 func (a Author) Slugify() string {
-	return sanitize.Path(fmt.Sprintf("%s-%d", a.Name, a.ID))
+	name := strings.ReplaceAll(a.Name, ".", "")
+	return sanitize.Path(fmt.Sprintf("%s-%d", name, a.Id))
 }
 
 func (a Author) Valid() validator.ErrMap {

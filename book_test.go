@@ -2,14 +2,12 @@ package dusk
 
 import (
 	"testing"
-
-	"github.com/kencx/dusk/null"
 )
 
 var (
-	isbnPass   = null.StringFrom("0143039822")
-	isbnFail   = null.StringFrom("abc")
-	isbn13Pass = null.StringFrom("9780316129084")
+	isbnPass   = []string{"0143039822"}
+	isbnFail   = []string{"abc"}
+	isbn13Pass = []string{"9780316129084"}
 )
 
 func TestValidateBook(t *testing.T) {
@@ -21,14 +19,14 @@ func TestValidateBook(t *testing.T) {
 		name: "success",
 		book: &Book{
 			Title:  "FooBar",
-			ISBN:   isbnPass,
+			Isbn10: isbnPass,
 			Author: []string{"John Doe"},
 		},
 		err: nil,
 	}, {
 		name: "no title",
 		book: &Book{
-			ISBN:   isbnPass,
+			Isbn10: isbnPass,
 			Author: []string{"John Doe"},
 		},
 		err: map[string]string{"title": "value is missing"},
@@ -36,7 +34,7 @@ func TestValidateBook(t *testing.T) {
 		name: "nil author",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   isbnPass,
+			Isbn10: isbnPass,
 			Author: nil,
 		},
 		err: map[string]string{"author": "value is missing"},
@@ -44,22 +42,15 @@ func TestValidateBook(t *testing.T) {
 		name: "zero length author",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   isbnPass,
+			Isbn10: isbnPass,
 			Author: []string{},
 		},
 		err: map[string]string{"author": "value is missing"},
 	}, {
-		name: "no isbn",
-		book: &Book{
-			Title:  "Foo Bar",
-			Author: []string{"John Doe"},
-		},
-		err: map[string]string{"isbn or isbn13": "value is missing"},
-	}, {
 		name: "isbn regex fail",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   isbnFail,
+			Isbn10: isbnFail,
 			Author: []string{"John Doe"},
 		},
 		err: map[string]string{"isbn10": "invalid isbn"},
@@ -67,7 +58,7 @@ func TestValidateBook(t *testing.T) {
 		name: "multiple errors",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   isbnFail,
+			Isbn10: isbnFail,
 			Author: nil,
 		},
 		err: map[string]string{"author": "value is missing", "isbn10": "invalid isbn"},
@@ -75,8 +66,8 @@ func TestValidateBook(t *testing.T) {
 		name: "both isbn",
 		book: &Book{
 			Title:  "Foo Bar",
-			ISBN:   isbnPass,
-			ISBN13: isbn13Pass,
+			Isbn10: isbnPass,
+			Isbn13: isbn13Pass,
 			Author: []string{"John Doe"},
 		},
 		err: nil,

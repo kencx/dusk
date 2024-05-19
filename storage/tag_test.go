@@ -10,15 +10,15 @@ import (
 
 var (
 	testTag1 = &dusk.Tag{
-		ID:   1,
+		Id:   1,
 		Name: "testTag",
 	}
 	testTag2 = &dusk.Tag{
-		ID:   2,
+		Id:   2,
 		Name: "Favourites",
 	}
 	testTag3 = &dusk.Tag{
-		ID:   3,
+		Id:   3,
 		Name: "Starred",
 	}
 	allTestTags = dusk.Tags{testTag1, testTag2, testTag3}
@@ -26,7 +26,7 @@ var (
 
 func TestGetTag(t *testing.T) {
 	is := is.New(t)
-	got, err := ts.GetTag(testTag1.ID)
+	got, err := ts.GetTag(testTag1.Id)
 	is.NoErr(err)
 
 	want := testTag1
@@ -94,7 +94,7 @@ func TestGetAllBooksFromTag(t *testing.T) {
 
 	is := is.New(t)
 
-	got, err := ts.GetAllBooksFromTag(testTag1.ID)
+	got, err := ts.GetAllBooksFromTag(testTag1.Id)
 	is.NoErr(err)
 
 	want := dusk.Books{testBook1}
@@ -140,7 +140,7 @@ func TestUpdateTag(t *testing.T) {
 	want := testTag1
 	want.Name = "New Tag"
 
-	got, err := ts.UpdateTag(want.ID, want)
+	got, err := ts.UpdateTag(want.Id, want)
 	is.NoErr(err)
 	is.Equal(got.Name, want.Name)
 }
@@ -149,7 +149,7 @@ func TestUpdateTagExisting(t *testing.T) {
 	want := testTag1
 	want.Name = testTag2.Name
 
-	_, err := ts.UpdateTag(want.ID, want)
+	_, err := ts.UpdateTag(want.Id, want)
 	if err == nil {
 		t.Errorf("expected error: unique constraint Name")
 	}
@@ -157,66 +157,66 @@ func TestUpdateTagExisting(t *testing.T) {
 
 func TestDeleteTag(t *testing.T) {
 	is := is.New(t)
-	err := ts.DeleteTag(testTag1.ID)
+	err := ts.DeleteTag(testTag1.Id)
 	is.NoErr(err)
 
-	_, err = ts.GetTag(testTag1.ID)
+	_, err = ts.GetTag(testTag1.Id)
 	if err == nil {
-		t.Errorf("expected error, tag %d not deleted", testTag1.ID)
+		t.Errorf("expected error, tag %d not deleted", testTag1.Id)
 	}
 
 	// check entries deleted from book_tag_link
 	var dest []int
 	stmt := `SELECT book FROM book_tag_link WHERE tag=$1`
-	if err := ts.db.Select(&dest, stmt, testTag1.ID); err != nil {
+	if err := ts.db.Select(&dest, stmt, testTag1.Id); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
 
 	if len(dest) != 0 {
-		t.Errorf("no rows deleted from book_tag_link for tag %d", testTag1.ID)
+		t.Errorf("no rows deleted from book_tag_link for tag %d", testTag1.Id)
 	}
 
 	// check books still exist without tag
-	got, err := ts.GetBook(testBook1.ID)
+	got, err := ts.GetBook(testBook1.Id)
 	is.NoErr(err)
 
 	if len(got.Tag) != 0 {
-		t.Errorf("book %d has incorrect number of tags", testBook1.ID)
+		t.Errorf("book %d has incorrect number of tags", testBook1.Id)
 	}
 }
 
 func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
 	is := is.New(t)
-	err := ts.DeleteTag(testTag3.ID)
+	err := ts.DeleteTag(testTag3.Id)
 	is.NoErr(err)
 
-	_, err = ts.GetTag(testTag3.ID)
+	_, err = ts.GetTag(testTag3.Id)
 	if err == nil {
-		t.Errorf("expected error, tag %d not deleted", testTag3.ID)
+		t.Errorf("expected error, tag %d not deleted", testTag3.Id)
 	}
 
 	// check entries deleted from book_tag_link
 	var dest []int
 	stmt := `SELECT book FROM book_tag_link WHERE tag=$1`
-	if err := ts.db.Select(&dest, stmt, testTag3.ID); err != nil {
+	if err := ts.db.Select(&dest, stmt, testTag3.Id); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
 
 	if len(dest) != 0 {
-		t.Errorf("no rows deleted from book_tag_link for tag %d", testTag3.ID)
+		t.Errorf("no rows deleted from book_tag_link for tag %d", testTag3.Id)
 	}
 
 	// check books still exist without tag
-	got, err := ts.GetBook(testBook3.ID)
+	got, err := ts.GetBook(testBook3.Id)
 	is.NoErr(err)
 
 	if len(got.Tag) != 1 {
-		t.Errorf("book %d has incorrect number of tags", testBook3.ID)
+		t.Errorf("book %d has incorrect number of tags", testBook3.Id)
 	}
 }
 
 func TestDeleteTagNotExists(t *testing.T) {
-	err := ts.DeleteTag(testTag1.ID)
+	err := ts.DeleteTag(testTag1.Id)
 	if err == nil {
 		t.Errorf("expected error: tag not exists")
 	}

@@ -12,9 +12,10 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/util"
 )
 
@@ -135,13 +136,39 @@ func new(r *zip.Reader) (*Epub, error) {
 }
 
 func (e *Epub) ToBook() *dusk.Book {
-	b := &dusk.Book{
-		Title:  e.Title,
-		Author: e.Creator,
-	}
-	b.ISBN = null.StringFrom(e.Identifiers[0])
+	var (
+		isbn10        []string
+		isbn13        []string
+		datePublished time.Time
+		err           error
+	)
 
-	return b
+	for _, id := range e.Identifiers {
+		i, err := util.IsbnExtract(id)
+		if err != nil {
+			continue
+		}
+
+		if len(i) == 10 {
+			isbn10 = append(isbn10, i)
+		} else if len(i) == 13 {
+			isbn13 = append(isbn13, i)
+		}
+	}
+
+	datePublished, err = dateparse.ParseAny(e.Date)
+	if err != nil {
+		datePublished = time.Time{}
+	}
+
+	return dusk.NewBook(
+		e.Title, "",
+		e.Creator, nil, nil,
+		isbn10, isbn13,
+		0, 0, 0,
+		e.Publisher, e.Description, "", "",
+		datePublished, time.Time{}, time.Time{},
+	)
 }
 
 func (e *Epub) getRootFile() error {

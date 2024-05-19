@@ -66,7 +66,7 @@ func TestCreateBookDirectory(t *testing.T) {
 		Title: "foobar test",
 	}
 
-	want := path.Join(tempDir, "foobar-test")
+	want := path.Join(tempDir, "foobar-test-0")
 	got, err := testFileService.createBookDirectory(book)
 	is.NoErr(err)
 	is.Equal(got, want)
@@ -88,7 +88,7 @@ func TestCreateBookDirectoryAlreadyExists(t *testing.T) {
 	is.NoErr(err)
 
 	// recreate directory
-	want := path.Join(tempDir, "foobar-test")
+	want := path.Join(tempDir, "foobar-test-0")
 	got, err := testFileService.createBookDirectory(book)
 	is.NoErr(err)
 	is.Equal(got, want)

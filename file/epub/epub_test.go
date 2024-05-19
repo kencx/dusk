@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/null"
 
 	"github.com/matryer/is"
 )
@@ -47,9 +46,8 @@ func TestNew(t *testing.T) {
 func TestToBook(t *testing.T) {
 	is := is.New(t)
 	want := &dusk.Book{
-		Title:  "EPUB 3.0 Specification",
-		Author: []string{"EPUB 3 Working Group"},
-		ISBN:   null.StringFrom("code.google.com.epub-samples.epub30-spec"),
+		Title:  "Epub 3.0 Specification",
+		Author: []string{"Epub 3 Working Group"},
 	}
 
 	ep, err := New(EPUB30_SPEC)

@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/integrations/goodreads"
+	"github.com/kencx/dusk/integration/goodreads"
 )
 
 func (w *Service) ReadGoodreadsCSV(payload *Payload) (dusk.Books, error) {
@@ -19,7 +19,7 @@ func (w *Service) ReadGoodreadsCSV(payload *Payload) (dusk.Books, error) {
 	}
 
 	var books dusk.Books
-	var failed int
+	var success, failed int
 	for {
 		record, err := cr.Read()
 		if err != nil {
@@ -39,11 +39,12 @@ func (w *Service) ReadGoodreadsCSV(payload *Payload) (dusk.Books, error) {
 			continue
 		}
 		books = append(books, book)
+		success += 1
 	}
 
 	slog.Info(
 		"[csv] read csv completed",
-		slog.Int("success", len(books)-failed),
+		slog.Int("success", success),
 		slog.Int("failed", failed),
 		slog.String("filename", payload.Filename),
 	)

@@ -10,23 +10,23 @@ import (
 
 var (
 	testAuthor1 = &dusk.Author{
-		ID:   1,
+		Id:   1,
 		Name: "John Adams",
 	}
 	testAuthor2 = &dusk.Author{
-		ID:   2,
+		Id:   2,
 		Name: "Alice Brown",
 	}
 	testAuthor3 = &dusk.Author{
-		ID:   3,
+		Id:   3,
 		Name: "Billy Foo",
 	}
 	testAuthor4 = &dusk.Author{
-		ID:   4,
+		Id:   4,
 		Name: "Carl Baz",
 	}
 	testAuthor5 = &dusk.Author{
-		ID:   5,
+		Id:   5,
 		Name: "Daniel Bar",
 	}
 	allTestAuthors = dusk.Authors{testAuthor1, testAuthor2, testAuthor3, testAuthor4, testAuthor5}
@@ -34,7 +34,7 @@ var (
 
 func TestGetAuthor(t *testing.T) {
 	is := is.New(t)
-	got, err := ts.GetAuthor(testAuthor1.ID)
+	got, err := ts.GetAuthor(testAuthor1.Id)
 	is.NoErr(err)
 
 	want := testAuthor1
@@ -100,7 +100,7 @@ func TestGetAllBooksFromAuthor(t *testing.T) {
 
 	is := is.New(t)
 
-	got, err := ts.GetAllBooksFromAuthor(testAuthor5.ID)
+	got, err := ts.GetAllBooksFromAuthor(testAuthor5.Id)
 	is.NoErr(err)
 
 	want := dusk.Books{testBook3, testBook4}
@@ -148,7 +148,7 @@ func TestUpdateAuthor(t *testing.T) {
 	want := testAuthor1
 	want.Name = "Sherlock Holmes"
 
-	got, err := ts.UpdateAuthor(want.ID, want)
+	got, err := ts.UpdateAuthor(want.Id, want)
 	is.NoErr(err)
 	is.Equal(got.Name, want.Name)
 }
@@ -157,7 +157,7 @@ func TestUpdateAuthorExisting(t *testing.T) {
 	want := testAuthor1
 	want.Name = testAuthor2.Name
 
-	_, err := ts.UpdateAuthor(want.ID, want)
+	_, err := ts.UpdateAuthor(want.Id, want)
 	if err == nil {
 		t.Errorf("expected error: unique constraint Name")
 	}
@@ -169,40 +169,40 @@ func TestDeleteAuthor(t *testing.T) {
 	is := is.New(t)
 	// delete book first to circumvent foreign key constraint
 	stmt := `DELETE from book WHERE id=$1;`
-	_, err := ts.db.Exec(stmt, testBook1.ID)
+	_, err := ts.db.Exec(stmt, testBook1.Id)
 	if err != nil {
-		t.Errorf("db: delete book %d failed: %v", testBook1.ID, err)
+		t.Errorf("db: delete book %d failed: %v", testBook1.Id, err)
 	}
 
-	err = ts.DeleteAuthor(testAuthor1.ID)
+	err = ts.DeleteAuthor(testAuthor1.Id)
 	is.NoErr(err)
 
-	_, err = ts.GetAuthor(testAuthor1.ID)
+	_, err = ts.GetAuthor(testAuthor1.Id)
 	if err == nil {
-		t.Errorf("expected error, author %d not deleted", testAuthor1.ID)
+		t.Errorf("expected error, author %d not deleted", testAuthor1.Id)
 	}
 
 	// check entries deleted from book_author_link
 	var dest []int
 	stmt = `SELECT book FROM book_author_link WHERE author=$1`
-	if err := ts.db.Select(&dest, stmt, testAuthor1.ID); err != nil {
+	if err := ts.db.Select(&dest, stmt, testAuthor1.Id); err != nil {
 		t.Errorf("unexpected err: %v", err)
 	}
 
 	if len(dest) != 0 {
-		t.Errorf("no rows deleted from book_author_link for author %d", testAuthor1.ID)
+		t.Errorf("no rows deleted from book_author_link for author %d", testAuthor1.Id)
 	}
 }
 
 func TestDeleteAuthorOfExistingBook(t *testing.T) {
-	err := ts.DeleteAuthor(testAuthor1.ID)
+	err := ts.DeleteAuthor(testAuthor1.Id)
 	if err == nil {
 		t.Errorf("expected err: FOREIGN KEY constraint failed")
 	}
 }
 
 func TestDeleteAuthorNotExists(t *testing.T) {
-	err := ts.DeleteAuthor(testAuthor1.ID)
+	err := ts.DeleteAuthor(testAuthor1.Id)
 	if err == nil {
 		t.Errorf("expected error: author not exists")
 	}

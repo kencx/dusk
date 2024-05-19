@@ -7,7 +7,6 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/mock"
-	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/util"
 
 	"github.com/matryer/is"
@@ -17,17 +16,17 @@ var (
 	testBook1 = &dusk.Book{
 		Title:  "Book 1",
 		Author: []string{"John Adams"},
-		ISBN:   null.StringFrom("100"),
+		Isbn10: []string{"0143039822"},
 	}
 	testBook2 = &dusk.Book{
 		Title:  "Book 2",
 		Author: []string{"Alice Brown"},
-		ISBN:   null.StringFrom("101"),
+		Isbn10: []string{"0143039822"},
 	}
 	testBook3 = &dusk.Book{
 		Title:  "Book 3",
 		Author: []string{"Billy Foo", "Carl Baz"},
-		ISBN:   null.StringFrom("102"),
+		Isbn10: []string{"0143039822"},
 	}
 	testBooks = []*dusk.Book{testBook1, testBook2, testBook3}
 )
@@ -56,7 +55,7 @@ func TestGetBook(t *testing.T) {
 	got := env["books"]
 	is.Equal(got.Title, testBook1.Title)
 	is.Equal(got.Author[0], testBook1.Author[0])
-	is.Equal(got.ISBN, testBook1.ISBN)
+	is.Equal(got.Isbn10, testBook1.Isbn10)
 	is.Equal(w.Code, http.StatusOK)
 	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
@@ -107,7 +106,7 @@ func TestGetAllBooks(t *testing.T) {
 		for i, v := range got {
 			is.Equal(v.Title, testBooks[i].Title)
 			is.Equal(v.Author[0], testBooks[i].Author[0])
-			is.Equal(v.ISBN, testBooks[i].ISBN)
+			is.Equal(v.Isbn10, testBooks[i].Isbn10)
 		}
 		is.Equal(w.Code, http.StatusOK)
 		is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
@@ -160,7 +159,7 @@ func TestAddBook(t *testing.T) {
 	got := env["books"]
 	is.Equal(got.Title, testBook1.Title)
 	is.Equal(got.Author[0], testBook1.Author[0])
-	is.Equal(got.ISBN, testBook1.ISBN)
+	is.Equal(got.Isbn10, testBook1.Isbn10)
 	is.Equal(w.Code, http.StatusCreated)
 	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
@@ -170,7 +169,7 @@ func TestAddBookFailValidation(t *testing.T) {
 	failBook := &dusk.Book{
 		Title:  "",
 		Author: []string{"John Doe"},
-		ISBN:   null.StringFrom("12345"),
+		Isbn10: []string{"12345"},
 	}
 	want, err := util.ToJSON(failBook)
 	is.NoErr(err)
@@ -222,7 +221,7 @@ func TestUpdateBook(t *testing.T) {
 	got := env["books"]
 	is.Equal(got.Title, testBook2.Title)
 	is.Equal(got.Author[0], testBook2.Author[0])
-	is.Equal(got.ISBN, testBook2.ISBN)
+	is.Equal(got.Isbn10, testBook2.Isbn10)
 	is.Equal(w.Code, http.StatusOK)
 	is.Equal(w.Result().Header.Get("Content-Type"), "application/json")
 }
@@ -256,7 +255,7 @@ func TestUpdateBookFailValidation(t *testing.T) {
 	failBook := &dusk.Book{
 		Title:  "",
 		Author: []string{"John Doe"},
-		ISBN:   null.StringFrom("12345"),
+		Isbn10: []string{"12345"},
 	}
 	want, err := util.ToJSON(failBook)
 	is.NoErr(err)

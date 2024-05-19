@@ -9,14 +9,14 @@ import (
 )
 
 type Tag struct {
-	ID   int64  `json:"id"`
+	Id   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
 type Tags []*Tag
 
 func (a Tag) Slugify() string {
-	return sanitize.Path(fmt.Sprintf("%s-%d", a.Name, a.ID))
+	return sanitize.Path(fmt.Sprintf("%s-%d", a.Name, a.Id))
 }
 
 func (t Tag) Valid() validator.ErrMap {

@@ -80,7 +80,7 @@ details.dropdown:has(> summary[role="button"].icon) {
 }
 
 .library__empty {
-  grid-column: 3;
+  grid-column: 3/5;
   margin: auto;
   padding: 5rem 0;
 }

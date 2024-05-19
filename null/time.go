@@ -21,6 +21,9 @@ func NewTime(t time.Time, valid bool) Time {
 }
 
 func TimeFrom(t time.Time) Time {
+	if t.IsZero() {
+		return NewTime(t, false)
+	}
 	return NewTime(t, true)
 }
 
@@ -28,11 +31,14 @@ func TimeFromPtr(t *time.Time) Time {
 	if t == nil {
 		return NewTime(time.Time{}, false)
 	}
+	if (*t).IsZero() {
+		return NewTime(*t, false)
+	}
 	return NewTime(*t, true)
 }
 
 func (t Time) ValueOrZero() time.Time {
-	if !t.Valid {
+	if !t.Valid || t.Time.IsZero() {
 		return time.Time{}
 	}
 	return t.Time

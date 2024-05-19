@@ -28,14 +28,15 @@ type QueryResults []*Metadata
 
 func (m *Metadata) ToBook() *dusk.Book {
 	var (
-		isbn, isbn13, publisher string
-		identifiers             = make(map[string]string)
-		tags                    []string
-		datePublished           time.Time
+		isbn, isbn13  []string
+		publisher     string
+		identifiers   = make(map[string]string)
+		tags          []string
+		datePublished time.Time
 	)
 
-	isbn = GetFirst(m.Isbn10)
-	isbn13 = GetFirst(m.Isbn13)
+	isbn = m.Isbn10
+	isbn13 = m.Isbn13
 	publisher = GetFirst(m.Publishers)
 
 	if len(m.Series) > 0 {
@@ -58,11 +59,10 @@ func (m *Metadata) ToBook() *dusk.Book {
 
 	return dusk.NewBook(
 		m.Title, m.Subtitle,
+		m.Authors, tags, nil,
 		isbn, isbn13,
 		m.NumberOfPages, 0, 0,
 		publisher, "", "", m.CoverUrl,
-		m.Authors, tags, nil,
-		identifiers,
 		datePublished, time.Time{}, time.Time{},
 	)
 }
