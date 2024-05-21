@@ -21,6 +21,7 @@ type BookQuery struct {
 	Isbn10String null.String `db:"isbn10_string"`
 	Isbn13String null.String `db:"isbn13_string"`
 	FormatString null.String `db:"format_string"`
+	SeriesString null.String `db:"series_string"`
 }
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
@@ -31,7 +32,8 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
 			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
 			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
-			GROUP_CONCAT(DISTINCT f.filepath) AS format_string
+			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
+			s.Name AS series_string
             FROM book b
                 INNER JOIN book_author_link ba ON ba.book=b.id
                 INNER JOIN author a ON ba.author=a.id
@@ -40,6 +42,7 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
                 LEFT JOIN  isbn10 it ON it.bookId=b.id
                 LEFT JOIN  isbn13 ith ON ith.bookId=b.id
                 LEFT JOIN  format f ON f.bookId=b.id
+				LEFT JOIN  series s ON s.bookId=b.id
             WHERE b.id=$1
             GROUP BY b.id;`
 
@@ -51,12 +54,12 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 			return nil, fmt.Errorf("db: retrieve book id %d failed: %w", id, err)
 		}
 
-		//  TODO handle commas
 		dest.Author = strings.Split(dest.AuthorString, ",")
 		dest.Tag = dest.TagString.Split(",")
 		dest.Isbn10 = dest.Isbn10String.Split(",")
 		dest.Isbn13 = dest.Isbn13String.Split(",")
 		dest.Formats = dest.FormatString.Split(",")
+		dest.Series = dest.SeriesString
 		return dest.Book, nil
 	})
 
@@ -74,7 +77,8 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
 			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
 			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
 			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
-			GROUP_CONCAT(DISTINCT f.filepath) AS format_string
+			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
+			s.Name AS series_string
             FROM book b
                 INNER JOIN book_author_link ba ON ba.book=b.id
                 INNER JOIN author a ON ba.author=a.id
@@ -83,6 +87,7 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
                 LEFT JOIN  isbn10 it ON it.bookId=b.id
                 LEFT JOIN  isbn13 ith ON ith.bookId=b.id
                 LEFT JOIN  format f ON f.bookId=b.id
+				LEFT JOIN  series s ON s.bookId=b.id
             GROUP BY b.id
             ORDER BY b.id;`
 
@@ -100,6 +105,10 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
 		for _, row := range dest {
 			row.Author = strings.Split(row.AuthorString, ",")
 			row.Tag = row.TagString.Split(",")
+			row.Isbn10 = row.Isbn10String.Split(",")
+			row.Isbn13 = row.Isbn13String.Split(",")
+			row.Formats = row.FormatString.Split(",")
+			row.Series = row.SeriesString
 			books = append(books, row.Book)
 		}
 		return books, nil
@@ -157,6 +166,13 @@ func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
 
 		if len(b.Formats) > 0 {
 			_, err = insertFormats(tx, book.Id, []string{}, b.Formats)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if b.Series.Valid && b.Series.ValueOrZero() != "" {
+			_, err = insertSeries(tx, b.Id, b.Series.String)
 			if err != nil {
 				return nil, err
 			}
@@ -261,6 +277,17 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			}
 		}
 
+		current_series, err := getSeriesFromBook(tx, b.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		if current_series.Name != b.Series.ValueOrZero() {
+			if _, err = insertFormats(tx, b.Id, []string{}, b.Formats); err != nil {
+				return nil, err
+			}
+		}
+
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
 			return nil, err
 		}
@@ -274,6 +301,9 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			return nil, err
 		}
 		if err := deleteFormatsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteSeriesWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 
@@ -305,6 +335,9 @@ func (s *Store) DeleteBook(id int64) error {
 		if err := deleteFormatsWithNoBooks(tx); err != nil {
 			return nil, err
 		}
+		if err := deleteSeriesWithNoBooks(tx); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	})
 	return err
@@ -328,6 +361,9 @@ func (s *Store) DeleteBooks(ids []int64) error {
 			return nil, err
 		}
 		if err := deleteFormatsWithNoBooks(tx); err != nil {
+			return nil, err
+		}
+		if err := deleteSeriesWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 		return nil, nil

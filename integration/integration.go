@@ -1,9 +1,7 @@
 package integration
 
 import (
-	"fmt"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/araddon/dateparse"
@@ -28,11 +26,11 @@ type QueryResults []*Metadata
 
 func (m *Metadata) ToBook() *dusk.Book {
 	var (
-		isbn, isbn13  []string
-		publisher     string
-		identifiers   = make(map[string]string)
-		tags          []string
-		datePublished time.Time
+		isbn, isbn13      []string
+		publisher, series string
+		identifiers       = make(map[string]string)
+		tags              []string
+		datePublished     time.Time
 	)
 
 	isbn = m.Isbn10
@@ -40,8 +38,7 @@ func (m *Metadata) ToBook() *dusk.Book {
 	publisher = GetFirst(m.Publishers)
 
 	if len(m.Series) > 0 {
-		series := strings.ReplaceAll(m.Series[0], ",", "")
-		tags = append(tags, fmt.Sprintf("series.%s", series))
+		series = m.Series[0]
 	}
 
 	if len(m.Identifiers) > 0 {
@@ -62,7 +59,7 @@ func (m *Metadata) ToBook() *dusk.Book {
 		m.Authors, tags, nil,
 		isbn, isbn13,
 		m.NumberOfPages, 0, 0,
-		publisher, "", "", m.CoverUrl,
+		publisher, series, "", "", m.CoverUrl,
 		datePublished, time.Time{}, time.Time{},
 	)
 }

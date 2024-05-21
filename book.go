@@ -36,6 +36,7 @@ type Book struct {
 	Publisher     null.String `json:"publisher" db:"publisher"`
 	DatePublished null.Time   `json:"date_published" db:"datePublished"`
 
+	Series      null.String `json:"series,omitempty" db:"series"`
 	Description null.String `json:"description,omitempty" db:"description"`
 	Notes       null.String `json:"notes,omitempty" db:"notes"`
 
@@ -55,7 +56,7 @@ func NewBook(
 	title, subtitle string,
 	author, tag, formats, isbn, isbn13 []string,
 	numOfPages, progress, rating int,
-	publisher, description, notes, cover string,
+	publisher, series, description, notes, cover string,
 	datePublished, dateStarted, dateCompleted time.Time,
 ) *Book {
 	tcaser := cases.Title(en)
@@ -96,6 +97,7 @@ func NewBook(
 		Publisher:     null.StringFrom(tcaser.String(publisher)),
 		DatePublished: null.TimeFrom(datePublished),
 
+		Series:      null.StringFrom(series),
 		Description: null.StringFrom(description),
 		Notes:       null.StringFrom(notes),
 

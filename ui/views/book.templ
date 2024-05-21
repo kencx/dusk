@@ -150,6 +150,8 @@ templ bookDetails(book *dusk.Book) {
 templ bookMetadata(book *dusk.Book) {
 	<div class="metadata">
 		<div class="key">
+			Series
+			<br/>
 			Publisher
 			<br/>
 			Published
@@ -161,6 +163,10 @@ templ bookMetadata(book *dusk.Book) {
 			Pages
 		</div>
 		<div class="value">
+			if book.Series.Valid {
+				{ book.Series.String }
+			}
+			<br/>
 			if book.Publisher.Valid {
 				{ book.Publisher.String }
 			}

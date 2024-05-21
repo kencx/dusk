@@ -1,6 +1,7 @@
 package goodreads
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -39,6 +40,7 @@ var headers = []string{
 
 func RecordToBook(record []string) (*dusk.Book, error) {
 	title, subtitle := extractSubtitle(record[1])
+	title, series := extractSeries(title)
 
 	authors := []string{record[2]}
 	if record[4] != "" {
@@ -46,13 +48,11 @@ func RecordToBook(record []string) (*dusk.Book, error) {
 	}
 
 	tags := strings.Split(record[16], ",")
-	// title, series := extractSeries(title)
-	// tags = append(tags, "series."+series)
-
 	isbn10, _ := util.IsbnExtract(record[5])
 	isbn13, _ := util.IsbnExtract(record[6])
 
 	rating, _ := strconv.Atoi(record[7])
+	rating = rating * 2
 	numOfPages, _ := strconv.Atoi(record[11])
 
 	datePublished, _ := dateparse.ParseAny(record[12])
@@ -64,7 +64,7 @@ func RecordToBook(record []string) (*dusk.Book, error) {
 		authors, tags, nil,
 		[]string{isbn10}, []string{isbn13},
 		numOfPages, 0, rating,
-		record[9], "", record[21], "",
+		record[9], series, "", record[21], "",
 		datePublished, dateAdded, dateRead,
 	)
 
@@ -88,15 +88,23 @@ func extractSubtitle(full string) (string, string) {
 	return title, subtitle
 }
 
-// TODO extractSeries
 func extractSeries(full string) (string, string) {
 	var title, series string
 
-	rx := regexp.MustCompile(`([a-zA-Z ',:]+)[(]([a-zA-Z ]+)[,][ ](#\d+)[)]$`)
+	rx := regexp.MustCompile(`([a-zA-Z0-9 ',’:.?-@#$%&\!*()]+)[(]([a-zA-Z0-9 :?.'#,]+)[,]?[ ](#\d+)[)]$`)
 	for _, match := range rx.FindAllStringSubmatch(full, -1) {
 		if len(match) > 1 {
+			title = match[1]
 
+			series = match[2]
+			num := match[3]
+			series = fmt.Sprintf("%s, %s", series, num)
 		}
+	}
+
+	if title == "" {
+		title = full
+		series = ""
 	}
 	return title, series
 }
