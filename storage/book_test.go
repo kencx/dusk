@@ -11,40 +11,6 @@ import (
 	"github.com/matryer/is"
 )
 
-var (
-	testBook1 = &dusk.Book{
-		Id:         1,
-		Title:      "Book 1",
-		Isbn10:     []string{"1000000000"},
-		NumOfPages: 250,
-		Rating:     5,
-		Author:     []string{testAuthor1.Name},
-		Tag:        []string{testTag1.Name},
-	}
-	testBook2 = &dusk.Book{
-		Id:         2,
-		Title:      "Book 2",
-		Isbn10:     []string{"2000000000"},
-		NumOfPages: 900,
-		Rating:     4,
-		Author:     []string{testAuthor2.Name},
-	}
-	testBook3 = &dusk.Book{
-		Id:     3,
-		Title:  "Many Authors",
-		Isbn10: []string{"3000000000"},
-		Author: []string{testAuthor3.Name, testAuthor4.Name, testAuthor5.Name},
-		Tag:    []string{testTag2.Name, testTag3.Name},
-	}
-	testBook4 = &dusk.Book{
-		Id:     4,
-		Title:  "Book 4",
-		Isbn10: []string{"4000000000"},
-		Author: []string{testAuthor5.Name},
-	}
-	allTestBooks = dusk.Books{testBook1, testBook2, testBook3, testBook4}
-)
-
 func TestGetBook(t *testing.T) {
 	tests := []struct {
 		name string
@@ -147,11 +113,11 @@ func TestCreateBook(t *testing.T) {
 				t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(tt.want))
 			}
 
-			assertAuthorsExist(t, tt.want)
-			assertBookAuthorRelationship(t, tt.want)
+			assertAuthorsExist(t, got)
+			assertBookAuthorRelationship(t, got)
 
-			assertTagsExist(t, tt.want)
-			assertBookTagRelationship(t, tt.want)
+			assertTagsExist(t, got)
+			assertBookTagRelationship(t, got)
 		})
 	}
 }
@@ -176,7 +142,7 @@ func TestCreateBookExistingAuthor(t *testing.T) {
 	got, err := ts.CreateBook(want)
 	is.NoErr(err)
 
-	assertAuthorsExist(t, want)
+	assertAuthorsExist(t, got)
 	assertBookAuthorRelationship(t, got)
 
 	// TODO get authors related books
@@ -192,11 +158,11 @@ func TestCreateBookNewAndExistingAuthor(t *testing.T) {
 		Rating:     10,
 	}
 	is := is.New(t)
-	_, err := ts.CreateBook(want)
+	got, err := ts.CreateBook(want)
 	is.NoErr(err)
 
-	assertAuthorsExist(t, want)
-	assertBookAuthorRelationship(t, want)
+	assertAuthorsExist(t, got)
+	assertBookAuthorRelationship(t, got)
 
 	// TODO get both authors related books
 }
@@ -212,11 +178,11 @@ func TestCreateBookExistingTag(t *testing.T) {
 		Tag:        []string{"Starred"},
 	}
 	is := is.New(t)
-	_, err := ts.CreateBook(want)
+	got, err := ts.CreateBook(want)
 	is.NoErr(err)
 
-	assertTagsExist(t, want)
-	assertBookTagRelationship(t, want)
+	assertTagsExist(t, got)
+	assertBookTagRelationship(t, got)
 
 	// TODO get tag's related books
 }
@@ -232,11 +198,11 @@ func TestCreateBookNewAndExistingTag(t *testing.T) {
 		Tag:        []string{"New", "Starred"},
 	}
 	is := is.New(t)
-	_, err := ts.CreateBook(want)
+	got, err := ts.CreateBook(want)
 	is.NoErr(err)
 
-	assertTagsExist(t, want)
-	assertBookTagRelationship(t, want)
+	assertTagsExist(t, got)
+	assertBookTagRelationship(t, got)
 
 	// TODO get tag's related books
 }
@@ -244,15 +210,15 @@ func TestCreateBookNewAndExistingTag(t *testing.T) {
 func TestUpdateBookNoAuthorChange(t *testing.T) {
 	defer resetDB()
 
-	want := testBook1
+	want := *testBook1
 	want.NumOfPages = 999
 	want.Rating = 1
 
 	is := is.New(t)
-	got, err := ts.UpdateBook(want.Id, want)
+	got, err := ts.UpdateBook(want.Id, &want)
 	is.NoErr(err)
 
-	if !assertBooksEqual(got, want) {
+	if !assertBooksEqual(got, &want) {
 		t.Errorf("got %v, want %v", prettyPrint(got), prettyPrint(want))
 	}
 	// TODO get tag's related books
@@ -323,6 +289,8 @@ func TestUpdateBookRemoveAuthorCompletely(t *testing.T) {
 
 	old := testBook2.Author[0]
 	want := modifyAuthors(testBook2, testBook1.Author)
+	want.Rating = 2
+
 	is := is.New(t)
 	got, err := ts.UpdateBook(want.Id, want)
 	is.NoErr(err)
@@ -384,9 +352,9 @@ func TestUpdateBookNotExists(t *testing.T) {
 }
 
 func TestUpdateBookIsbn10Constraint(t *testing.T) {
-	want := testBook1
+	want := *testBook1
 	want.Isbn10 = testBook2.Isbn10
-	_, err := ts.UpdateBook(want.Id, want)
+	_, err := ts.UpdateBook(want.Id, &want)
 	if err == nil {
 		t.Errorf("expected error: unique constraint Isbn10")
 	}

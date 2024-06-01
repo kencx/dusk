@@ -1,36 +1,39 @@
 package storage
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
 )
 
 func getFormatsFromBook(tx *sqlx.Tx, bookId int64) ([]string, error) {
-	var dest []struct {
-		Filepath string
+	var dest struct {
+		FormatString null.String `db:"format_string"`
 	}
-	stmt := `SELECT i.filepath
+	stmt := `SELECT GROUP_CONCAT(DISTINCT f.filepath) AS format_string
 		FROM format f
 		WHERE f.bookId=$1
         ORDER BY f.id`
 
-	if err := tx.Select(&dest, stmt, bookId); err != nil {
-		return nil, err
+	if err := tx.QueryRowx(stmt, bookId).StructScan(&dest); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, dusk.ErrDoesNotExist
+		}
+		return nil, fmt.Errorf("db: query formats from book failed: %w", err)
 	}
 
-	var result []string
-	for _, v := range dest {
-		result = append(result, v.Filepath)
-	}
+	result := dest.FormatString.Split(",")
 	return result, nil
 }
 
 // Insert given format. If format already exists, return its id instead
-func insertFormat(tx *sqlx.Tx, bookId int64, filetype, path string) (int64, error) {
-	stmt := `INSERT OR IGNORE INTO format (bookId, filetype, filepath) VALUES ($1, $2, $3);`
-	res, err := tx.Exec(stmt, bookId, filetype, path)
+func insertFormat(tx *sqlx.Tx, bookId int64, path string) (int64, error) {
+	stmt := `INSERT OR IGNORE INTO format (bookId, filepath) VALUES ($1, $2);`
+	res, err := tx.Exec(stmt, bookId, path)
 	if err != nil {
 		return -1, fmt.Errorf("db: insert to format table failed: %w", err)
 	}
@@ -62,11 +65,11 @@ func insertFormat(tx *sqlx.Tx, bookId int64, filetype, path string) (int64, erro
 
 // Insert given slice of formats and returns slice of format IDs. If format already
 // exists, its ID is appended to the result
-func insertFormats(tx *sqlx.Tx, bookId int64, filetypes, formats []string) ([]int64, error) {
+func insertFormats(tx *sqlx.Tx, bookId int64, formats []string) ([]int64, error) {
 	var ids []int64
 
-	for i, format := range formats {
-		id, err := insertFormat(tx, bookId, filetypes[i], format)
+	for _, format := range formats {
+		id, err := insertFormat(tx, bookId, format)
 		if err != nil {
 			return nil, err
 		}

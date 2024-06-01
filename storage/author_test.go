@@ -8,30 +8,6 @@ import (
 	"github.com/matryer/is"
 )
 
-var (
-	testAuthor1 = &dusk.Author{
-		Id:   1,
-		Name: "John Adams",
-	}
-	testAuthor2 = &dusk.Author{
-		Id:   2,
-		Name: "Alice Brown",
-	}
-	testAuthor3 = &dusk.Author{
-		Id:   3,
-		Name: "Billy Foo",
-	}
-	testAuthor4 = &dusk.Author{
-		Id:   4,
-		Name: "Carl Baz",
-	}
-	testAuthor5 = &dusk.Author{
-		Id:   5,
-		Name: "Daniel Bar",
-	}
-	allTestAuthors = dusk.Authors{testAuthor1, testAuthor2, testAuthor3, testAuthor4, testAuthor5}
-)
-
 func TestGetAuthor(t *testing.T) {
 	is := is.New(t)
 	got, err := ts.GetAuthor(testAuthor1.Id)
@@ -78,7 +54,7 @@ func TestGetAllAuthorEmpty(t *testing.T) {
 
 	// delete all data
 	if err := ts.MigrateUp(resetSchemaPath); err != nil {
-		t.Fatalf("failed to reset database")
+		t.Errorf("failed to reset database")
 	}
 
 	got, err := ts.GetAllAuthors()
@@ -96,8 +72,6 @@ func TestGetAllAuthorEmpty(t *testing.T) {
 }
 
 func TestGetAllBooksFromAuthor(t *testing.T) {
-	defer resetDB()
-
 	is := is.New(t)
 
 	got, err := ts.GetAllBooksFromAuthor(testAuthor5.Id)
@@ -122,6 +96,8 @@ func TestCreateAuthor(t *testing.T) {
 }
 
 func TestCreateAuthorDuplicates(t *testing.T) {
+	defer resetDB()
+
 	is := is.New(t)
 	want := testAuthor3
 
@@ -145,19 +121,19 @@ func TestUpdateAuthor(t *testing.T) {
 	defer resetDB()
 
 	is := is.New(t)
-	want := testAuthor1
+	want := *testAuthor1
 	want.Name = "Sherlock Holmes"
 
-	got, err := ts.UpdateAuthor(want.Id, want)
+	got, err := ts.UpdateAuthor(want.Id, &want)
 	is.NoErr(err)
 	is.Equal(got.Name, want.Name)
 }
 
 func TestUpdateAuthorExisting(t *testing.T) {
-	want := testAuthor1
+	want := *testAuthor1
 	want.Name = testAuthor2.Name
 
-	_, err := ts.UpdateAuthor(want.Id, want)
+	_, err := ts.UpdateAuthor(want.Id, &want)
 	if err == nil {
 		t.Errorf("expected error: unique constraint Name")
 	}

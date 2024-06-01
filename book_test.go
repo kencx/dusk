@@ -53,7 +53,7 @@ func TestValidateBook(t *testing.T) {
 			Isbn10: isbnFail,
 			Author: []string{"John Doe"},
 		},
-		err: map[string]string{"isbn10": "invalid isbn"},
+		err: map[string]string{"isbn10": "invalid isbn: abc"},
 	}, {
 		name: "multiple errors",
 		book: &Book{
@@ -61,7 +61,7 @@ func TestValidateBook(t *testing.T) {
 			Isbn10: isbnFail,
 			Author: nil,
 		},
-		err: map[string]string{"author": "value is missing", "isbn10": "invalid isbn"},
+		err: map[string]string{"author": "value is missing", "isbn10": "invalid isbn: abc"},
 	}, {
 		name: "both isbn",
 		book: &Book{

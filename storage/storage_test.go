@@ -29,7 +29,7 @@ func testMainWrapper(m *testing.M) int {
 
 	defer func() {
 		if err := ts.Close(); err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 		if err := os.Remove(testDSN); err != nil {
 			log.Fatalf("could not remove test db: %v", err)
@@ -38,19 +38,20 @@ func testMainWrapper(m *testing.M) int {
 
 	db, err := Open(testDSN)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	ts = New(db)
 
 	err = ts.MigrateUp(testSchemaPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	// seed test data
-	if err := ts.MigrateUp(testDataPath); err != nil {
-		log.Fatalf("failed to seed test data: %v", err)
+	if err := seedData(); err != nil {
+		log.Printf("failed to seed test data: %v", err)
 	}
+
 	return m.Run()
 }
 
@@ -73,10 +74,11 @@ func TestOpen(t *testing.T) {
 
 func resetDB() {
 	if err := ts.MigrateUp(resetSchemaPath); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
-	if err := ts.MigrateUp(testDataPath); err != nil {
-		log.Fatal(err)
+
+	if err := seedData(); err != nil {
+		log.Print(err)
 	}
 }
 
@@ -84,13 +86,4 @@ func resetDB() {
 func prettyPrint(i interface{}) string {
 	s, _ := json.MarshalIndent(i, "", "\t")
 	return string(s)
-}
-
-func contains(s []string, a string) bool {
-	for _, b := range s {
-		if a == b {
-			return true
-		}
-	}
-	return false
 }

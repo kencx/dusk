@@ -8,6 +8,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
 )
 
 func (s *Store) GetSeries(id int64) (*dusk.Series, error) {
@@ -152,16 +153,22 @@ func (s *Store) DeleteSeries(id int64) error {
 }
 
 func getSeriesFromBook(tx *sqlx.Tx, bookId int64) (*dusk.Series, error) {
-	var dest dusk.Series
-	stmt := `SELECT s.Name
+	var dest struct {
+		SeriesString null.String `db:"series_string"`
+	}
+
+	stmt := `SELECT s.Name AS series_string
 		FROM series s
 		WHERE s.bookId=$1
         ORDER BY s.id`
 
-	if err := tx.Select(&dest, stmt, bookId); err != nil {
-		return nil, err
+	if err := tx.QueryRowx(stmt, bookId).StructScan(&dest); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, dusk.ErrDoesNotExist
+		}
+		return nil, fmt.Errorf("db: query series from book failed: %w", err)
 	}
-	return &dest, nil
+	return &dusk.Series{Name: dest.SeriesString.ValueOrZero()}, nil
 }
 
 // Insert given series. If series already exists, return its id instead

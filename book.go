@@ -62,7 +62,7 @@ func NewBook(
 	tcaser := cases.Title(en)
 	scaser := cases.Lower(en)
 
-	// TODO handle initials
+	// TODO handle casing of initials
 	var titleAuthor []string
 	for _, a := range author {
 		if a == "" {
@@ -149,7 +149,7 @@ func (b Book) Valid() validator.ErrMap {
 			errMap.Add("isbn13", "invalid isbn digits")
 		}
 		if !ok {
-			errMap.Add("isbn10", fmt.Sprintf("invalid isbn: %s", isbn13))
+			errMap.Add("isbn13", fmt.Sprintf("invalid isbn: %s", isbn13))
 		}
 	}
 

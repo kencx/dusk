@@ -8,22 +8,6 @@ import (
 	"github.com/matryer/is"
 )
 
-var (
-	testTag1 = &dusk.Tag{
-		Id:   1,
-		Name: "testTag",
-	}
-	testTag2 = &dusk.Tag{
-		Id:   2,
-		Name: "Favourites",
-	}
-	testTag3 = &dusk.Tag{
-		Id:   3,
-		Name: "Starred",
-	}
-	allTestTags = dusk.Tags{testTag1, testTag2, testTag3}
-)
-
 func TestGetTag(t *testing.T) {
 	is := is.New(t)
 	got, err := ts.GetTag(testTag1.Id)
@@ -72,7 +56,7 @@ func TestGetAllTagEmpty(t *testing.T) {
 
 	// delete all data
 	if err := ts.MigrateUp(resetSchemaPath); err != nil {
-		t.Fatalf("failed to reset database")
+		t.Errorf("failed to reset database")
 	}
 
 	got, err := ts.GetAllTags()
@@ -137,19 +121,19 @@ func TestUpdateTag(t *testing.T) {
 	defer resetDB()
 
 	is := is.New(t)
-	want := testTag1
+	want := *testTag1
 	want.Name = "New Tag"
 
-	got, err := ts.UpdateTag(want.Id, want)
+	got, err := ts.UpdateTag(want.Id, &want)
 	is.NoErr(err)
 	is.Equal(got.Name, want.Name)
 }
 
 func TestUpdateTagExisting(t *testing.T) {
-	want := testTag1
+	want := *testTag1
 	want.Name = testTag2.Name
 
-	_, err := ts.UpdateTag(want.Id, want)
+	_, err := ts.UpdateTag(want.Id, &want)
 	if err == nil {
 		t.Errorf("expected error: unique constraint Name")
 	}

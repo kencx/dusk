@@ -59,7 +59,7 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 		dest.Isbn10 = dest.Isbn10String.Split(",")
 		dest.Isbn13 = dest.Isbn13String.Split(",")
 		dest.Formats = dest.FormatString.Split(",")
-		dest.Series = dest.SeriesString
+		dest.Series = null.StringFrom(dest.SeriesString.String)
 		return dest.Book, nil
 	})
 
@@ -165,7 +165,7 @@ func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
 		}
 
 		if len(b.Formats) > 0 {
-			_, err = insertFormats(tx, book.Id, []string{}, b.Formats)
+			_, err = insertFormats(tx, book.Id, b.Formats)
 			if err != nil {
 				return nil, err
 			}
@@ -272,7 +272,7 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 
 		util.Sort(b.Formats)
 		if !reflect.DeepEqual(current_formats, b.Formats) {
-			if _, err = insertFormats(tx, b.Id, []string{}, b.Formats); err != nil {
+			if _, err = insertFormats(tx, b.Id, b.Formats); err != nil {
 				return nil, err
 			}
 		}
@@ -283,7 +283,7 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 		}
 
 		if current_series.Name != b.Series.ValueOrZero() {
-			if _, err = insertFormats(tx, b.Id, []string{}, b.Formats); err != nil {
+			if _, err = insertSeries(tx, b.Id, b.Series.ValueOrZero()); err != nil {
 				return nil, err
 			}
 		}
@@ -417,8 +417,9 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 		return nil, fmt.Errorf("db: insert to book table failed: %w", err)
 	}
 
-	b.Id = id
-	return b, nil
+	book := *b
+	book.Id = id
+	return &book, nil
 }
 
 func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {

@@ -29,7 +29,7 @@ func getIsbn10FromBook(tx *sqlx.Tx, bookId int64) ([]string, error) {
 
 // Insert given isbn10. If isbn10 already exists, return its id instead
 func insertIsbn10(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
-	stmt := `INSERT OR IGNORE INTO isbn10 (bookId, isbn) VALUES ($1, $2);`
+	stmt := `INSERT INTO isbn10 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
 		return -1, fmt.Errorf("db: insert to isbn10 table failed: %w", err)
@@ -118,7 +118,7 @@ func getIsbn13FromBook(tx *sqlx.Tx, bookId int64) ([]string, error) {
 
 // Insert given isbn13. If isbn13 already exists, return its id instead
 func insertIsbn13(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
-	stmt := `INSERT OR IGNORE INTO isbn13 (bookId, isbn) VALUES ($1, $2);`
+	stmt := `INSERT INTO isbn13 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
 		return -1, fmt.Errorf("db: insert to isbn13 table failed: %w", err)
