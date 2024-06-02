@@ -84,7 +84,9 @@ func TestGetAllBooksFromTag(t *testing.T) {
 	want := dusk.Books{testBook1}
 	is.True(len(got) == len(want))
 	for i := range want {
-		is.Equal(got[i].Title, want[i].Title)
+		if !got[i].Equal(want[i]) {
+			t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+		}
 	}
 }
 
@@ -140,6 +142,8 @@ func TestUpdateTagExisting(t *testing.T) {
 }
 
 func TestDeleteTag(t *testing.T) {
+	defer resetDB()
+
 	is := is.New(t)
 	err := ts.DeleteTag(testTag1.Id)
 	is.NoErr(err)
@@ -170,6 +174,8 @@ func TestDeleteTag(t *testing.T) {
 }
 
 func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
+	defer resetDB()
+
 	is := is.New(t)
 	err := ts.DeleteTag(testTag3.Id)
 	is.NoErr(err)
@@ -200,7 +206,7 @@ func TestDeleteTagOfBookWithRemainingTags(t *testing.T) {
 }
 
 func TestDeleteTagNotExists(t *testing.T) {
-	err := ts.DeleteTag(testTag1.Id)
+	err := ts.DeleteTag(-1)
 	if err == nil {
 		t.Errorf("expected error: tag not exists")
 	}

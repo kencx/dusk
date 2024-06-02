@@ -64,3 +64,7 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 	t.Valid = true
 	return nil
 }
+
+func (t Time) Equal(b Time) bool {
+	return (t.Valid == b.Valid && time.Time.Equal(t.ValueOrZero(), b.ValueOrZero()))
+}

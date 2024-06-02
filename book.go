@@ -3,6 +3,7 @@ package dusk
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -160,4 +161,37 @@ func (b Book) Valid() validator.ErrMap {
 	errMap.Check(b.Rating <= 10, "rating", "must be <= 10")
 
 	return errMap
+}
+
+func (b *Book) Equal(a *Book) bool {
+	if (a == nil) && (b == nil) {
+		return true
+	}
+	if (a != nil) && (b != nil) {
+		authorEqual := reflect.DeepEqual(a.Author, b.Author)
+		tagEqual := reflect.DeepEqual(a.Tag, b.Tag)
+		isbn10Equal := reflect.DeepEqual(a.Isbn10, b.Isbn10)
+		isbn13Equal := reflect.DeepEqual(a.Isbn13, b.Isbn13)
+		formatEqual := reflect.DeepEqual(a.Formats, b.Formats)
+
+		return (a.Title == b.Title &&
+			a.Subtitle.Equal(b.Subtitle) &&
+			a.NumOfPages == b.NumOfPages &&
+			a.Rating == b.Rating &&
+			a.Progress == b.Progress &&
+			a.Publisher.Equal(b.Publisher) &&
+			a.DatePublished.Equal(b.DatePublished) &&
+			a.Series.Equal(b.Series) &&
+			a.Description.Equal(b.Description) &&
+			a.Notes.Equal(b.Notes) &&
+			a.Cover.Equal(b.Cover) &&
+			a.DateStarted.Equal(b.DateStarted) &&
+			a.DateCompleted.Equal(b.DateCompleted) &&
+			authorEqual &&
+			tagEqual &&
+			isbn10Equal &&
+			isbn13Equal &&
+			formatEqual)
+	}
+	return a == b
 }

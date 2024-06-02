@@ -2,7 +2,7 @@ package storage
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -75,23 +75,20 @@ func insertIsbn10s(tx *sqlx.Tx, bookId int64, isbn10s []string) ([]int64, error)
 	return ids, nil
 }
 
-// delete all isbn10s that are not linked to any existing books
-func deleteIsbn10WithNoBooks(tx *sqlx.Tx) error {
-	stmt := `DELETE FROM isbn10 WHERE bookId NOT IN
-				(SELECT id FROM book);`
-	res, err := tx.Exec(stmt)
+func deleteIsbn10(tx *sqlx.Tx, isbn string) error {
+	stmt := `DELETE FROM isbn10 WHERE isbn=$1;`
+	res, err := tx.Exec(stmt, isbn)
 	if err != nil {
-		return fmt.Errorf("db: unable to delete isbn10 with no books: %w", err)
+		return fmt.Errorf("db: delete isbn10 %s failed: %w", isbn, err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: unable to delete isbn10 with no books: %w", err)
+		return fmt.Errorf("db: delete isbn10 %s failed: %w", isbn, err)
 	}
 
 	if count != 0 {
-		log.Printf("Deleted %d isbn10s with no existing books", count)
-		return nil
+		slog.Debug("deleted isbn10", slog.Int64("count", count), slog.String("isbn10", isbn))
 	}
 	return nil
 }
@@ -164,23 +161,20 @@ func insertIsbn13s(tx *sqlx.Tx, bookId int64, isbn13s []string) ([]int64, error)
 	return ids, nil
 }
 
-// delete all isbn13s that are not linked to any existing books
-func deleteIsbn13WithNoBooks(tx *sqlx.Tx) error {
-	stmt := `DELETE FROM isbn13 WHERE bookId NOT IN
-				(SELECT id FROM book);`
-	res, err := tx.Exec(stmt)
+func deleteIsbn13(tx *sqlx.Tx, isbn string) error {
+	stmt := `DELETE FROM isbn13 WHERE isbn=$1;`
+	res, err := tx.Exec(stmt, isbn)
 	if err != nil {
-		return fmt.Errorf("db: unable to delete isbn13 with no books: %w", err)
+		return fmt.Errorf("db: delete isbn13 %s failed: %w", isbn, err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: unable to delete isbn13 with no books: %w", err)
+		return fmt.Errorf("db: delete isbn13 %s failed: %w", isbn, err)
 	}
 
 	if count != 0 {
-		log.Printf("Deleted %d isbn13s with no existing books", count)
-		return nil
+		slog.Debug("deleted isbn13", slog.Int64("count", count), slog.String("isbn13", isbn))
 	}
 	return nil
 }

@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -58,18 +59,44 @@ func (s *Store) GetAllAuthors() (dusk.Authors, error) {
 
 func (s *Store) GetAllBooksFromAuthor(id int64) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var books dusk.Books
-
-		stmt := `SELECT b.*
+		var dest []BookQuery
+		stmt := `SELECT b.*,
+			GROUP_CONCAT(DISTINCT a.name) AS author_string,
+			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
+			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
+			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
+			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
+			s.Name AS series_string
             FROM book b
                 INNER JOIN book_author_link ba ON ba.book=b.id
-            WHERE ba.author=$1`
-		err := tx.Select(&books, stmt, id)
+                INNER JOIN author a ON ba.author=a.id
+                LEFT JOIN  book_tag_link bt ON b.id=bt.book
+                LEFT JOIN  tag t ON bt.tag=t.id
+                LEFT JOIN  isbn10 it ON it.bookId=b.id
+                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
+                LEFT JOIN  format f ON f.bookId=b.id
+				LEFT JOIN  series s ON s.bookId=b.id
+            WHERE b.id IN (SELECT book FROM book_author_link WHERE author=$1)
+			GROUP BY b.id
+			ORDER BY b.id;`
+
+		err := tx.Select(&dest, stmt, id)
 		if err != nil {
 			return nil, fmt.Errorf("db: retrieve all books from author %d failed: %w", id, err)
 		}
-		if len(books) == 0 {
+		if len(dest) == 0 {
 			return nil, dusk.ErrNoRows
+		}
+
+		var books dusk.Books
+		for _, row := range dest {
+			row.Author = strings.Split(row.AuthorString, ",")
+			row.Tag = row.TagString.Split(",")
+			row.Isbn10 = row.Isbn10String.Split(",")
+			row.Isbn13 = row.Isbn13String.Split(",")
+			row.Formats = row.FormatString.Split(",")
+			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
+			books = append(books, row.Book)
 		}
 
 		return books, nil
@@ -214,8 +241,7 @@ func deleteAuthorsWithNoBooks(tx *sqlx.Tx) error {
 	}
 
 	if count != 0 {
-		log.Printf("Deleted %d authors with no existing books", count)
-		return nil
+		slog.Debug("deleted authors", slog.Int64("count", count))
 	}
 	return nil
 }

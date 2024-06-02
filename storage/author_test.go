@@ -78,9 +78,12 @@ func TestGetAllBooksFromAuthor(t *testing.T) {
 	is.NoErr(err)
 
 	want := dusk.Books{testBook3, testBook4}
-	is.True(len(got) == len(want))
+
+	is.Equal(len(got), len(want))
 	for i := range want {
-		is.Equal(got[i].Title, want[i].Title)
+		if !got[i].Equal(want[i]) {
+			t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+		}
 	}
 }
 
@@ -130,6 +133,8 @@ func TestUpdateAuthor(t *testing.T) {
 }
 
 func TestUpdateAuthorExisting(t *testing.T) {
+	defer resetDB()
+
 	want := *testAuthor1
 	want.Name = testAuthor2.Name
 
@@ -171,6 +176,8 @@ func TestDeleteAuthor(t *testing.T) {
 }
 
 func TestDeleteAuthorOfExistingBook(t *testing.T) {
+	defer resetDB()
+
 	err := ts.DeleteAuthor(testAuthor1.Id)
 	if err == nil {
 		t.Errorf("expected err: FOREIGN KEY constraint failed")
@@ -178,7 +185,7 @@ func TestDeleteAuthorOfExistingBook(t *testing.T) {
 }
 
 func TestDeleteAuthorNotExists(t *testing.T) {
-	err := ts.DeleteAuthor(testAuthor1.Id)
+	err := ts.DeleteAuthor(-1)
 	if err == nil {
 		t.Errorf("expected error: author not exists")
 	}

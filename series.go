@@ -9,7 +9,7 @@ import (
 
 type Series struct {
 	Id   int64  `json:"id"`
-	Name string `json:"name"`
+	Name string `json:"name" db:"name"`
 }
 
 func (a Series) Slugify() string {

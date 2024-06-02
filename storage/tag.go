@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
+	"strings"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/null"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -55,20 +56,45 @@ func (s *Store) GetAllTags() (dusk.Tags, error) {
 
 func (s *Store) GetAllBooksFromTag(id int64) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var books dusk.Books
-
-		stmt := `SELECT b.*
+		var dest []BookQuery
+		stmt := `SELECT b.*,
+			GROUP_CONCAT(DISTINCT a.name) AS author_string,
+			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
+			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
+			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
+			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
+			s.Name AS series_string
             FROM book b
-                INNER JOIN book_tag_link ba ON ba.book=b.id
-            WHERE ba.tag=$1`
-		err := tx.Select(&books, stmt, id)
+                INNER JOIN book_author_link ba ON ba.book=b.id
+                INNER JOIN author a ON ba.author=a.id
+                LEFT JOIN  book_tag_link bt ON b.id=bt.book
+                LEFT JOIN  tag t ON bt.tag=t.id
+                LEFT JOIN  isbn10 it ON it.bookId=b.id
+                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
+                LEFT JOIN  format f ON f.bookId=b.id
+				LEFT JOIN  series s ON s.bookId=b.id
+            WHERE b.id IN (SELECT book FROM book_tag_link WHERE tag=$1)
+			GROUP BY b.id
+			ORDER BY b.id;`
+
+		err := tx.Select(&dest, stmt, id)
 		if err != nil {
 			return nil, fmt.Errorf("db: retrieve all books from tag %d failed: %w", id, err)
 		}
-		if len(books) == 0 {
+		if len(dest) == 0 {
 			return nil, dusk.ErrNoRows
 		}
 
+		var books dusk.Books
+		for _, row := range dest {
+			row.Author = strings.Split(row.AuthorString, ",")
+			row.Tag = row.TagString.Split(",")
+			row.Isbn10 = row.Isbn10String.Split(",")
+			row.Isbn13 = row.Isbn13String.Split(",")
+			row.Formats = row.FormatString.Split(",")
+			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
+			books = append(books, row.Book)
+		}
 		return books, nil
 	})
 
@@ -127,12 +153,12 @@ func (s *Store) DeleteTag(id int64) error {
 		stmt := `DELETE FROM tag WHERE id=$1;`
 		res, err := tx.Exec(stmt, id)
 		if err != nil {
-			return nil, fmt.Errorf("db: unable to delete tag %d: %w", id, err)
+			return nil, fmt.Errorf("db: delete tag %d failed: %w", id, err)
 		}
 
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: unable to delete tag %d: %w", id, err)
+			return nil, fmt.Errorf("db: delete tag %d failed: %w", id, err)
 		}
 
 		if count == 0 {
@@ -189,25 +215,4 @@ func insertTags(tx *sqlx.Tx, tags []string) ([]int64, error) {
 		ids = append(ids, id)
 	}
 	return ids, nil
-}
-
-// delete all tags that are not linked to any existing books
-func deleteTagsWithNoBooks(tx *sqlx.Tx) error {
-	stmt := `DELETE FROM tag WHERE id NOT IN
-				(SELECT tag FROM book_tag_link);`
-	res, err := tx.Exec(stmt)
-	if err != nil {
-		return fmt.Errorf("db: unable to delete tag with no books: %w", err)
-	}
-
-	count, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("db: unable to delete tag with no books: %w", err)
-	}
-
-	if count != 0 {
-		log.Printf("Deleted %d tags with no existing books", count)
-		return nil
-	}
-	return nil
 }

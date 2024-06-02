@@ -16,7 +16,6 @@ var (
 	testDSN string
 
 	testSchemaPath  = "schema.sql"
-	testDataPath    = "testdata.sql"
 	resetSchemaPath = "reset.sql"
 )
 

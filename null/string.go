@@ -42,25 +42,25 @@ func (n String) ValueOrZero() string {
 	return n.String
 }
 
-func (s *String) UnmarshalJSON(data []byte) error {
+func (n *String) UnmarshalJSON(data []byte) error {
 	if len(data) > 0 && data[0] == 'n' {
-		s.Valid = false
+		n.Valid = false
 		return nil
 	}
 
-	if err := json.Unmarshal(data, &s.String); err != nil {
+	if err := json.Unmarshal(data, &n.String); err != nil {
 		return fmt.Errorf("failed to unmarshal JSON: %w", err)
 	}
 
-	s.Valid = true
+	n.Valid = true
 	return nil
 }
 
-func (s String) MarshalJSON() ([]byte, error) {
-	if !s.Valid {
+func (n String) MarshalJSON() ([]byte, error) {
+	if !n.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(s.String)
+	return json.Marshal(n.String)
 }
 
 func (n String) Split(sep string) []string {
@@ -68,4 +68,8 @@ func (n String) Split(sep string) []string {
 		return strings.Split(n.String, sep)
 	}
 	return nil
+}
+
+func (n String) Equal(b String) bool {
+	return (n.Valid == b.Valid && n.ValueOrZero() == b.ValueOrZero())
 }

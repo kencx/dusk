@@ -3,7 +3,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kencx/dusk"
@@ -78,23 +78,20 @@ func insertFormats(tx *sqlx.Tx, bookId int64, formats []string) ([]int64, error)
 	return ids, nil
 }
 
-// delete all formats that are not linked to any existing books
-func deleteFormatsWithNoBooks(tx *sqlx.Tx) error {
-	stmt := `DELETE FROM format WHERE bookId NOT IN
-				(SELECT id FROM book);`
-	res, err := tx.Exec(stmt)
+func deleteFormat(tx *sqlx.Tx, format string) error {
+	stmt := `DELETE FROM format WHERE filepath=$1;`
+	res, err := tx.Exec(stmt, format)
 	if err != nil {
-		return fmt.Errorf("db: unable to delete format with no books: %w", err)
+		return fmt.Errorf("db: delete format %s failed: %w", format, err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: unable to delete format with no books: %w", err)
+		return fmt.Errorf("db: delete format %s failed: %w", format, err)
 	}
 
 	if count != 0 {
-		log.Printf("Deleted %d formats with no existing books", count)
-		return nil
+		slog.Debug("deleted format", slog.Int64("count", count), slog.String("format", format))
 	}
 	return nil
 }

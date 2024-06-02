@@ -59,7 +59,7 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 		dest.Isbn10 = dest.Isbn10String.Split(",")
 		dest.Isbn13 = dest.Isbn13String.Split(",")
 		dest.Formats = dest.FormatString.Split(",")
-		dest.Series = null.StringFrom(dest.SeriesString.String)
+		dest.Series = null.StringFrom(dest.SeriesString.ValueOrZero())
 		return dest.Book, nil
 	})
 
@@ -108,7 +108,7 @@ func (s *Store) GetAllBooks() (dusk.Books, error) {
 			row.Isbn10 = row.Isbn10String.Split(",")
 			row.Isbn13 = row.Isbn13String.Split(",")
 			row.Formats = row.FormatString.Split(",")
-			row.Series = row.SeriesString
+			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
 			books = append(books, row.Book)
 		}
 		return books, nil
@@ -172,7 +172,7 @@ func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
 		}
 
 		if b.Series.Valid && b.Series.ValueOrZero() != "" {
-			_, err = insertSeries(tx, b.Id, b.Series.String)
+			_, err = insertSeries(tx, book.Id, b.Series.ValueOrZero())
 			if err != nil {
 				return nil, err
 			}
@@ -251,6 +251,12 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			if _, err = insertIsbn10s(tx, b.Id, b.Isbn10); err != nil {
 				return nil, err
 			}
+
+			for _, i := range current_isbn10 {
+				if err := deleteIsbn10(tx, i); err != nil {
+					return nil, err
+				}
+			}
 		}
 
 		current_isbn13, err := getIsbn13FromBook(tx, b.Id)
@@ -262,6 +268,31 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 		if !reflect.DeepEqual(current_isbn13, b.Isbn13) {
 			if _, err = insertIsbn13s(tx, b.Id, b.Isbn13); err != nil {
 				return nil, err
+			}
+
+			for _, i := range current_isbn13 {
+				if err := deleteIsbn13(tx, i); err != nil {
+					return nil, err
+				}
+			}
+		}
+
+		current_series, err := getSeriesFromBook(tx, b.Id)
+		if err != nil {
+			if !errors.Is(err, dusk.ErrDoesNotExist) {
+				return nil, err
+			}
+		}
+
+		if current_series != nil {
+			if current_series.Name != b.Series.ValueOrZero() {
+				if _, err = insertSeries(tx, b.Id, b.Series.ValueOrZero()); err != nil {
+					return nil, err
+				}
+
+				if err := deleteBookFromSeries(tx, b.Id, current_series.Id); err != nil {
+					return nil, err
+				}
 			}
 		}
 
@@ -275,35 +306,14 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			if _, err = insertFormats(tx, b.Id, b.Formats); err != nil {
 				return nil, err
 			}
-		}
-
-		current_series, err := getSeriesFromBook(tx, b.Id)
-		if err != nil {
-			return nil, err
-		}
-
-		if current_series.Name != b.Series.ValueOrZero() {
-			if _, err = insertSeries(tx, b.Id, b.Series.ValueOrZero()); err != nil {
-				return nil, err
+			for _, f := range current_formats {
+				if err := deleteFormat(tx, f); err != nil {
+					return nil, err
+				}
 			}
 		}
 
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteTagsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteIsbn10WithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteIsbn13WithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteFormatsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteSeriesWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 
@@ -322,20 +332,10 @@ func (s *Store) DeleteBook(id int64) error {
 			return nil, err
 		}
 
-		// TODO do batch delete instead
+		// delete authors with no remaining books
+		// isbn10, isbn13, series and formats are
+		// deleted by sqlite with CASCADE
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteIsbn10WithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteIsbn13WithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteFormatsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteSeriesWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 		return nil, nil
@@ -351,19 +351,10 @@ func (s *Store) DeleteBooks(ids []int64) error {
 			}
 		}
 
+		// delete authors with no remaining books
+		// isbn10, isbn13, series and formats are
+		// deleted by sqlite with CASCADE
 		if err := deleteAuthorsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteIsbn10WithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteIsbn13WithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteFormatsWithNoBooks(tx); err != nil {
-			return nil, err
-		}
-		if err := deleteSeriesWithNoBooks(tx); err != nil {
 			return nil, err
 		}
 		return nil, nil
