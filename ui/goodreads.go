@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk/http/request"
-	"github.com/kencx/dusk/http/response"
 	"github.com/kencx/dusk/ui/views"
 )
 
@@ -17,27 +16,31 @@ func (s *Handler) goodreads(rw http.ResponseWriter, r *http.Request) {
 	f, err := request.ReadFile(rw, r, "goodreads", "text/")
 	if err != nil {
 		slog.Error("[goodreads] failed to import csv", slog.Any("err", err))
-		views.ImportError(err).Render(r.Context(), rw)
+		views.GoodreadsError(err).Render(r.Context(), rw)
 		return
 	}
 
 	books, err := s.fs.ReadGoodreadsCSV(f)
 	if err != nil {
 		slog.Error("[goodreads] failed to read csv", slog.Any("err", err))
+		views.GoodreadsError(err).Render(r.Context(), rw)
 		return
 	}
 
+	var errMap = make(map[int]error)
+
 	// TODO run as background job OR show load bar and prevent user from navigating away
-	for _, book := range books {
+
+	// TODO when re-importing csvs, books without any isbn will not fail the isbn
+	// constraint requirement and be imported twice
+	for i, book := range books {
 		_, err := s.db.CreateBook(book)
 		if err != nil {
 			slog.Error("[goodreads] failed to create book", slog.Any("err", err))
-			return
+			errMap[i] = err
 		}
 	}
 
 	// TODO download book covers
-
-	// redirect to index page
-	response.HxRedirect(rw, r, "/")
+	views.GoodreadsResults(books, errMap).Render(r.Context(), rw)
 }

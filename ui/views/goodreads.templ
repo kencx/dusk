@@ -1,0 +1,77 @@
+package views
+
+import (
+	"path"
+	"strconv"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/ui/partials"
+)
+
+templ goodreadsForm() {
+	<form
+		class="goodreads-form"
+		hx-post="/goodreads"
+		enctype="multipart/form-data"
+		hx-target="#goodreads__result_list"
+		hx-swap="innerHTML"
+		hx-indicator=".spinner"
+	>
+		<div class="filedrop-container">
+			<input type="file" name="goodreads" accept=".csv" required/>
+			<small>Supported file types: csv</small>
+		</div>
+		<button type="submit">Submit</button>
+		<div class="spinner" aria-busy="true"></div>
+	</form>
+	<div id="goodreads__result_list"></div>
+}
+
+templ GoodreadsError(err error) {
+	if err != nil {
+		<div class="card error">
+			switch err {
+				default:
+					@partials.Error(err)
+			}
+		</div>
+	}
+}
+
+templ GoodreadsResults(results dusk.Books, errMap map[int]error) {
+	if len(errMap) > 0 {
+		<details>
+			<summary>Failed ({ strconv.Itoa(len(errMap)) } books)</summary>
+			for i, err := range errMap {
+				<ul class="goodreads__result">
+					@goodreadsResult(results[i], err)
+				</ul>
+			}
+		</details>
+	}
+	<details>
+		<summary>Success ({ strconv.Itoa(len(results)-len(errMap)) } books)</summary>
+		for i, res := range results {
+			if _, ok := errMap[i]; !ok {
+				<ul class="goodreads__result">
+					@goodreadsResult(res, nil)
+				</ul>
+			}
+		}
+	</details>
+}
+
+templ goodreadsResult(result *dusk.Book, err error) {
+	<li>
+		<a href={ templ.URL(path.Join("/b", result.Slugify())) }>
+			{ result.Title } -
+			for _, author := range result.Author {
+				<span class="author">{ author }</span>
+			}
+		</a>
+		<br/>
+		if err != nil {
+			<p>Error: { err.Error() }</p>
+		}
+	</li>
+}

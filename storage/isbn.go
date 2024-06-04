@@ -66,11 +66,13 @@ func insertIsbn10s(tx *sqlx.Tx, bookId int64, isbn10s []string) ([]int64, error)
 	var ids []int64
 
 	for _, isbn10 := range isbn10s {
-		id, err := insertIsbn10(tx, bookId, isbn10)
-		if err != nil {
-			return nil, err
+		if isbn10 != "" {
+			id, err := insertIsbn10(tx, bookId, isbn10)
+			if err != nil {
+				return nil, err
+			}
+			ids = append(ids, id)
 		}
-		ids = append(ids, id)
 	}
 	return ids, nil
 }
@@ -152,11 +154,13 @@ func insertIsbn13s(tx *sqlx.Tx, bookId int64, isbn13s []string) ([]int64, error)
 	var ids []int64
 
 	for _, isbn13 := range isbn13s {
-		id, err := insertIsbn13(tx, bookId, isbn13)
-		if err != nil {
-			return nil, err
+		if isbn13 != "" {
+			id, err := insertIsbn13(tx, bookId, isbn13)
+			if err != nil {
+				return nil, err
+			}
+			ids = append(ids, id)
 		}
-		ids = append(ids, id)
 	}
 	return ids, nil
 }

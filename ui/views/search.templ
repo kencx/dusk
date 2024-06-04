@@ -5,6 +5,7 @@ import (
 
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/integration"
+	"github.com/kencx/dusk/ui/partials"
 )
 
 templ searchForm() {
@@ -45,7 +46,7 @@ templ SearchError(err error) {
 						author.
 					</p>
 				default:
-					<p>An error occurred. Please check the logs for more information.</p>
+					@partials.Error(err)
 			}
 		</div>
 	}

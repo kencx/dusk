@@ -46,22 +46,6 @@ templ ImportIndex(defaultTab string) {
 	}
 }
 
-templ goodreadsForm() {
-	<form
-		class="goodreads-form"
-		action="/goodreads"
-		method="POST"
-		hx-target="body"
-		enctype="multipart/form-data"
-	>
-		<div class="filedrop-container">
-			<input type="file" name="goodreads" accept=".csv" required/>
-			<small>Supported file types: csv</small>
-		</div>
-		<button type="submit">Submit</button>
-	</form>
-}
-
 templ calibreForm() {
 	<form action="/import/calibre" method="POST">
 		<div class="filedrop-container">
