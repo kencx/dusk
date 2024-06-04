@@ -57,7 +57,20 @@ var (
 		Isbn13: []string{testIsbn131},
 	}
 	allTestBooks = dusk.Books{testBook1, testBook2, testBook3, testBook4}
+
+	testSortSafeList = []string{"id", "title", "-id", "-title"}
 )
+
+func testFilters() dusk.BookFilters {
+	return dusk.BookFilters{
+		Filters: dusk.Filters{
+			AfterId:      0,
+			PageSize:     5,
+			Sort:         "id",
+			SortSafeList: testSortSafeList,
+		},
+	}
+}
 
 var stmts = map[string]string{
 	"book":   `INSERT INTO book (title) VALUES ('%s');`,

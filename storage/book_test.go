@@ -68,6 +68,258 @@ func TestGetAllBooks(t *testing.T) {
 	}
 }
 
+// func TestGetAllByTitle(t *testing.T) {
+// 	is := is.New(t)
+//
+// 	t.Run("successful full query", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Title = testBook1.Title
+//
+// 		got, _, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := []*dusk.Book{testBook1}
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+//
+// 	t.Run("successful FTS query", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Title = strings.Split(testBook1.Title, " ")[0]
+//
+// 		got, _, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := []*dusk.Book{testBook1}
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+//
+// 	t.Run("no match query", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Title = "foo"
+// 		got, _, err := ts.GetAllBooks(filters)
+//
+// 		if err == nil {
+// 			t.Fatalf("expected err: ErrDoesNotExist")
+// 		}
+//
+// 		if err != dusk.ErrNoRows {
+// 			t.Fatalf("unexpected err: %v", err)
+// 		}
+//
+// 		if len(got) != 0 {
+// 			t.Fatalf("got %v books, want %v books", got, 0)
+// 		}
+// 	})
+// }
+//
+// func TestGetAllByAuthor(t *testing.T) {
+// 	is := is.New(t)
+//
+// 	t.Run("successful query", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Author = testAuthor1.Name
+//
+// 		got, _, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := []*dusk.Book{testBook1}
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+//
+// 	t.Run("successful FTS query", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Author = strings.Split(testAuthor1.Name, " ")[1]
+//
+// 		got, _, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := []*dusk.Book{testBook1}
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+//
+// 	t.Run("no match query", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Author = "foo"
+//
+// 		got, _, err := ts.GetAllBooks(filters)
+// 		if err == nil {
+// 			t.Fatalf("expected err: ErrDoesNotExist")
+// 		}
+//
+// 		if err != dusk.ErrNoRows {
+// 			t.Fatalf("unexpected err: %v", err)
+// 		}
+//
+// 		if len(got) != 0 {
+// 			t.Fatalf("got %v books, want %v books", got, 0)
+// 		}
+// 	})
+// }
+//
+// func TestGetAllSortBy(t *testing.T) {
+// 	t.Run("sort by title DESC", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.Sort = "-title"
+//
+// 		got, _, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := allTestBooks
+// 		sort.SliceStable(want, func(i, j int) bool {
+// 			return want[j].Title < want[i].Title
+// 		})
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+// }
+//
+// func TestGetAllPagination(t *testing.T) {
+// 	is := is.New(t)
+//
+// 	t.Run("success", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.AfterId = 2
+// 		filters.PageSize = 2
+//
+// 		got, count, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := []*dusk.Book{testBook3, testBook4}
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		if count != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+//
+// 	t.Run("last entry only", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.AfterId = len(allTestBooks) - 1
+//
+// 		got, count, err := ts.GetAllBooks(filters)
+// 		is.NoErr(err)
+//
+// 		want := []*dusk.Book{testBook4}
+//
+// 		if len(got) != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		if count != len(want) {
+// 			t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 		}
+//
+// 		for i := 0; i < len(got); i++ {
+// 			if !got[i].Equal(want[i]) {
+// 				t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 			}
+// 		}
+// 	})
+//
+// 	t.Run("no more results", func(t *testing.T) {
+// 		filters := testFilters()
+// 		filters.AfterId = len(allTestBooks)
+//
+// 		got, count, err := ts.GetAllBooks(filters)
+// 		if err == nil {
+// 			t.Fatalf("expected err: ErrDoesNotExist")
+// 		}
+//
+// 		if err != dusk.ErrNoRows {
+// 			t.Fatalf("unexpected err: %v", err)
+// 		}
+//
+// 		if len(got) != 0 {
+// 			t.Fatalf("got %v books, want %v books", got, 0)
+// 		}
+//
+// 		if count != 0 {
+// 			t.Fatalf("got %v books, want %v books", got, 0)
+// 		}
+// 	})
+// }
+//
+// func TestGetAllMultipleFilters(t *testing.T) {
+// 	is := is.New(t)
+//
+// 	filters := testFilters()
+// 	filters.AfterId = 1
+// 	filters.Title = strings.Split(testBook3.Title, " ")[0]
+// 	filters.Author = strings.Split(testAuthor3.Name, " ")[0]
+//
+// 	got, count, err := ts.GetAllBooks(filters)
+// 	is.NoErr(err)
+//
+// 	want := []*dusk.Book{testBook3}
+//
+// 	if len(got) != len(want) {
+// 		t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 	}
+//
+// 	if count != len(want) {
+// 		t.Fatalf("got %d books, want %d books", len(got), len(want))
+// 	}
+//
+// 	for i := 0; i < len(got); i++ {
+// 		if !got[i].Equal(want[i]) {
+// 			t.Errorf("got %v, want %v", prettyPrint(got[i]), prettyPrint(want[i]))
+// 		}
+// 	}
+// }
+
 func TestCreateBook(t *testing.T) {
 	defer resetDB()
 

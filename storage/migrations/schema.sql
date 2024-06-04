@@ -1,5 +1,3 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS book (
     id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     title         TEXT NOT NULL,
@@ -72,3 +70,61 @@ CREATE TABLE IF NOT EXISTS format (
     bookId INTEGER NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     filepath TEXT NOT NULL UNIQUE
 );
+
+-- views
+CREATE VIEW IF NOT EXISTS book_view AS
+    SELECT b.*,
+    GROUP_CONCAT(DISTINCT a.name) AS author_string,
+    GROUP_CONCAT(DISTINCT t.name) AS tag_string,
+    GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
+    GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
+    GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
+    s.Name AS series_string,
+	a.id AS author,
+	t.id AS tag,
+	s.id AS series
+    FROM book b
+        INNER JOIN book_author_link ba ON ba.book=b.id
+        INNER JOIN author a ON ba.author=a.id
+        LEFT JOIN  book_tag_link bt ON b.id=bt.book
+        LEFT JOIN  tag t ON bt.tag=t.id
+        LEFT JOIN  isbn10 it ON it.bookId=b.id
+        LEFT JOIN  isbn13 ith ON ith.bookId=b.id
+        LEFT JOIN  format f ON f.bookId=b.id
+        LEFT JOIN  series s ON s.bookId=b.id
+    GROUP BY b.id
+    ORDER BY b.id;
+
+-- FTS
+CREATE VIRTUAL TABLE IF NOT EXISTS book_fts
+	USING fts5(title, subtitle, tokenize = porter, content = 'book', content_rowid = 'id');
+
+CREATE TRIGGER IF NOT EXISTS book_fts_after_insert AFTER INSERT ON book BEGIN
+	INSERT INTO book_fts (rowid, title, subtitle) VALUES (new.id, new.title, new.subtitle);
+END;
+
+CREATE TRIGGER IF NOT EXISTS book_fts_after_update AFTER UPDATE ON book BEGIN
+  INSERT INTO book_fts (book_fts, rowid, title, subtitle) VALUES ('delete', old.id, old.title, old.subtitle);
+  INSERT INTO book_fts (rowid, title, subtitle) VALUES (new.id, new.title, new.subtitle);
+END;
+
+CREATE TRIGGER IF NOT EXISTS book_fts_after_delete AFTER DELETE ON book BEGIN
+  INSERT INTO book_fts (book_fts, rowid, title, subtitle) VALUES ('delete', old.id, old.title, old.subtitle);
+END;
+
+
+CREATE VIRTUAL TABLE IF NOT EXISTS author_fts
+	USING fts5(name, tokenize = porter, content = 'author', content_rowid = 'id');
+
+CREATE TRIGGER IF NOT EXISTS author_fts_after_insert AFTER INSERT ON author BEGIN
+	INSERT INTO author_fts (rowid, name) VALUES (new.id, new.name);
+END;
+
+CREATE TRIGGER IF NOT EXISTS author_fts_after_update AFTER UPDATE ON author BEGIN
+  INSERT INTO author_fts (author_fts, rowid, name) VALUES ('delete', old.id, old.name);
+  INSERT INTO author_fts (rowid, name) VALUES (new.id, new.name);
+END;
+
+CREATE TRIGGER IF NOT EXISTS author_fts_after_delete AFTER DELETE ON author BEGIN
+  INSERT INTO author_fts (author_fts, rowid, name) VALUES ('delete', old.id, old.name);
+END;

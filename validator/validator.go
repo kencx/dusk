@@ -60,3 +60,12 @@ func Validate(v Validator) ErrMap {
 func Matches(value string, r *regexp.Regexp) bool {
 	return r.MatchString(value)
 }
+
+func In[T comparable](item T, sl []T) bool {
+	for _, elem := range sl {
+		if item == elem {
+			return true
+		}
+	}
+	return false
+}

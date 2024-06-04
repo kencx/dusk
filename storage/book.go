@@ -16,35 +16,21 @@ import (
 
 type BookQuery struct {
 	*dusk.Book
-	AuthorString string      `db:"author_string"`
-	TagString    null.String `db:"tag_string"`
-	Isbn10String null.String `db:"isbn10_string"`
-	Isbn13String null.String `db:"isbn13_string"`
-	FormatString null.String `db:"format_string"`
-	SeriesString null.String `db:"series_string"`
+	AuthorString string        `db:"author_string"`
+	TagString    null.String   `db:"tag_string"`
+	Isbn10String null.String   `db:"isbn10_string"`
+	Isbn13String null.String   `db:"isbn13_string"`
+	FormatString null.String   `db:"format_string"`
+	SeriesString null.String   `db:"series_string"`
+	AuthorId     int64         `db:"author"`
+	TagId        sql.NullInt64 `db:"tag"`
+	SeriesId     sql.NullInt64 `db:"series"`
 }
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest BookQuery
-		stmt := `SELECT b.*,
-			GROUP_CONCAT(DISTINCT a.name) AS author_string,
-			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
-			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
-			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
-			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
-			s.Name AS series_string
-            FROM book b
-                INNER JOIN book_author_link ba ON ba.book=b.id
-                INNER JOIN author a ON ba.author=a.id
-                LEFT JOIN  book_tag_link bt ON b.id=bt.book
-                LEFT JOIN  tag t ON bt.tag=t.id
-                LEFT JOIN  isbn10 it ON it.bookId=b.id
-                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
-                LEFT JOIN  format f ON f.bookId=b.id
-				LEFT JOIN  series s ON s.bookId=b.id
-            WHERE b.id=$1
-            GROUP BY b.id;`
+		stmt := `SELECT * FROM book_view b WHERE b.id=$1;`
 
 		err := tx.QueryRowx(stmt, id).StructScan(&dest)
 		if err == sql.ErrNoRows {
@@ -69,36 +55,30 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	return i.(*dusk.Book), nil
 }
 
-func (s *Store) GetAllBooks() (dusk.Books, error) {
+func (s *Store) GetAllBooks(filters *dusk.BookFilters) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQuery
-		stmt := `SELECT b.*,
-			GROUP_CONCAT(DISTINCT a.name) AS author_string,
-			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
-			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
-			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
-			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
-			s.Name AS series_string
-            FROM book b
-                INNER JOIN book_author_link ba ON ba.book=b.id
-                INNER JOIN author a ON ba.author=a.id
-                LEFT JOIN  book_tag_link bt ON b.id=bt.book
-                LEFT JOIN  tag t ON bt.tag=t.id
-                LEFT JOIN  isbn10 it ON it.bookId=b.id
-                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
-                LEFT JOIN  format f ON f.bookId=b.id
-				LEFT JOIN  series s ON s.bookId=b.id
-            GROUP BY b.id
-            ORDER BY b.id;`
 
-		err := tx.Select(&dest, stmt)
-		// sqlx Select does not return sql.ErrNoRows
-		// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
-		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all books failed: %w", err)
-		}
-		if len(dest) == 0 {
-			return nil, dusk.ErrNoRows
+		if filters != nil {
+			err := queryBooks(tx, *filters, &dest)
+			if err != nil {
+				return nil, fmt.Errorf("db: retrieve all books with filters failed: %w", err)
+			}
+			if len(dest) == 0 {
+				return nil, dusk.ErrNoRows
+			}
+		} else {
+			stmt := `SELECT * FROM book_view;`
+
+			err := tx.Select(&dest, stmt)
+			// sqlx Select does not return sql.ErrNoRows
+			// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
+			if err != nil {
+				return nil, fmt.Errorf("db: retrieve all books failed: %w", err)
+			}
+			if len(dest) == 0 {
+				return nil, dusk.ErrNoRows
+			}
 		}
 
 		var books dusk.Books
@@ -360,6 +340,37 @@ func (s *Store) DeleteBooks(ids []int64) error {
 		return nil, nil
 	})
 	return err
+}
+
+func queryBooks(tx *sqlx.Tx, filters dusk.BookFilters, dest *[]BookQuery) error {
+	// TODO
+	// query by:
+	//   - title, subtitle
+	//   - author
+	//   - tag
+	//   - series
+	//   - fuzzy search
+	// filter by:
+	//   - sort (asc, desc)
+	//   - after id
+	//   - page size
+
+	query := `SELECT b.* FROM book_view b
+		JOIN book_fts bf ON b.id = bf.rowid
+	WHERE book_fts MATCH $1;
+	`
+
+	stmt, err := tx.Preparex(query)
+	if err != nil {
+		return fmt.Errorf("db: prepare query failed: %w", err)
+	}
+
+	err = stmt.Select(dest, filters.Title)
+	if err != nil {
+		return fmt.Errorf("db: query books failed: %w", err)
+	}
+
+	return nil
 }
 
 // insert book entry to books table

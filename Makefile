@@ -15,7 +15,7 @@ air:
 ## build: build binary
 build:
 	templ generate -path ui
-	cd cmd && go build -v -o ${binary} .
+	cd cmd && go build -tags "fts5" -v -o ${binary} .
 
 ## run: run binary
 run:

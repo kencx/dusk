@@ -37,7 +37,7 @@ func (s *Handler) GetBook(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) GetAllBooks(rw http.ResponseWriter, r *http.Request) {
-	b, err := s.db.GetAllBooks()
+	b, err := s.db.GetAllBooks(nil)
 	if err == dusk.ErrNoRows {
 		response.NoContent(rw, r)
 		return

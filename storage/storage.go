@@ -22,6 +22,9 @@ func Open(path string) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("db: connection string required")
 	}
 
+	// pragma options
+	path += "?_journal=WAL&_fk=true&_sync=1&_timeout=5000"
+
 	db, err := sqlx.Open("sqlite3", path)
 	if err != nil {
 		return nil, fmt.Errorf("db: failed to open: %w", err)

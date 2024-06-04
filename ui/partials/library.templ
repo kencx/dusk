@@ -5,16 +5,9 @@ import (
 )
 
 templ Library(books dusk.Books, err error) {
+	@bookSearchBar()
 	<div class="library__card-view">
-		if err == dusk.ErrNoRows {
-			@EmptyLibrary()
-		} else if books != nil {
-			for _, book := range books {
-				@bookCard(book)
-			}
-		} else {
-			<p>Something went wrong, please try again.</p>
-		}
+		@BookSearchResults(books, err)
 	</div>
 }
 
@@ -27,4 +20,29 @@ templ EmptyLibrary() {
 			</form>
 		</div>
 	</div>
+}
+
+templ bookSearchBar() {
+	<form
+		hx-get="/b/search"
+		hx-params="*"
+		hx-target=".library__card-view"
+		hx-swap="innerHTML"
+		hx-trigger="input changed from:find #search delay:500ms"
+	>
+		<input id="search" name="title" placeholder="Search books"/>
+		<div class="spinner" aria-busy="true"></div>
+	</form>
+}
+
+templ BookSearchResults(books dusk.Books, err error) {
+	if err == dusk.ErrNoRows && len(books) == 0 {
+		@EmptyLibrary()
+	} else if books != nil {
+		for _, book := range books {
+			@bookCard(book)
+		}
+	} else {
+		<p>Something went wrong, please try again.</p>
+	}
 }

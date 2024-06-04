@@ -32,12 +32,12 @@ func insertIsbn10(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 	stmt := `INSERT INTO isbn10 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to isbn10 table failed: %w", err)
+		return -1, fmt.Errorf("db: insert %s to isbn10 table failed: %w", i, err)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to isbn10 table failed: %w", err)
+		return -1, fmt.Errorf("db: insert %s to isbn10 table failed: %w", i, err)
 	}
 
 	// no rows inserted, query to get existing id
@@ -120,12 +120,12 @@ func insertIsbn13(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 	stmt := `INSERT INTO isbn13 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to isbn13 table failed: %w", err)
+		return -1, fmt.Errorf("db: insert %s to isbn13 table failed: %w", i, err)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to isbn13 table failed: %w", err)
+		return -1, fmt.Errorf("db: insert %s to isbn13 table failed: %w", i, err)
 	}
 
 	// no rows inserted, query to get existing id

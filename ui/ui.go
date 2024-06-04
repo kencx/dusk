@@ -13,7 +13,7 @@ import (
 
 type Store interface {
 	GetBook(id int64) (*dusk.Book, error)
-	GetAllBooks() (dusk.Books, error)
+	GetAllBooks(filters *dusk.BookFilters) (dusk.Books, error)
 	CreateBook(b *dusk.Book) (*dusk.Book, error)
 	UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error)
 	DeleteBook(id int64) error
@@ -59,6 +59,7 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.bookPage)
 		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
 		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
+		c.Get("/search", s.bookSearch)
 
 		// c.Get("/partials/rating", s.bookRatingPartial)
 		// c.Get("/partials/tags", s.bookTagsPartial)
