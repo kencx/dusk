@@ -97,7 +97,7 @@ CREATE VIEW IF NOT EXISTS book_view AS
 
 -- FTS
 CREATE VIRTUAL TABLE IF NOT EXISTS book_fts
-	USING fts5(title, subtitle, tokenize = porter, content = 'book', content_rowid = 'id');
+	USING fts5(title, subtitle, tokenize = trigram, content = 'book', content_rowid = 'id');
 
 CREATE TRIGGER IF NOT EXISTS book_fts_after_insert AFTER INSERT ON book BEGIN
 	INSERT INTO book_fts (rowid, title, subtitle) VALUES (new.id, new.title, new.subtitle);
@@ -114,7 +114,7 @@ END;
 
 
 CREATE VIRTUAL TABLE IF NOT EXISTS author_fts
-	USING fts5(name, tokenize = porter, content = 'author', content_rowid = 'id');
+	USING fts5(name, tokenize = trigram, content = 'author', content_rowid = 'id');
 
 CREATE TRIGGER IF NOT EXISTS author_fts_after_insert AFTER INSERT ON author BEGIN
 	INSERT INTO author_fts (rowid, name) VALUES (new.id, new.name);
@@ -127,4 +127,21 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS author_fts_after_delete AFTER DELETE ON author BEGIN
   INSERT INTO author_fts (author_fts, rowid, name) VALUES ('delete', old.id, old.name);
+END;
+
+
+CREATE VIRTUAL TABLE IF NOT EXISTS tag_fts
+	USING fts5(name, tokenize = trigram, content = 'tag', content_rowid = 'id');
+
+CREATE TRIGGER IF NOT EXISTS tag_fts_after_insert AFTER INSERT ON tag BEGIN
+	INSERT INTO tag_fts (rowid, name) VALUES (new.id, new.name);
+END;
+
+CREATE TRIGGER IF NOT EXISTS tag_fts_after_update AFTER UPDATE ON tag BEGIN
+  INSERT INTO tag_fts (tag_fts, rowid, name) VALUES ('delete', old.id, old.name);
+  INSERT INTO tag_fts (rowid, name) VALUES (new.id, new.name);
+END;
+
+CREATE TRIGGER IF NOT EXISTS tag_fts_after_delete AFTER DELETE ON tag BEGIN
+  INSERT INTO tag_fts (tag_fts, rowid, name) VALUES ('delete', old.id, old.name);
 END;

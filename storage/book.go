@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 
@@ -349,23 +350,33 @@ func queryBooks(tx *sqlx.Tx, filters dusk.BookFilters, dest *[]BookQuery) error 
 	//   - author
 	//   - tag
 	//   - series
-	//   - fuzzy search
 	// filter by:
 	//   - sort (asc, desc)
 	//   - after id
 	//   - page size
 
+	// TODO does not account for multiple authors due to GROUP BY b.id in book_view
 	query := `SELECT b.* FROM book_view b
 		JOIN book_fts bf ON b.id = bf.rowid
-	WHERE book_fts MATCH $1;
-	`
+		JOIN author_fts af ON b.author = af.rowid
+		JOIN tag_fts tf ON b.tag = tf.rowid
+	WHERE %s;`
 
-	stmt, err := tx.Preparex(query)
-	if err != nil {
-		return fmt.Errorf("db: prepare query failed: %w", err)
+	if filters.Search == "" {
+		query = fmt.Sprintf(query, "1 ORDER BY b.id")
+	} else {
+		query = fmt.Sprintf(query, `bf.rowid IN
+				(SELECT rowid FROM book_fts WHERE book_fts MATCH $1)
+			OR af.rowid IN
+				(SELECT rowid FROM author_fts WHERE author_fts MATCH $1)
+			OR tf.rowid IN
+				(SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1)
+			ORDER BY bf.rank, af.rank, tf.rank`)
 	}
 
-	err = stmt.Select(dest, filters.Title)
+	slog.Debug("Running FTS query", slog.String("stmt", query))
+
+	err := tx.Select(dest, query, filters.Search)
 	if err != nil {
 		return fmt.Errorf("db: query books failed: %w", err)
 	}

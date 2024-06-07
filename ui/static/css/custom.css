@@ -77,12 +77,18 @@ details.dropdown:has(> summary[role="button"].icon) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
   grid-gap: var(--grid-layout-gap);
+
+  .message {
+    grid-column: 1/-1;
+    text-align: center;
+  }
 }
 
 .library__empty {
-  grid-column: 3/5;
+  width: 7.5rem;
   margin: auto;
   padding: 5rem 0;
+  text-align: center;
 }
 
 .library__book-card {

@@ -26,6 +26,7 @@ func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 
 	var input = &dusk.BookFilters{
+		Search: readString(qs, "itemSearch", ""),
 		Title:  readString(qs, "title", ""),
 		Author: readString(qs, "author", ""),
 	}

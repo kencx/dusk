@@ -43,9 +43,9 @@ func (f Filters) SortDirection() string {
 }
 
 type BookFilters struct {
+	Search string
 	Title  string
 	Author string
-	Genre  string
 	Tag    string
 	Series string
 	Filters
