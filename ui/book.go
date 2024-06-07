@@ -33,7 +33,7 @@ func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 
 	books, err := s.db.GetAllBooks(input)
 	if err != nil {
-		log.Println(err)
+		slog.Error("[ui] failed to get search results", slog.Any("err", err))
 		partials.BookSearchResults(nil, err).Render(r.Context(), rw)
 		return
 	}

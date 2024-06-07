@@ -1,6 +1,8 @@
 package partials
 
 import (
+	"strconv"
+
 	"github.com/kencx/dusk"
 )
 
@@ -8,8 +10,8 @@ templ Library(books dusk.Books, err error) {
 	if err == dusk.ErrNoRows {
 		@EmptyLibrary()
 	} else if books != nil {
-		@itemSearch("/b/search", ".library__card-view")
-		<div class="library__card-view">
+		@itemSearch("/b/search", ".library")
+		<div class="library">
 			@BookSearchResults(books, err)
 		</div>
 	}
@@ -27,9 +29,19 @@ templ EmptyLibrary() {
 }
 
 templ BookSearchResults(books dusk.Books, err error) {
-	@itemSearchResults(books, err) {
-		for _, book := range books {
-			@bookCard(book)
+	<div class="library__metadata">
+		{ strconv.Itoa(len(books)) }
+		if len(books) == 1 {
+			book
+		} else {
+			books
 		}
-	}
+	</div>
+	<div class="library__card-view">
+		@itemSearchResults(books, err) {
+			for _, book := range books {
+				@bookCard(book)
+			}
+		}
+	</div>
 }

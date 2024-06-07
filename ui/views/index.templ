@@ -2,7 +2,6 @@ package views
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -27,14 +26,7 @@ func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
 
 templ (v *Index) Html() {
 	@v.BaseView.Html() {
-		if v.books != nil {
-			<hgroup>
-				<h1>Books</h1>
-				<p>Total: { strconv.Itoa(len(v.books)) }</p>
-			</hgroup>
-		} else {
-			<h1>Books</h1>
-		}
+		<h1>Books</h1>
 		@partials.Library(v.books, v.err)
 	}
 }
