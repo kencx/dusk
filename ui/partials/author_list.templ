@@ -1,0 +1,58 @@
+package partials
+
+import (
+	"path"
+	"strconv"
+
+	"github.com/kencx/dusk"
+)
+
+templ AuthorList(authors dusk.Authors, err error) {
+	if err == dusk.ErrNoRows {
+		@EmptyList()
+	} else if authors != nil {
+		@itemSearch("/a/search", ".list")
+		<div class="list">
+			@AuthorSearchResults(authors, err)
+		</div>
+	}
+}
+
+templ EmptyList() {
+	<div class="list__empty">
+		<p>No items found.</p>
+		<div>
+			<form action="/import">
+				<input type="submit" class="contrast" value="Add Book"/>
+			</form>
+		</div>
+	</div>
+}
+
+templ AuthorSearchResults(authors dusk.Authors, err error) {
+	<div class="list__metadata">
+		{ strconv.Itoa(len(authors)) }
+		if len(authors) == 1 {
+			author
+		} else {
+			authors
+		}
+	</div>
+	<div class="list__author-view">
+		@itemSearchResults(authors, err) {
+			<ul>
+				for _, author := range authors {
+					@listAuthor(author)
+				}
+			</ul>
+		}
+	</div>
+}
+
+templ listAuthor(author *dusk.Author) {
+	<li>
+		<a href={ templ.URL(path.Join("a", author.Slugify())) }>
+			{ author.Name }
+		</a>
+	</li>
+}

@@ -42,13 +42,21 @@ func (f Filters) SortDirection() string {
 	return "ASC"
 }
 
-type BookFilters struct {
+type SearchFilters struct {
 	Search string
+	Filters
+}
+
+func (sf *SearchFilters) Empty() bool {
+	return sf.Search == ""
+}
+
+type BookFilters struct {
 	Title  string
 	Author string
 	Tag    string
 	Series string
-	Filters
+	SearchFilters
 }
 
 func (bf *BookFilters) Empty() bool {

@@ -2,7 +2,6 @@ package views
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -31,21 +30,10 @@ templ (v *Author) Html() {
 			} else if v.author != nil {
 				<div class="author__details">
 					<div class="header">
-						<hgroup>
-							<h2>
-								{ v.author.Name }
-							</h2>
-							if v.err == dusk.ErrNoRows {
-								No books found.
-							} else if len(v.books) == 1 {
-								<small>1 book</small>
-							} else {
-								<small>{ strconv.Itoa(len(v.books)) } books</small>
-							}
-						</hgroup>
+						<h2>{ v.author.Name }</h2>
 					</div>
-					@partials.Library(v.books, v.err)
 				</div>
+				@partials.Library(v.books, v.err)
 			} else {
 				<p>Something went wrong, please try again.</p>
 			}

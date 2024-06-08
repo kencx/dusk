@@ -2,7 +2,6 @@ package views
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -24,16 +23,7 @@ func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
 
 templ (v *AuthorList) Html() {
 	@v.BaseView.Html() {
-		if v.authors != nil {
-			<hgroup>
-				<h2>Authors</h2>
-				<small>{ strconv.Itoa(len(v.authors)) }</small>
-			</hgroup>
-		} else {
-			<h2>Authors</h2>
-		}
-		<div>
-			@partials.List(v.authors, v.err)
-		</div>
+		<h2>Authors</h2>
+		@partials.AuthorList(v.authors, v.err)
 	}
 }

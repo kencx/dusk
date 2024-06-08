@@ -35,20 +35,30 @@ func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 	return i.(*dusk.Author), nil
 }
 
-func (s *Store) GetAllAuthors() (dusk.Authors, error) {
+func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (dusk.Authors, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var authors dusk.Authors
-		stmt := `SELECT * FROM author;`
+		var dest dusk.Authors
 
-		err := tx.Select(&authors, stmt)
-		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all authors failed: %w", err)
-		}
-		if len(authors) == 0 {
-			return nil, dusk.ErrNoRows
-		}
+		if filters != nil && !filters.Empty() {
+			err := queryAuthors(tx, *filters, &dest)
+			if err != nil {
+				return nil, fmt.Errorf("db: retrieve all authors with filters failed: %w", err)
+			}
+			if len(dest) == 0 {
+				return nil, dusk.ErrNoRows
+			}
+		} else {
+			stmt := `SELECT * FROM author;`
 
-		return authors, nil
+			err := tx.Select(&dest, stmt)
+			if err != nil {
+				return nil, fmt.Errorf("db: retrieve all authors failed: %w", err)
+			}
+			if len(dest) == 0 {
+				return nil, dusk.ErrNoRows
+			}
+		}
+		return dest, nil
 	})
 
 	if err != nil {
@@ -60,25 +70,9 @@ func (s *Store) GetAllAuthors() (dusk.Authors, error) {
 func (s *Store) GetAllBooksFromAuthor(id int64) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQuery
-		stmt := `SELECT b.*,
-			GROUP_CONCAT(DISTINCT a.name) AS author_string,
-			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
-			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
-			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
-			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
-			s.Name AS series_string
-            FROM book b
-                INNER JOIN book_author_link ba ON ba.book=b.id
-                INNER JOIN author a ON ba.author=a.id
-                LEFT JOIN  book_tag_link bt ON b.id=bt.book
-                LEFT JOIN  tag t ON bt.tag=t.id
-                LEFT JOIN  isbn10 it ON it.bookId=b.id
-                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
-                LEFT JOIN  format f ON f.bookId=b.id
-				LEFT JOIN  series s ON s.bookId=b.id
-            WHERE b.id IN (SELECT book FROM book_author_link WHERE author=$1)
-			GROUP BY b.id
-			ORDER BY b.id;`
+		stmt := `SELECT b.*
+			FROM book_view b
+			WHERE b.id IN (SELECT book FROM book_author_link WHERE author=$1);`
 
 		err := tx.Select(&dest, stmt, id)
 		if err != nil {
@@ -176,6 +170,29 @@ func (s *Store) DeleteAuthor(id int64) error {
 		return nil, nil
 	})
 	return err
+}
+
+func queryAuthors(tx *sqlx.Tx, filters dusk.SearchFilters, dest *dusk.Authors) error {
+	var params string
+	query := ` SELECT * FROM author
+		WHERE %s
+	;`
+
+	if filters.Search != "" {
+		query = fmt.Sprintf(query, `id IN (SELECT rowid FROM author_fts WHERE author_fts MATCH $1)`)
+		// escape params
+		params = fmt.Sprintf(`"%s"`, filters.Search)
+	} else {
+		query = fmt.Sprintf(query, "1")
+	}
+
+	slog.Debug("Running FTS query", slog.String("stmt", query), slog.Any("params", params))
+
+	err := tx.Select(dest, query, params)
+	if err != nil {
+		return fmt.Errorf("db: query authors failed: %w", err)
+	}
+	return nil
 }
 
 // Insert given author. If author already exists, return its id instead

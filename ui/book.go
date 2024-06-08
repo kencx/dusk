@@ -25,10 +25,13 @@ func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 
+	// TODO trim, escape and filter special chars
 	var input = &dusk.BookFilters{
-		Search: readString(qs, "itemSearch", ""),
 		Title:  readString(qs, "title", ""),
 		Author: readString(qs, "author", ""),
+		SearchFilters: dusk.SearchFilters{
+			Search: readString(qs, "itemSearch", ""),
+		},
 	}
 
 	books, err := s.db.GetAllBooks(input)

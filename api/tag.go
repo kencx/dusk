@@ -38,7 +38,7 @@ func (s *Handler) GetTag(rw http.ResponseWriter, r *http.Request) {
 
 func (s *Handler) GetAllTags(rw http.ResponseWriter, r *http.Request) {
 
-	a, err := s.db.GetAllTags()
+	a, err := s.db.GetAllTags(nil)
 	if err == dusk.ErrNoRows {
 		response.NoContent(rw, r)
 		return

@@ -417,7 +417,14 @@ details.dropdown:has(> summary[role="button"].icon) {
   }
 }
 
-/* AUTHOR LIST VIEW */
+/* LIST VIEW */
+.list {}
+
+.list__metadata {
+	margin-bottom: var(--pico-spacing);
+	color: var(--pico-secondary);
+}
+
 .list__author-view ul {
   padding-left: 0;
 

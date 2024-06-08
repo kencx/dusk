@@ -19,14 +19,14 @@ type Store interface {
 	DeleteBook(id int64) error
 
 	GetAuthor(id int64) (*dusk.Author, error)
-	GetAllAuthors() (dusk.Authors, error)
+	GetAllAuthors(filters *dusk.SearchFilters) (dusk.Authors, error)
 	GetAllBooksFromAuthor(id int64) (dusk.Books, error)
 	CreateAuthor(a *dusk.Author) (*dusk.Author, error)
 	UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error)
 	DeleteAuthor(id int64) error
 
 	GetTag(id int64) (*dusk.Tag, error)
-	GetAllTags() (dusk.Tags, error)
+	GetAllTags(filters *dusk.SearchFilters) (dusk.Tags, error)
 	GetAllBooksFromTag(id int64) (dusk.Books, error)
 	CreateTag(t *dusk.Tag) (*dusk.Tag, error)
 	UpdateTag(id int64, t *dusk.Tag) (*dusk.Tag, error)
@@ -73,6 +73,7 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.authorPage)
 		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateAuthor)
 		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteAuthor)
+		c.Get("/search", s.authorSearch)
 	})
 
 	ui.HandleFunc("/tags", s.tagList)
@@ -80,6 +81,7 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.tagPage)
 		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updatetag)
 		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deletetag)
+		c.Get("/search", s.tagSearch)
 	})
 
 	ui.HandleFunc("/import", s.importIndex)

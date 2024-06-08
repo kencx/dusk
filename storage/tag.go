@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/kencx/dusk"
@@ -33,19 +34,30 @@ func (s *Store) GetTag(id int64) (*dusk.Tag, error) {
 	return i.(*dusk.Tag), nil
 }
 
-func (s *Store) GetAllTags() (dusk.Tags, error) {
+func (s *Store) GetAllTags(filters *dusk.SearchFilters) (dusk.Tags, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var tags dusk.Tags
-		stmt := `SELECT * FROM tag;`
+		var dest dusk.Tags
 
-		err := tx.Select(&tags, stmt)
-		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all tags failed: %w", err)
+		if filters != nil && !filters.Empty() {
+			err := queryTags(tx, *filters, &dest)
+			if err != nil {
+				return nil, fmt.Errorf("db: retrieve all tags with filters failed: %w", err)
+			}
+			if len(dest) == 0 {
+				return nil, dusk.ErrNoRows
+			}
+		} else {
+			stmt := `SELECT * FROM tag;`
+
+			err := tx.Select(&dest, stmt)
+			if err != nil {
+				return nil, fmt.Errorf("db: retrieve all tags failed: %w", err)
+			}
+			if len(dest) == 0 {
+				return nil, dusk.ErrNoRows
+			}
 		}
-		if len(tags) == 0 {
-			return nil, dusk.ErrNoRows
-		}
-		return tags, nil
+		return dest, nil
 	})
 
 	if err != nil {
@@ -167,6 +179,29 @@ func (s *Store) DeleteTag(id int64) error {
 		return nil, nil
 	})
 	return err
+}
+
+func queryTags(tx *sqlx.Tx, filters dusk.SearchFilters, dest *dusk.Tags) error {
+	var params string
+	query := ` SELECT * FROM tag
+		WHERE %s
+	;`
+
+	if filters.Search != "" {
+		query = fmt.Sprintf(query, `id IN (SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1)`)
+		// escape params
+		params = fmt.Sprintf(`"%s"`, filters.Search)
+	} else {
+		query = fmt.Sprintf(query, "1")
+	}
+
+	slog.Debug("Running FTS query", slog.String("stmt", query), slog.Any("params", params))
+
+	err := tx.Select(dest, query, params)
+	if err != nil {
+		return fmt.Errorf("db: query tags failed: %w", err)
+	}
+	return nil
 }
 
 // Insert given tag. If tag already exists, return its id instead

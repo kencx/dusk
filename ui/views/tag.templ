@@ -30,9 +30,7 @@ templ (v *Tag) Html() {
 			} else if v.tag != nil {
 				<div class="tag__details">
 					<div class="header">
-						<hgroup>
-							<h2>{ v.tag.Name }</h2>
-						</hgroup>
+						<h2>{ v.tag.Name }</h2>
 					</div>
 				</div>
 				@partials.Library(v.books, v.err)

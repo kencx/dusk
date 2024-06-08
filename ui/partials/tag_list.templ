@@ -1,0 +1,47 @@
+package partials
+
+import (
+	"path"
+	"strconv"
+
+	"github.com/kencx/dusk"
+)
+
+templ TagList(tags dusk.Tags, err error) {
+	if err == dusk.ErrNoRows {
+		@EmptyList()
+	} else if tags != nil {
+		@itemSearch("/t/search", ".list")
+		<div class="list">
+			@TagSearchResults(tags, err)
+		</div>
+	}
+}
+
+templ TagSearchResults(tags dusk.Tags, err error) {
+	<div class="list__metadata">
+		{ strconv.Itoa(len(tags)) }
+		if len(tags) == 1 {
+			tag
+		} else {
+			tags
+		}
+	</div>
+	<div class="list__tag-view">
+		@itemSearchResults(tags, err) {
+			<ul>
+				for _, tag := range tags {
+					@listTag(tag)
+				}
+			</ul>
+		}
+	</div>
+}
+
+templ listTag(tag *dusk.Tag) {
+	<li>
+		<a href={ templ.URL(path.Join("t", tag.Slugify())) }>
+			{ tag.Name }
+		</a>
+	</li>
+}

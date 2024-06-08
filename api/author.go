@@ -38,7 +38,7 @@ func (s *Handler) GetAuthor(rw http.ResponseWriter, r *http.Request) {
 
 func (s *Handler) GetAllAuthors(rw http.ResponseWriter, r *http.Request) {
 
-	a, err := s.db.GetAllAuthors()
+	a, err := s.db.GetAllAuthors(nil)
 	if err == dusk.ErrNoRows {
 		response.NoContent(rw, r)
 		return

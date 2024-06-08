@@ -2,7 +2,6 @@ package views
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -24,16 +23,7 @@ func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
 
 templ (v *TagList) Html() {
 	@v.BaseView.Html() {
-		if v.tags != nil {
-			<hgroup>
-				<h2>Tags</h2>
-				<small>{ strconv.Itoa(len(v.tags)) }</small>
-			</hgroup>
-		} else {
-			<h2>Tags</h2>
-		}
-		<div>
-			@partials.ListTag(v.tags, v.err)
-		</div>
+		<h2>Tags</h2>
+		@partials.TagList(v.tags, v.err)
 	}
 }
