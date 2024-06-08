@@ -50,3 +50,11 @@ type BookFilters struct {
 	Series string
 	Filters
 }
+
+func (bf *BookFilters) Empty() bool {
+	return bf.Search == "" &&
+		bf.Title == "" &&
+		bf.Author == "" &&
+		bf.Tag == "" &&
+		bf.Series == ""
+}

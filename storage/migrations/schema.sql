@@ -79,10 +79,7 @@ CREATE VIEW IF NOT EXISTS book_view AS
     GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
     GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
     GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
-    s.Name AS series_string,
-	a.id AS author,
-	t.id AS tag,
-	s.id AS series
+    s.Name AS series_string
     FROM book b
         INNER JOIN book_author_link ba ON ba.book=b.id
         INNER JOIN author a ON ba.author=a.id
