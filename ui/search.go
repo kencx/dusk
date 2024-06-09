@@ -99,5 +99,6 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
+	// partials.Link(fmt.Sprintf("/b/%s", book.Slugify()), book.Title)
 	SendToastMessage(rw, r, "Book added!")
 }

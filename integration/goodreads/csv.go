@@ -1,4 +1,4 @@
-package file
+package goodreads
 
 import (
 	"encoding/csv"
@@ -7,10 +7,10 @@ import (
 	"log/slog"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/integration/goodreads"
+	"github.com/kencx/dusk/file"
 )
 
-func (w *Service) ReadGoodreadsCSV(payload *Payload) (dusk.Books, error) {
+func ReadCSV(payload *file.Payload) (dusk.Books, error) {
 	cr := csv.NewReader(payload.File)
 
 	// read header
@@ -28,7 +28,7 @@ func (w *Service) ReadGoodreadsCSV(payload *Payload) (dusk.Books, error) {
 			}
 		}
 
-		book, err := goodreads.RecordToBook(record)
+		book, err := RecordToBook(record)
 		if err != nil {
 			slog.Warn(
 				"failed to convert record to book",
