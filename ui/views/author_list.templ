@@ -2,6 +2,8 @@ package views
 
 import (
 	"net/http"
+	"strconv"
+	"path"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -24,6 +26,41 @@ func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *AuthorList) Html() {
 	@v.BaseView.Html() {
 		<h2>Authors</h2>
-		@partials.AuthorList(v.authors, v.err)
+		if v.err == dusk.ErrNoRows {
+			@partials.Empty()
+		} else if v.authors != nil {
+			@partials.ItemSearch("/a/search", ".list")
+			<div class="list">
+				@AuthorSearchResults(v.authors, v.err)
+			</div>
+		}
 	}
+}
+
+templ AuthorSearchResults(authors dusk.Authors, err error) {
+	<div class="list__metadata">
+		{ strconv.Itoa(len(authors)) }
+		if len(authors) == 1 {
+			author
+		} else {
+			authors
+		}
+	</div>
+	<div class="list__author-view">
+		@partials.ItemSearchResults(authors, err) {
+			<ul>
+				for _, author := range authors {
+					@listItem(author)
+				}
+			</ul>
+		}
+	</div>
+}
+
+templ listItem(author *dusk.Author) {
+	<li>
+		<a href={ templ.URL(path.Join("a", author.Slugify())) }>
+			{ author.Name }
+		</a>
+	</li>
 }

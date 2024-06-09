@@ -89,7 +89,7 @@ details.dropdown:has(> summary[role="button"].icon) {
   }
 }
 
-.library__empty {
+.empty {
   width: 7.5rem;
   margin: auto;
   padding: 5rem 0;

@@ -6,7 +6,6 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
-	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
 )
 
@@ -31,10 +30,10 @@ func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
 	tags, err := s.db.GetAllTags(input)
 	if err != nil {
 		log.Println(err)
-		partials.TagSearchResults(nil, err).Render(r.Context(), rw)
+		views.TagSearchResults(nil, err).Render(r.Context(), rw)
 		return
 	}
-	partials.TagSearchResults(tags, nil).Render(r.Context(), rw)
+	views.TagSearchResults(tags, nil).Render(r.Context(), rw)
 }
 
 func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {

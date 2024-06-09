@@ -14,7 +14,7 @@ import (
 	"github.com/kencx/dusk"
 )
 
-func itemSearch(path, target string) templ.Component {
+func ItemSearch(path, target string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -64,7 +64,7 @@ func itemSearch(path, target string) templ.Component {
 	})
 }
 
-func itemSearchResults(items interface{}, err error) templ.Component {
+func ItemSearchResults(items interface{}, err error) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

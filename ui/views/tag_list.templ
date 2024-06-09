@@ -2,6 +2,8 @@ package views
 
 import (
 	"net/http"
+	"strconv"
+	"path"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -24,6 +26,41 @@ func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *TagList) Html() {
 	@v.BaseView.Html() {
 		<h2>Tags</h2>
-		@partials.TagList(v.tags, v.err)
+		if v.err == dusk.ErrNoRows {
+			@partials.Empty()
+		} else if v.tags != nil {
+			@partials.ItemSearch("/t/search", ".list")
+			<div class="list">
+				@TagSearchResults(v.tags, v.err)
+			</div>
+		}
 	}
+}
+
+templ TagSearchResults(tags dusk.Tags, err error) {
+	<div class="list__metadata">
+		{ strconv.Itoa(len(tags)) }
+		if len(tags) == 1 {
+			tag
+		} else {
+			tags
+		}
+	</div>
+	<div class="list__tag-view">
+		@partials.ItemSearchResults(tags, err) {
+			<ul>
+				for _, tag := range tags {
+					@listTag(tag)
+				}
+			</ul>
+		}
+	</div>
+}
+
+templ listTag(tag *dusk.Tag) {
+	<li>
+		<a href={ templ.URL(path.Join("t", tag.Slugify())) }>
+			{ tag.Name }
+		</a>
+	</li>
 }

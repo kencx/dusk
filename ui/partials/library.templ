@@ -8,24 +8,13 @@ import (
 
 templ Library(books dusk.Books, err error) {
 	if err == dusk.ErrNoRows {
-		@EmptyLibrary()
+		@Empty()
 	} else if books != nil {
-		@itemSearch("/b/search", ".library")
+		@ItemSearch("/b/search", ".library")
 		<div class="library">
 			@BookSearchResults(books, err)
 		</div>
 	}
-}
-
-templ EmptyLibrary() {
-	<div class="library__empty">
-		<p>No books found.</p>
-		<div>
-			<form action="/import">
-				<input type="submit" class="contrast" value="Add Book"/>
-			</form>
-		</div>
-	</div>
 }
 
 templ BookSearchResults(books dusk.Books, err error) {
@@ -38,7 +27,7 @@ templ BookSearchResults(books dusk.Books, err error) {
 		}
 	</div>
 	<div class="library__card-view">
-		@itemSearchResults(books, err) {
+		@ItemSearchResults(books, err) {
 			for _, book := range books {
 				@bookCard(book)
 			}

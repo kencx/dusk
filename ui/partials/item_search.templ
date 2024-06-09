@@ -4,7 +4,7 @@ import (
 	"github.com/kencx/dusk"
 )
 
-templ itemSearch(path, target string) {
+templ ItemSearch(path, target string) {
 	<form
 		hx-get={ path }
 		hx-params="*"
@@ -17,7 +17,7 @@ templ itemSearch(path, target string) {
 	</form>
 }
 
-templ itemSearchResults(items interface{}, err error) {
+templ ItemSearchResults(items interface{}, err error) {
 	if err == dusk.ErrNoRows {
 		<p class="message">No results found!</p>
 	} else if items != nil {
