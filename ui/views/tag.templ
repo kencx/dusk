@@ -8,14 +8,14 @@ import (
 )
 
 type Tag struct {
-	tag   *dusk.Tag
-	books dusk.Books
+	tag  *dusk.Tag
+	page *dusk.BooksPage
 	BaseView
 }
 
-func NewTag(bv BaseView, tag *dusk.Tag, books dusk.Books, err error) *Tag {
+func NewTag(bv BaseView, tag *dusk.Tag, page *dusk.BooksPage, err error) *Tag {
 	bv.err = err
-	return &Tag{tag, books, bv}
+	return &Tag{tag, page, bv}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,7 @@ templ (v *Tag) Html() {
 						<h2>{ v.tag.Name }</h2>
 					</div>
 				</div>
-				@partials.Library(v.books, v.err)
+				@partials.Library(v.page, v.err)
 			} else {
 				<p>Something went wrong, please try again.</p>
 			}

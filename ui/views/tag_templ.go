@@ -18,14 +18,14 @@ import (
 )
 
 type Tag struct {
-	tag   *dusk.Tag
-	books dusk.Books
+	tag  *dusk.Tag
+	page *dusk.BooksPage
 	BaseView
 }
 
-func NewTag(bv BaseView, tag *dusk.Tag, books dusk.Books, err error) *Tag {
+func NewTag(bv BaseView, tag *dusk.Tag, page *dusk.BooksPage, err error) *Tag {
 	bv.err = err
-	return &Tag{tag, books, bv}
+	return &Tag{tag, page, bv}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (v *Tag) Html() templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = partials.Library(v.books, v.err).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = partials.Library(v.page, v.err).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

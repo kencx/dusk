@@ -1,25 +1,28 @@
 package ui
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/http/response"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
+	"github.com/kencx/dusk/validator"
 )
 
 func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
-	books, err := s.db.GetAllBooks(nil)
+	page, err := s.db.GetAllBooks(dusk.DefaultBookFilters())
 	if err != nil {
 		slog.Error("[ui] failed to load index page", slog.Any("err", err))
 		views.NewIndex(s.baseView, nil, err).Render(rw, r)
 		return
 	}
-	views.NewIndex(s.baseView, books, nil).Render(rw, r)
+	views.NewIndex(s.baseView, page, nil).Render(rw, r)
 }
 
 func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
@@ -31,16 +34,53 @@ func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 		Author: readString(qs, "author", ""),
 		SearchFilters: dusk.SearchFilters{
 			Search: readString(qs, "itemSearch", ""),
+			Filters: dusk.Filters{
+				AfterId:      readInt(qs, "after_id", 0),
+				PageSize:     readInt(qs, "page_size", 30),
+				Sort:         readString(qs, "sort", "title"),
+				SortSafeList: dusk.DefaultSafeList(),
+			},
 		},
 	}
 
-	books, err := s.db.GetAllBooks(input)
-	if err != nil {
-		slog.Error("[ui] failed to get search results", slog.Any("err", err))
-		partials.BookSearchResults(nil, err).Render(r.Context(), rw)
+	if errMap := validator.Validate(input.Filters); errMap != nil {
+		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
+		partials.BookSearchResults(nil, errors.New("validate error")).Render(r.Context(), rw)
 		return
 	}
-	partials.BookSearchResults(books, nil).Render(r.Context(), rw)
+
+	page, err := s.db.GetAllBooks(input)
+	if err != nil {
+		if err == dusk.ErrNoRows {
+			partials.BookSearchResults(&dusk.BooksPage{}, err).Render(r.Context(), rw)
+			return
+		} else {
+			slog.Error("failed to get all books", slog.Any("err", err))
+			partials.BookSearchResults(nil, err).Render(r.Context(), rw)
+			return
+		}
+	}
+
+	// only return page partial when not querying for first page
+	if !page.Page.First() {
+		partials.BookPage(page, nil).Render(r.Context(), rw)
+	} else {
+		partials.BookSearchResults(page, nil).Render(r.Context(), rw)
+	}
+}
+
+// read int query parameter
+func readInt(qv url.Values, key string, defaultValue int) int {
+	value := qv.Get(key)
+	if value == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+	return i
 }
 
 // read string query parameter

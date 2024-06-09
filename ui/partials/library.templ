@@ -1,36 +1,53 @@
 package partials
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/kencx/dusk"
 )
 
-templ Library(books dusk.Books, err error) {
+templ Library(page *dusk.BooksPage, err error) {
 	if err == dusk.ErrNoRows {
 		@Empty()
-	} else if books != nil {
+	} else {
 		@ItemSearch("/b/search", ".library")
 		<div class="library">
-			@BookSearchResults(books, err)
+			@BookSearchResults(page, err)
 		</div>
 	}
 }
 
-templ BookSearchResults(books dusk.Books, err error) {
-	<div class="library__metadata">
-		{ strconv.Itoa(len(books)) }
-		if len(books) == 1 {
-			book
+templ BookSearchResults(page *dusk.BooksPage, err error) {
+	if err != nil {
+		@ItemSearchResults(nil, err)
+	} else {
+		@ItemSearchResults(&page.Page, err) {
+			<div class="library__card-view">
+				@BookPage(page, err)
+			</div>
+		}
+	}
+}
+
+templ BookPage(page *dusk.BooksPage, err error) {
+	if page != nil {
+		for _, book := range page.Books {
+			@bookCard(book)
+		}
+		if !page.Page.Last() {
+			<hr
+				class="message infinite-scroll"
+				hx-get={ fmt.Sprintf("/b/search?%safter_id=%d", page.Query, page.LastRowNo) }
+				hx-target=".library__card-view"
+				hx-swap="beforeend"
+				hx-trigger="revealed"
+			/>
 		} else {
-			books
+			<p class="message">END</p>
 		}
-	</div>
-	<div class="library__card-view">
-		@ItemSearchResults(books, err) {
-			for _, book := range books {
-				@bookCard(book)
-			}
+		if !page.Page.First() {
+			<span id="item-counter" hx-swap-oob="true">{ strconv.FormatInt(page.LastRowNo, 10) }</span>
 		}
-	</div>
+	}
 }

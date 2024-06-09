@@ -68,7 +68,7 @@ func (s *Store) GetAllTags(filters *dusk.SearchFilters) (dusk.Tags, error) {
 
 func (s *Store) GetAllBooksFromTag(id int64) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []BookQuery
+		var dest []BookRows
 		stmt := `SELECT b.*,
 			GROUP_CONCAT(DISTINCT a.name) AS author_string,
 			GROUP_CONCAT(DISTINCT t.name) AS tag_string,

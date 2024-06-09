@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"log"
 	"log/slog"
 	"net/http"
 
@@ -55,5 +56,10 @@ func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
 		views.NewAuthor(s.baseView, nil, nil, err).Render(rw, r)
 		return
 	}
-	views.NewAuthor(s.baseView, author, books, nil).Render(rw, r)
+	views.NewAuthor(s.baseView, author, &dusk.BooksPage{
+		Page: dusk.Page{
+			Total: int64(len(books)),
+		},
+		Books: books,
+	}, nil).Render(rw, r)
 }

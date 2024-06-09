@@ -13,7 +13,20 @@ type Filters struct {
 	SortSafeList []string
 }
 
-func (f *Filters) Valid() validator.ErrMap {
+func DefaultSafeList() []string {
+	return []string{"title", "-title"}
+}
+
+func NewDefaultFilters() *Filters {
+	return &Filters{
+		AfterId:      0,
+		PageSize:     30,
+		Sort:         "title",
+		SortSafeList: DefaultSafeList(),
+	}
+}
+
+func (f Filters) Valid() validator.ErrMap {
 	errMap := validator.New()
 
 	errMap.Check(f.AfterId >= 0, "after_id", "must be >= 0")
@@ -42,13 +55,18 @@ func (f Filters) SortDirection() string {
 	return "ASC"
 }
 
+func (f *Filters) Empty() bool {
+	return f.Sort == ""
+}
+
 type SearchFilters struct {
 	Search string
 	Filters
 }
 
 func (sf *SearchFilters) Empty() bool {
-	return sf.Search == ""
+	return sf.Filters.Empty() &&
+		sf.Search == ""
 }
 
 type BookFilters struct {
@@ -59,8 +77,16 @@ type BookFilters struct {
 	SearchFilters
 }
 
+func DefaultBookFilters() *BookFilters {
+	return &BookFilters{
+		SearchFilters: SearchFilters{
+			Filters: *NewDefaultFilters(),
+		},
+	}
+}
+
 func (bf *BookFilters) Empty() bool {
-	return bf.Search == "" &&
+	return bf.SearchFilters.Empty() &&
 		bf.Title == "" &&
 		bf.Author == "" &&
 		bf.Tag == "" &&

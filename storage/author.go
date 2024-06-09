@@ -69,7 +69,7 @@ func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (dusk.Authors, error)
 
 func (s *Store) GetAllBooksFromAuthor(id int64) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []BookQuery
+		var dest []BookRows
 		stmt := `SELECT b.*
 			FROM book_view b
 			WHERE b.id IN (SELECT book FROM book_author_link WHERE author=$1);`

@@ -47,7 +47,7 @@ templ TagSearchResults(tags dusk.Tags, err error) {
 		}
 	</div>
 	<div class="list__tag-view">
-		@partials.ItemSearchResults(tags, err) {
+		@partials.ItemSearchResults(nil, err) {
 			<ul>
 				for _, tag := range tags {
 					@listTag(tag)

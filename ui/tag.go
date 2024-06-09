@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"log"
 	"log/slog"
 	"net/http"
 
@@ -55,5 +56,10 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 		views.NewTag(s.baseView, nil, nil, err).Render(rw, r)
 		return
 	}
-	views.NewTag(s.baseView, tag, books, nil).Render(rw, r)
+	views.NewTag(s.baseView, tag, &dusk.BooksPage{
+		Page: dusk.Page{
+			Total: int64(len(books)),
+		},
+		Books: books,
+	}, nil).Render(rw, r)
 }

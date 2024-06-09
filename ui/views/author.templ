@@ -9,13 +9,13 @@ import (
 
 type Author struct {
 	author *dusk.Author
-	books  dusk.Books
+	page   *dusk.BooksPage
 	BaseView
 }
 
-func NewAuthor(bv BaseView, author *dusk.Author, books dusk.Books, err error) *Author {
+func NewAuthor(bv BaseView, author *dusk.Author, page *dusk.BooksPage, err error) *Author {
 	bv.err = err
-	return &Author{author, books, bv}
+	return &Author{author, page, bv}
 }
 
 func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,7 @@ templ (v *Author) Html() {
 						<h2>{ v.author.Name }</h2>
 					</div>
 				</div>
-				@partials.Library(v.books, v.err)
+				@partials.Library(v.page, v.err)
 			} else {
 				<p>Something went wrong, please try again.</p>
 			}

@@ -47,7 +47,8 @@ templ AuthorSearchResults(authors dusk.Authors, err error) {
 		}
 	</div>
 	<div class="list__author-view">
-		@partials.ItemSearchResults(authors, err) {
+		// TODO handle lists
+		@partials.ItemSearchResults(nil, err) {
 			<ul>
 				for _, author := range authors {
 					@listItem(author)

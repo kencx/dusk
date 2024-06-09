@@ -15,7 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type BookQuery struct {
+type BookRows struct {
 	*dusk.Book
 	AuthorString string      `db:"author_string"`
 	TagString    null.String `db:"tag_string"`
@@ -25,9 +25,15 @@ type BookQuery struct {
 	SeriesString null.String `db:"series_string"`
 }
 
+type BookQueryRows struct {
+	Total int64 `db:"count"`
+	RowNo int64 `db:"rowno"`
+	*BookRows
+}
+
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest BookQuery
+		var dest BookRows
 		stmt := `SELECT * FROM book_view b WHERE b.id=$1;`
 
 		err := tx.QueryRowx(stmt, id).StructScan(&dest)
@@ -53,30 +59,19 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	return i.(*dusk.Book), nil
 }
 
-func (s *Store) GetAllBooks(filters *dusk.BookFilters) (dusk.Books, error) {
+func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []BookQuery
+		var dest []BookQueryRows
 
-		if filters != nil && !filters.Empty() {
-			err := queryBooks(tx, *filters, &dest)
-			if err != nil {
-				return nil, fmt.Errorf("db: retrieve all books with filters failed: %w", err)
-			}
-			if len(dest) == 0 {
-				return nil, dusk.ErrNoRows
-			}
-		} else {
-			stmt := `SELECT * FROM book_view;`
+		err := queryBooks(tx, filters, &dest)
+		if err != nil {
+			return nil, fmt.Errorf("db: retrieve all books with filters failed: %w", err)
+		}
 
-			err := tx.Select(&dest, stmt)
-			// sqlx Select does not return sql.ErrNoRows
-			// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
-			if err != nil {
-				return nil, fmt.Errorf("db: retrieve all books failed: %w", err)
-			}
-			if len(dest) == 0 {
-				return nil, dusk.ErrNoRows
-			}
+		// 	// sqlx Select does not return sql.ErrNoRows
+		// 	// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
+		if len(dest) == 0 {
+			return nil, dusk.ErrNoRows
 		}
 
 		var books dusk.Books
@@ -89,13 +84,28 @@ func (s *Store) GetAllBooks(filters *dusk.BookFilters) (dusk.Books, error) {
 			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
 			books = append(books, row.Book)
 		}
-		return books, nil
+
+		result := &dusk.BooksPage{
+			Page: dusk.Page{
+				Size:       min(int(dest[0].Total), filters.PageSize),
+				Total:      dest[0].Total,
+				FirstRowNo: dest[0].RowNo,
+				LastRowNo:  dest[len(dest)-1].RowNo,
+			},
+			Books: books,
+		}
+
+		// TODO proper building of existing query for pagination
+		if filters.Search != "" {
+			result.Query = fmt.Sprintf("itemSearch=%s&", filters.Search)
+		}
+		return result, nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
-	return i.(dusk.Books), nil
+	return i.(*dusk.BooksPage), nil
 }
 
 func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
@@ -340,59 +350,84 @@ func (s *Store) DeleteBooks(ids []int64) error {
 	return err
 }
 
-func queryBooks(tx *sqlx.Tx, filters dusk.BookFilters, dest *[]BookQuery) error {
-	// TODO
-	// query by:
+func queryBooks(tx *sqlx.Tx, filters *dusk.BookFilters, dest *[]BookQueryRows) error {
+	// TODO query by:
 	//   - title, subtitle
 	//   - series
-	// filter by:
-	//   - sort (asc, desc)
-	//   - after id
-	//   - page size
 
 	var params string
-	query := `SELECT bv.* FROM book_view bv WHERE bv.id IN (
-		SELECT b.id FROM book b
-			INNER JOIN book_author_link ba ON ba.book=b.id
-			LEFT JOIN  book_tag_link bt ON b.id=bt.book
-		WHERE %s
-	);`
+	query := `WITH paginate AS (
+		SELECT COUNT() OVER() AS count,
+			ROW_NUMBER() OVER(ORDER BY %s %s) AS rowno,
+			bv.*
+		FROM book_view bv %s
+	)
+	SELECT * FROM paginate
+	WHERE rowno > $2
+	LIMIT $3;`
+	query = fmt.Sprintf(query, filters.SortColumn(), filters.SortDirection(), "%s")
 
 	switch {
-	case filters.Title != "":
-		query = fmt.Sprintf(query, ``)
-		params = filters.Title
+	case filters == nil || filters.Empty():
+		query = fmt.Sprintf(query, "WHERE $1")
+		params = "1"
 
-	case filters.Author != "":
-		query = fmt.Sprintf(query, ``)
-		params = filters.Author
-
-	case filters.Tag != "":
-		query = fmt.Sprintf(query, ``)
-		params = filters.Tag
-
+	// generic library search
 	case filters.Search != "":
-		query = fmt.Sprintf(query, `b.id IN
-				(SELECT rowid FROM book_fts WHERE book_fts MATCH $1)
-			OR ba.author IN
-				(SELECT rowid FROM author_fts WHERE author_fts MATCH $1)
-			OR bt.tag IN
-				(SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1)
-			`)
+		query = fmt.Sprintf(query, `WHERE bv.id IN (
+		SELECT ba.book FROM book_author_link ba
+			LEFT JOIN book_tag_link bt ON ba.book=bt.book
+		WHERE ba.book IN
+			(SELECT rowid FROM book_fts WHERE book_fts MATCH $1)
+		OR ba.author IN
+			(SELECT rowid FROM author_fts WHERE author_fts MATCH $1)
+		OR bt.tag IN
+			(SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1))`)
 		// escape params
 		params = fmt.Sprintf(`"%s"`, filters.Search)
 
+	// ?title param
+	case filters.Title != "":
+		query = fmt.Sprintf(query, `WHERE bv.id IN (SELECT rowid FROM book_fts WHERE book_fts MATCH $1)`)
+		params = fmt.Sprintf(`"%s"`, filters.Title)
+
+	// ?author param
+	case filters.Author != "":
+		query = fmt.Sprintf(query, `WHERE bv.id IN (SELECT ba.book
+			FROM book_author_link ba
+			WHERE ba.author IN
+				(SELECT rowid FROM author_fts WHERE author_fts MATCH $1))`)
+		params = fmt.Sprintf(`"%s"`, filters.Author)
+
+	// ?tag param
+	case filters.Tag != "":
+		query = fmt.Sprintf(query, `WHERE bv.id IN (SELECT bt.book
+			FROM book_tag_link bt
+			WHERE bt.tag IN
+			(SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1))`)
+		params = fmt.Sprintf(`"%s"`, filters.Tag)
+
 	default:
-		query = `SELECT b.* FROM book_view b ORDER BY b.id`
+		query = fmt.Sprintf(query, "WHERE $1")
+		params = "1"
 	}
 
-	slog.Debug("Running FTS query", slog.String("stmt", query), slog.Any("params", params))
+	// trim \n, \t
+	// query = strings.ReplaceAll(query, "\n\t", " ")
+	// query = strings.ReplaceAll(query, "\n", " ")
+	// query = strings.ReplaceAll(query, "\t", " ")
 
-	err := tx.Select(dest, query, params)
+	slog.Info("Running SQL query",
+		slog.String("stmt", query),
+		slog.Any("params", params),
+		slog.Int("afterId", filters.AfterId),
+		slog.Int("pageSize", filters.PageSize),
+	)
+
+	err := tx.Select(dest, query, params, filters.AfterId, filters.PageSize)
 	if err != nil {
 		return fmt.Errorf("db: query books failed: %w", err)
 	}
-
 	return nil
 }
 

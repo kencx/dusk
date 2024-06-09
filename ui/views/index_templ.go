@@ -18,16 +18,13 @@ import (
 )
 
 type Index struct {
-	books dusk.Books
+	page *dusk.BooksPage
 	BaseView
 }
 
-func NewIndex(bv BaseView, books dusk.Books, err error) *Index {
+func NewIndex(bv BaseView, page *dusk.BooksPage, err error) *Index {
 	bv.err = err
-	return &Index{
-		books:    books,
-		BaseView: bv,
-	}
+	return &Index{page, bv}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -57,7 +54,7 @@ func (v *Index) Html() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = partials.Library(v.books, v.err).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = partials.Library(v.page, v.err).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

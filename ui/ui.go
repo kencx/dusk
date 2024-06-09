@@ -13,7 +13,7 @@ import (
 
 type Store interface {
 	GetBook(id int64) (*dusk.Book, error)
-	GetAllBooks(filters *dusk.BookFilters) (dusk.Books, error)
+	GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error)
 	CreateBook(b *dusk.Book) (*dusk.Book, error)
 	UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error)
 	DeleteBook(id int64) error

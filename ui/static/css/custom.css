@@ -25,6 +25,8 @@ footer {
   border-radius: var(--pico-border-radius);
 }
 
+.infinite-scroll {}
+
 /* ICONS */
 
 summary[role="button"].icon,
