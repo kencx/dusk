@@ -1,4 +1,6 @@
 binary = dusk
+version = $(shell git describe --always --dirty --tags)
+ldflags = -ldflags "-s -w -X main.version=${version}"
 
 .PHONY: help air build run clean cover test
 
@@ -15,7 +17,7 @@ air:
 ## build: build binary
 build:
 	templ generate -path ui
-	cd cmd && go build -tags "fts5" -v -o ${binary} .
+	cd cmd && go build ${ldflags} -tags "fts5" -o ${binary} .
 
 ## run: run binary
 run:
@@ -25,7 +27,7 @@ run:
 clean:
 	if [ -f cmd/${binary} ]; then rm cmd/${binary}; fi
 	if [ -f cmd/library.db ]; then rm cmd/library.db; fi
-	if [ -f cmd/dusk_data ]; then rm cmd/dusk_data; fi
+	if [ -d cmd/dusk_data ]; then rm -r cmd/dusk_data; fi
 	go clean
 
 ## cover: get code coverage
