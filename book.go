@@ -10,13 +10,9 @@ import (
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/kennygrant/sanitize"
 )
-
-var en = language.English
 
 type Book struct {
 	Id       int64       `json:"id" db:"id"`
@@ -60,17 +56,12 @@ func NewBook(
 	publisher, series, description, notes, cover string,
 	datePublished, dateStarted, dateCompleted time.Time,
 ) *Book {
-	tcaser := cases.Title(en)
-	scaser := cases.Lower(en)
-
-	// TODO handle casing of initials
 	var titleAuthor []string
 	for _, a := range author {
 		if a == "" {
 			continue
 		}
-		a = strings.TrimSpace(a)
-		titleAuthor = append(titleAuthor, tcaser.String(a))
+		titleAuthor = append(titleAuthor, util.NameCase(a))
 	}
 
 	var smallTag []string
@@ -78,13 +69,12 @@ func NewBook(
 		if a == "" {
 			continue
 		}
-		a = strings.TrimSpace(a)
-		smallTag = append(smallTag, scaser.String(a))
+		smallTag = append(smallTag, util.LowerCase(a))
 	}
 
 	b := &Book{
-		Title:    tcaser.String(strings.TrimSpace(title)),
-		Subtitle: null.StringFrom(tcaser.String(subtitle)),
+		Title:    util.SentenceCase(title),
+		Subtitle: null.StringFrom(util.SentenceCase(subtitle)),
 
 		Author: titleAuthor,
 		Tag:    smallTag,
@@ -95,7 +85,7 @@ func NewBook(
 		Progress:   progress,
 		Rating:     rating,
 
-		Publisher:     null.StringFrom(tcaser.String(publisher)),
+		Publisher:     null.StringFrom(util.TitleCase(publisher)),
 		DatePublished: null.TimeFrom(datePublished),
 
 		Series:      null.StringFrom(series),

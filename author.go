@@ -13,8 +13,6 @@ type Author struct {
 	Name string `json:"name"`
 }
 
-type Authors []*Author
-
 func (a Author) Slugify() string {
 	name := strings.ReplaceAll(a.Name, ".", "")
 	return sanitize.Path(fmt.Sprintf("%s-%d", name, a.Id))
@@ -24,4 +22,9 @@ func (a Author) Valid() validator.ErrMap {
 	err := validator.New()
 	err.Check(a.Name != "", "name", "value is missing")
 	return err
+}
+
+// TODO first name, last name equality
+func (a Author) EqualFLLF() bool {
+	return false
 }
