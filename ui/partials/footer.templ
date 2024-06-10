@@ -4,10 +4,11 @@ import (
 	"github.com/kencx/dusk/ui/partials/icons"
 )
 
-templ Footer() {
+templ Footer(revision string) {
 	<footer>
 		<div class="container">
 			Licensed by MIT •
+			build: { revision[:6] } •
 			<a href="https://github.com/kencx/dusk">
 				@icons.Github()
 			</a>

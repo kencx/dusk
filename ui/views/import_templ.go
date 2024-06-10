@@ -11,8 +11,9 @@ import "io"
 import "bytes"
 
 import (
+	"net/http"
+
 	"github.com/kencx/dusk/ui/partials"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 var (
@@ -49,7 +50,26 @@ var (
 	}
 )
 
-func ImportIndex(defaultTab string) templ.Component {
+type ImportIndex struct {
+	defaultTab string
+	Tabs       partials.TabGroup
+	BaseView
+}
+
+func NewImportIndex(bv BaseView, defaultTab string, err error) *ImportIndex {
+	bv.err = err
+	return &ImportIndex{
+		defaultTab: defaultTab,
+		Tabs:       ImportTabs,
+		BaseView:   bv,
+	}
+}
+
+func (v *ImportIndex) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+func (v *ImportIndex) Html() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -72,7 +92,7 @@ func ImportIndex(defaultTab string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = partials.Tabs(ImportTabs, defaultTab).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = partials.Tabs(v.Tabs, v.defaultTab).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -81,7 +101,7 @@ func ImportIndex(defaultTab string) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = shared.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

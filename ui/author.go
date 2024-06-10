@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/kencx/dusk/http/request"
@@ -11,11 +11,11 @@ import (
 func (s *Handler) authorList(rw http.ResponseWriter, r *http.Request) {
 	authors, err := s.db.GetAllAuthors()
 	if err != nil {
-		log.Println(err)
-		views.NewAuthorList(nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get all authors", slog.Any("err", err))
+		views.NewAuthorList(s.baseView, nil, err).Render(rw, r)
 		return
 	}
-	views.NewAuthorList(authors, nil).Render(rw, r)
+	views.NewAuthorList(s.baseView, authors, nil).Render(rw, r)
 }
 
 func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
@@ -26,16 +26,16 @@ func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
 
 	author, err := s.db.GetAuthor(id)
 	if err != nil {
-		log.Println(err)
-		views.NewAuthor(nil, nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get author", slog.Int64("id", id), slog.Any("err", err))
+		views.NewAuthor(s.baseView, nil, nil, err).Render(rw, r)
 		return
 	}
 
 	books, err := s.db.GetAllBooksFromAuthor(author.Id)
 	if err != nil {
-		log.Println(err)
-		views.NewAuthor(nil, nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get books from author", slog.Int64("id", id), slog.Any("err", err))
+		views.NewAuthor(s.baseView, nil, nil, err).Render(rw, r)
 		return
 	}
-	views.NewAuthor(author, books, nil).Render(rw, r)
+	views.NewAuthor(s.baseView, author, books, nil).Render(rw, r)
 }

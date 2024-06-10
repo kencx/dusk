@@ -16,16 +16,16 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 type TagList struct {
 	tags dusk.Tags
-	err  error
+	BaseView
 }
 
-func NewTagList(tags dusk.Tags, err error) *TagList {
-	return &TagList{tags, err}
+func NewTagList(bv BaseView, tags dusk.Tags, err error) *TagList {
+	bv.err = err
+	return &TagList{tags, bv}
 }
 
 func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -92,7 +92,7 @@ func (v *TagList) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = shared.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

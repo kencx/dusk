@@ -35,12 +35,13 @@ type Store interface {
 }
 
 type Handler struct {
-	db Store
-	fs *file.Service
+	db       Store
+	fs       *file.Service
+	revision string
 }
 
-func Router(db Store, fs *file.Service) chi.Router {
-	s := Handler{db, fs}
+func Router(revision string, db Store, fs *file.Service) chi.Router {
+	s := Handler{db, fs, revision}
 	api := chi.NewRouter()
 
 	api.Get("/ping", s.Healthcheck)

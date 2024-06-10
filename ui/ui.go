@@ -39,13 +39,15 @@ type Fetcher interface {
 }
 
 type Handler struct {
-	db Store
-	fs *file.Service
-	f  Fetcher
+	db       Store
+	fs       *file.Service
+	f        Fetcher
+	baseView views.BaseView
 }
 
-func Router(db Store, fs *file.Service, f Fetcher) chi.Router {
-	s := Handler{db, fs, f}
+func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
+	bv := views.NewBaseView(revision)
+	s := Handler{db, fs, f, bv}
 	ui := chi.NewRouter()
 
 	staticFiles(ui)
@@ -79,7 +81,7 @@ func Router(db Store, fs *file.Service, f Fetcher) chi.Router {
 		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deletetag)
 	})
 
-	ui.HandleFunc("/import", s.importIndexPage)
+	ui.HandleFunc("/import", s.importIndex)
 
 	ui.Route("/search", func(c chi.Router) {
 		c.Get("/", s.searchPage)

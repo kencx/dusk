@@ -16,16 +16,19 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 type Index struct {
 	books dusk.Books
-	err   error
+	BaseView
 }
 
-func NewIndex(books dusk.Books, err error) *Index {
-	return &Index{books, err}
+func NewIndex(bv BaseView, books dusk.Books, err error) *Index {
+	bv.err = err
+	return &Index{
+		books:    books,
+		BaseView: bv,
+	}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -59,7 +62,7 @@ func (v *Index) Html() templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(len(v.books)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/index.templ`, Line: 30, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/index.templ`, Line: 33, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -88,7 +91,7 @@ func (v *Index) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = shared.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

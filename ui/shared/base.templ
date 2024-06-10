@@ -4,7 +4,7 @@ import (
 	"github.com/kencx/dusk/ui/partials"
 )
 
-templ Base() {
+templ Base(revision string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -22,7 +22,7 @@ templ Base() {
 			<main class="container">
 				{ children... }
 			</main>
-			@partials.Footer()
+			@partials.Footer(revision)
 			<div id="toast-container"></div>
 		</body>
 	</html>

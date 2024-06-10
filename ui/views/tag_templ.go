@@ -15,17 +15,17 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 type Tag struct {
 	tag   *dusk.Tag
 	books dusk.Books
-	err   error
+	BaseView
 }
 
-func NewTag(tag *dusk.Tag, books dusk.Books, err error) *Tag {
-	return &Tag{tag, books, err}
+func NewTag(bv BaseView, tag *dusk.Tag, books dusk.Books, err error) *Tag {
+	bv.err = err
+	return &Tag{tag, books, bv}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -97,7 +97,7 @@ func (v *Tag) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = shared.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

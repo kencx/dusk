@@ -5,17 +5,20 @@ import (
 	"strconv"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials"
 )
 
 type Index struct {
 	books dusk.Books
-	err   error
+	BaseView
 }
 
-func NewIndex(books dusk.Books, err error) *Index {
-	return &Index{books, err}
+func NewIndex(bv BaseView, books dusk.Books, err error) *Index {
+	bv.err = err
+	return &Index{
+		books:    books,
+		BaseView: bv,
+	}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -23,7 +26,7 @@ func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Index) Html() {
-	@shared.Base() {
+	@v.BaseView.Html() {
 		if v.books != nil {
 			<hgroup>
 				<h1>Books</h1>

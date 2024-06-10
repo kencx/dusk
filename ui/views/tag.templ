@@ -4,18 +4,18 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials"
 )
 
 type Tag struct {
 	tag   *dusk.Tag
 	books dusk.Books
-	err   error
+	BaseView
 }
 
-func NewTag(tag *dusk.Tag, books dusk.Books, err error) *Tag {
-	return &Tag{tag, books, err}
+func NewTag(bv BaseView, tag *dusk.Tag, books dusk.Books, err error) *Tag {
+	bv.err = err
+	return &Tag{tag, books, bv}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Tag) Html() {
-	@shared.Base() {
+	@v.BaseView.Html() {
 		<div>
 			if v.err == dusk.ErrDoesNotExist {
 				@partials.NotFound()

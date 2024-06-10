@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/kencx/dusk/http/request"
@@ -12,11 +12,11 @@ import (
 func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 	books, err := s.db.GetAllBooks()
 	if err != nil {
-		log.Println(err)
-		views.NewIndex(nil, err).Render(rw, r)
+		slog.Error("[ui] failed to load index page", slog.Any("err", err))
+		views.NewIndex(s.baseView, nil, err).Render(rw, r)
 		return
 	}
-	views.NewIndex(books, nil).Render(rw, r)
+	views.NewIndex(s.baseView, books, nil).Render(rw, r)
 }
 
 func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
@@ -27,8 +27,8 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 
 	book, err := s.db.GetBook(int64(id))
 	if err != nil {
-		log.Println(err)
-		views.NewBook(nil, err).Render(rw, r)
+		slog.Error("[ui] failed to find book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.baseView, nil, err).Render(rw, r)
 		return
 	}
 
@@ -37,8 +37,7 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 		views.DeleteBookModal(book).Render(r.Context(), rw)
 		return
 	}
-
-	views.NewBook(book, nil).Render(rw, r)
+	views.NewBook(s.baseView, book, nil).Render(rw, r)
 }
 
 func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
@@ -49,12 +48,10 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 
 	err := s.db.DeleteBook(id)
 	if err != nil {
-		log.Println(err)
-		views.NewBook(nil, err).Render(rw, r)
+		slog.Error("[ui] failed to delete book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.baseView, nil, err).Render(rw, r)
 		return
 	}
-
-	log.Printf("book %d deleted", id)
 	// redirect to index page
 	response.HxRedirect(rw, r, "/")
 }

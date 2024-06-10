@@ -16,16 +16,16 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 type AuthorList struct {
 	authors dusk.Authors
-	err     error
+	BaseView
 }
 
-func NewAuthorList(authors dusk.Authors, err error) *AuthorList {
-	return &AuthorList{authors, err}
+func NewAuthorList(bv BaseView, authors dusk.Authors, err error) *AuthorList {
+	bv.err = err
+	return &AuthorList{authors, bv}
 }
 
 func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -92,7 +92,7 @@ func (v *AuthorList) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = shared.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

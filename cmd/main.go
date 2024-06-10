@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 
 	"github.com/kencx/dusk/file"
@@ -27,6 +28,7 @@ type config struct {
 
 func main() {
 	var config config
+	var Revision string
 
 	flag.IntVar(&config.port, "port", 9090, "Server Port")
 	flag.StringVar(&config.dsn, "dsn", "library.db", "sqlite DSN")
@@ -34,6 +36,22 @@ func main() {
 	flag.StringVar(&config.tlsKey, "tlsCert", "", "TLS Key path")
 	flag.StringVar(&config.dataDir, "dataDir", "dusk_data", "Data directory")
 	flag.Parse()
+
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		log.Fatal("Failed to read build info")
+	}
+
+	for _, kv := range info.Settings {
+		if kv.Value == "" {
+			continue
+		}
+
+		switch kv.Key {
+		case "vcs.revision":
+			Revision = kv.Value
+		}
+	}
 
 	db, err := storage.Open(config.dsn)
 	if err != nil {
@@ -58,7 +76,7 @@ func main() {
 	// TODO allow multiple fetchers
 	fetcher := new(googlebooks.Fetcher)
 
-	srv := dhttp.New(store, fw, fetcher)
+	srv := dhttp.New(Revision, store, fw, fetcher)
 	go func() error {
 		slog.Info(fmt.Sprintf("Starting server on port %d", config.port))
 		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tlsCert, config.tlsKey)

@@ -1,8 +1,9 @@
 package views
 
 import (
+	"net/http"
+
 	"github.com/kencx/dusk/ui/partials"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 var (
@@ -39,10 +40,29 @@ var (
 	}
 )
 
-templ ImportIndex(defaultTab string) {
-	@shared.Base() {
+type ImportIndex struct {
+	defaultTab string
+	Tabs       partials.TabGroup
+	BaseView
+}
+
+func NewImportIndex(bv BaseView, defaultTab string, err error) *ImportIndex {
+	bv.err = err
+	return &ImportIndex{
+		defaultTab: defaultTab,
+		Tabs:       ImportTabs,
+		BaseView:   bv,
+	}
+}
+
+func (v *ImportIndex) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v *ImportIndex) Html() {
+	@v.BaseView.Html() {
 		<h2>Import Books</h2>
-		@partials.Tabs(ImportTabs, defaultTab)
+		@partials.Tabs(v.Tabs, v.defaultTab)
 	}
 }
 

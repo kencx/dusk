@@ -50,12 +50,13 @@ type Fetcher interface {
 
 type Server struct {
 	*http.Server
-	db Store
-	fs *file.Service
-	f  Fetcher
+	db       Store
+	fs       *file.Service
+	f        Fetcher
+	revision string
 }
 
-func New(db Store, fs *file.Service, f Fetcher) *Server {
+func New(revision string, db Store, fs *file.Service, f Fetcher) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,
@@ -63,9 +64,10 @@ func New(db Store, fs *file.Service, f Fetcher) *Server {
 			WriteTimeout: readWriteTimeout,
 			Handler:      chi.NewRouter(),
 		},
-		db: db,
-		fs: fs,
-		f:  f,
+		db:       db,
+		fs:       fs,
+		f:        f,
+		revision: revision,
 	}
 	s.RegisterRoutes()
 	return s
@@ -99,8 +101,8 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.StripSlashes)
 	r.Use(timeoutHandler(2 * readWriteTimeout / 3))
 
-	r.Mount("/api", api.Router(s.db, s.fs))
-	r.Mount("/", ui.Router(s.db, s.fs, s.f))
+	r.Mount("/api", api.Router(s.revision, s.db, s.fs))
+	r.Mount("/", ui.Router(s.revision, s.db, s.fs, s.f))
 }
 
 // middleware to add http.TimeoutHandler.

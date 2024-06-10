@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/kencx/dusk/http/request"
@@ -11,11 +11,11 @@ import (
 func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
 	tags, err := s.db.GetAllTags()
 	if err != nil {
-		log.Println(err)
-		views.NewTagList(nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get all tags", slog.Any("err", err))
+		views.NewTagList(s.baseView, nil, err).Render(rw, r)
 		return
 	}
-	views.NewTagList(tags, nil).Render(rw, r)
+	views.NewTagList(s.baseView, tags, nil).Render(rw, r)
 }
 
 func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
@@ -26,16 +26,16 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 
 	tag, err := s.db.GetTag(id)
 	if err != nil {
-		log.Println(err)
-		views.NewTag(nil, nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get tag", slog.Int64("id", id), slog.Any("err", err))
+		views.NewTag(s.baseView, nil, nil, err).Render(rw, r)
 		return
 	}
 
 	books, err := s.db.GetAllBooksFromTag(tag.Id)
 	if err != nil {
-		log.Println(err)
-		views.NewTag(nil, nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get books from tag", slog.Int64("id", id), slog.Any("err", err))
+		views.NewTag(s.baseView, nil, nil, err).Render(rw, r)
 		return
 	}
-	views.NewTag(tag, books, nil).Render(rw, r)
+	views.NewTag(s.baseView, tag, books, nil).Render(rw, r)
 }

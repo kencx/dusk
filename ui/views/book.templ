@@ -11,16 +11,16 @@ import (
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/partials/icons"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 type Book struct {
 	book *dusk.Book
-	err  error
+	BaseView
 }
 
-func NewBook(book *dusk.Book, err error) *Book {
-	return &Book{book, err}
+func NewBook(bv BaseView, book *dusk.Book, err error) *Book {
+	bv.err = err
+	return &Book{book, bv}
 }
 
 func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Book) Html() {
-	@shared.Base() {
+	@v.BaseView.Html() {
 		<div>
 			if v.err == dusk.ErrDoesNotExist {
 				@partials.NotFound()

@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Handler) goodreadsPage(rw http.ResponseWriter, r *http.Request) {
-	views.ImportIndex("goodreads").Render(r.Context(), rw)
+	views.NewImportIndex(s.baseView, "goodreads", nil).Render(rw, r)
 }
 
 func (s *Handler) goodreads(rw http.ResponseWriter, r *http.Request) {

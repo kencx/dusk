@@ -5,17 +5,17 @@ import (
 	"strconv"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials"
 )
 
 type AuthorList struct {
 	authors dusk.Authors
-	err     error
+	BaseView
 }
 
-func NewAuthorList(authors dusk.Authors, err error) *AuthorList {
-	return &AuthorList{authors, err}
+func NewAuthorList(bv BaseView, authors dusk.Authors, err error) *AuthorList {
+	bv.err = err
+	return &AuthorList{authors, bv}
 }
 
 func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *AuthorList) Html() {
-	@shared.Base() {
+	@v.BaseView.Html() {
 		if v.authors != nil {
 			<hgroup>
 				<h2>Authors</h2>

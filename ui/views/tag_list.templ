@@ -5,17 +5,17 @@ import (
 	"strconv"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials"
 )
 
 type TagList struct {
 	tags dusk.Tags
-	err  error
+	BaseView
 }
 
-func NewTagList(tags dusk.Tags, err error) *TagList {
-	return &TagList{tags, err}
+func NewTagList(bv BaseView, tags dusk.Tags, err error) *TagList {
+	bv.err = err
+	return &TagList{tags, bv}
 }
 
 func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *TagList) Html() {
-	@shared.Base() {
+	@v.BaseView.Html() {
 		if v.tags != nil {
 			<hgroup>
 				<h2>Tags</h2>

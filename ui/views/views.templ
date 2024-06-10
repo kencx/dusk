@@ -8,27 +8,46 @@ import (
 )
 
 type View interface {
-	Render(rw http.ResponseWriter, r *http.Request)
-	RenderError(rw http.ResponseWriter, r *http.Request, err error)
+	Render(rw http.ResponseWriter, r *http.Request) templ.Component
+	// RenderError(rw http.ResponseWriter, r *http.Request, err error)
 	Html() templ.Component
 }
 
+type BaseView struct {
+	Revision string
+	err      error
+}
+
+func NewBaseView(revision string) BaseView {
+	return BaseView{revision, nil}
+}
+
+templ (v BaseView) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+templ (v BaseView) Html() {
+	@shared.Base(v.Revision) {
+		{ children... }
+	}
+}
+
 templ NotFound() {
-	@shared.Base() {
+	@shared.Base("") {
 		@partials.NotFound()
 	}
 }
 
-templ ServerError() {
-	@shared.Base() {
-		<hgroup>
-			<h2>502</h2>
-			<small>Item does not exist.</small>
-		</hgroup>
-		<p>
-			<a href="/">
-				Return to home.
-			</a>
-		</p>
-	}
-}
+// templ ServerError() {
+// 	@shared.Base() {
+// 		<hgroup>
+// 			<h2>502</h2>
+// 			<small>Item does not exist.</small>
+// 		</hgroup>
+// 		<p>
+// 			<a href="/">
+// 				Return to home.
+// 			</a>
+// 		</p>
+// 	}
+// }

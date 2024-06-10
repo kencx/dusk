@@ -5,18 +5,18 @@ import (
 	"strconv"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials"
 )
 
 type Author struct {
 	author *dusk.Author
 	books  dusk.Books
-	err    error
+	BaseView
 }
 
-func NewAuthor(author *dusk.Author, books dusk.Books, err error) *Author {
-	return &Author{author, books, err}
+func NewAuthor(bv BaseView, author *dusk.Author, books dusk.Books, err error) *Author {
+	bv.err = err
+	return &Author{author, books, bv}
 }
 
 func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
@@ -24,7 +24,7 @@ func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Author) Html() {
-	@shared.Base() {
+	@v.BaseView.Html() {
 		<div>
 			if v.err == dusk.ErrDoesNotExist {
 				@partials.NotFound()

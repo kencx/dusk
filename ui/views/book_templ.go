@@ -21,16 +21,16 @@ import (
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/partials/icons"
-	"github.com/kencx/dusk/ui/shared"
 )
 
 type Book struct {
 	book *dusk.Book
-	err  error
+	BaseView
 }
 
-func NewBook(book *dusk.Book, err error) *Book {
-	return &Book{book, err}
+func NewBook(bv BaseView, book *dusk.Book, err error) *Book {
+	bv.err = err
+	return &Book{book, bv}
 }
 
 func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
@@ -188,7 +188,7 @@ func (v *Book) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = shared.Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
