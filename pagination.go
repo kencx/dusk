@@ -1,36 +1,37 @@
 package dusk
 
-type Page struct {
+type Pager interface {
+	First() bool
+	Last() bool
+	LastNo() int
+	TotalNo() int
+}
+
+type Page[T any] struct {
 	Size       int
 	Query      string
 	Total      int64
 	FirstRowNo int64
 	LastRowNo  int64
+	Items      []T
 }
 
-func (p *Page) First() bool {
+func NewPage[T any](items []T) Page[T] {
+	return Page[T]{Items: items}
+}
+
+func (p Page[T]) First() bool {
 	return p.FirstRowNo <= 1
 }
 
-func (p *Page) Last() bool {
+func (p Page[T]) Last() bool {
 	return p.LastRowNo >= p.Total
 }
 
-type BooksPage struct {
-	Page
-	Books Books
+func (p Page[T]) LastNo() int {
+	return int(p.LastRowNo)
 }
 
-type AuthorsPage struct {
-	Page
-	Authors Authors
-}
-
-type TagsPage struct {
-	Page
-	Tags Tags
-}
-
-type ItemsPage interface {
-	BooksPage | AuthorsPage | TagsPage
+func (p Page[T]) TotalNo() int {
+	return int(p.Total)
 }

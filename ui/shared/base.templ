@@ -1,10 +1,31 @@
 package shared
 
 import (
+	"net/http"
+
 	"github.com/kencx/dusk/ui/partials"
 )
 
-templ Base(revision string) {
+type View interface {
+	Render(rw http.ResponseWriter, r *http.Request) templ.Component
+	// RenderError(rw http.ResponseWriter, r *http.Request, err error)
+	Html() templ.Component
+}
+
+type Base struct {
+	Revision string
+	Err      error
+}
+
+func NewBase(revision string) Base {
+	return Base{revision, nil}
+}
+
+templ (b Base) Render(rw http.ResponseWriter, r *http.Request) {
+	b.Html().Render(r.Context(), rw)
+}
+
+templ (b Base) Html() {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -22,8 +43,36 @@ templ Base(revision string) {
 			<main class="container">
 				{ children... }
 			</main>
-			@partials.Footer(revision)
+			@partials.Footer(b.Revision)
 			<div id="toast-container"></div>
 		</body>
 	</html>
 }
+
+templ (b Base) NotFound() {
+	@b.Html() {
+		<hgroup>
+			<h2>404</h2>
+			<small>Item does not exist.</small>
+		</hgroup>
+		<p>
+			<a href="/">
+				Return to home.
+			</a>
+		</p>
+	}
+}
+
+// templ ServerError() {
+// 	@shared.Base() {
+// 		<hgroup>
+// 			<h2>502</h2>
+// 			<small>Item does not exist.</small>
+// 		</hgroup>
+// 		<p>
+// 			<a href="/">
+// 				Return to home.
+// 			</a>
+// 		</p>
+// 	}
+// }

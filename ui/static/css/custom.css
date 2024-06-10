@@ -65,7 +65,7 @@ details.dropdown:has(> summary[role="button"].icon) {
 
 /* LIBRARY CARD VIEW */
 
-.library__metadata {
+.search__metadata {
   margin-bottom: var(--pico-spacing);
   color: var(--pico-secondary);
 }

@@ -13,5 +13,5 @@ func (s *Handler) importIndex(rw http.ResponseWriter, r *http.Request) {
 		views.ImportTabs.Select(tab).Render(r.Context(), rw)
 		return
 	}
-	views.NewImportIndex(s.baseView, "search", nil).Render(rw, r)
+	views.NewImportIndex(s.base, "search", nil).Render(rw, r)
 }

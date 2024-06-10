@@ -1,22 +1,24 @@
 package views
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 	"path"
+	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type TagList struct {
-	tags dusk.Tags
-	BaseView
+	page dusk.Page[dusk.Tag]
+	shared.Base
 }
 
-func NewTagList(bv BaseView, tags dusk.Tags, err error) *TagList {
-	bv.err = err
-	return &TagList{tags, bv}
+func NewTagList(base shared.Base, page dusk.Page[dusk.Tag], err error) *TagList {
+	base.Err = err
+	return &TagList{page, base}
 }
 
 func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -24,40 +26,50 @@ func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *TagList) Html() {
-	@v.BaseView.Html() {
+	@v.Base.Html() {
 		<h2>Tags</h2>
-		if v.err == dusk.ErrNoRows {
+		if v.Err == dusk.ErrNoRows {
 			@partials.Empty()
-		} else if v.tags != nil {
+		} else {
 			@partials.ItemSearch("/t/search", ".list")
 			<div class="list">
-				@TagSearchResults(v.tags, v.err)
+				@TagSearchResults(v.page, v.Err)
 			</div>
 		}
 	}
 }
 
-templ TagSearchResults(tags dusk.Tags, err error) {
-	<div class="list__metadata">
-		{ strconv.Itoa(len(tags)) }
-		if len(tags) == 1 {
-			tag
-		} else {
-			tags
-		}
-	</div>
-	<div class="list__tag-view">
-		@partials.ItemSearchResults(nil, err) {
+templ TagSearchResults(page dusk.Page[dusk.Tag], err error) {
+	@partials.ItemSearchResults(page, err) {
+		<div class="list__tag-view">
 			<ul>
-				for _, tag := range tags {
-					@listTag(tag)
-				}
+				@TagListPage(page)
 			</ul>
-		}
-	</div>
+		</div>
+	}
 }
 
-templ listTag(tag *dusk.Tag) {
+templ TagListPage(page dusk.Page[dusk.Tag]) {
+	for _, tag := range page.Items {
+		@listTag(tag)
+	}
+	if !page.Last() {
+		<hr
+			class="message infinite-scroll"
+			hx-get={ fmt.Sprintf("/a/search?%safter_id=%d", page.Query, page.LastNo()) }
+			hx-target=".list__author-view ul"
+			hx-swap="beforeend"
+			hx-trigger="revealed"
+		/>
+	} else {
+		<p class="message">END</p>
+	}
+	if !page.First() {
+		<span id="item-counter" hx-swap-oob="true">{ strconv.Itoa(page.LastNo()) }</span>
+	}
+}
+
+templ listTag(tag dusk.Tag) {
 	<li>
 		<a href={ templ.URL(path.Join("t", tag.Slugify())) }>
 			{ tag.Name }

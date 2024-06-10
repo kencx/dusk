@@ -5,16 +5,17 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type Index struct {
-	page *dusk.BooksPage
-	BaseView
+	page dusk.Page[dusk.Book]
+	shared.Base
 }
 
-func NewIndex(bv BaseView, page *dusk.BooksPage, err error) *Index {
-	bv.err = err
-	return &Index{page, bv}
+func NewIndex(base shared.Base, page dusk.Page[dusk.Book], err error) *Index {
+	base.Err = err
+	return &Index{page, base}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -22,8 +23,8 @@ func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Index) Html() {
-	@v.BaseView.Html() {
-		<h1>Books</h1>
-		@partials.Library(v.page, v.err)
+	@v.Base.Html() {
+		<h2>Books</h2>
+		@partials.Library(v.page, v.Err)
 	}
 }

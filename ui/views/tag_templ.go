@@ -15,17 +15,18 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type Tag struct {
-	tag  *dusk.Tag
-	page *dusk.BooksPage
-	BaseView
+	tag  dusk.Tag
+	page dusk.Page[dusk.Book]
+	shared.Base
 }
 
-func NewTag(bv BaseView, tag *dusk.Tag, page *dusk.BooksPage, err error) *Tag {
-	bv.err = err
-	return &Tag{tag, page, bv}
+func NewTag(base shared.Base, tag dusk.Tag, page dusk.Page[dusk.Book], err error) *Tag {
+	base.Err = err
+	return &Tag{tag, page, base}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -55,12 +56,12 @@ func (v *Tag) Html() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if v.err == dusk.ErrDoesNotExist {
-				templ_7745c5c3_Err = partials.NotFound().Render(ctx, templ_7745c5c3_Buffer)
+			if v.Err == dusk.ErrDoesNotExist {
+				templ_7745c5c3_Err = v.Base.NotFound().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else if v.tag != nil {
+			} else {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"tag__details\"><div class=\"header\"><h2>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -68,7 +69,7 @@ func (v *Tag) Html() templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(v.tag.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag.templ`, Line: 33, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag.templ`, Line: 34, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -78,12 +79,7 @@ func (v *Tag) Html() templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = partials.Library(v.page, v.err).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Something went wrong, please try again.</p>")
+				templ_7745c5c3_Err = partials.Library(v.page, v.Err).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -97,7 +93,7 @@ func (v *Tag) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.Base.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

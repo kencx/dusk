@@ -19,18 +19,18 @@ templ ItemSearch(path, target string) {
 	</form>
 }
 
-templ ItemSearchResults(items *dusk.Page, err error) {
+templ ItemSearchResults[T dusk.Pager](items T, err error) {
 	if err == dusk.ErrNoRows {
 		<p class="message">No results found!</p>
 	} else if err != nil {
 		<p class="message">Something went wrong, please try again.</p>
 	} else {
-		<div id="library__metadata" class="library__metadata">
-			if items.Total == 1 {
+		<div id="search__metadata" class="search__metadata">
+			if items.TotalNo() == 1 {
 				Showing 1 item
 			} else {
-				Showing <span id="item-counter">{ strconv.FormatInt(items.LastRowNo, 10) }</span>
-				of { strconv.FormatInt(items.Total, 10) } items
+				Showing <span id="item-counter">{ strconv.Itoa(items.LastNo()) }</span>
+				of { strconv.Itoa(items.TotalNo()) } items
 			}
 		</div>
 		{ children... }

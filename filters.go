@@ -14,14 +14,14 @@ type Filters struct {
 }
 
 func DefaultSafeList() []string {
-	return []string{"title", "-title"}
+	return []string{"title", "-title", "name", "-name"}
 }
 
 func NewDefaultFilters() *Filters {
 	return &Filters{
 		AfterId:      0,
 		PageSize:     30,
-		Sort:         "title",
+		Sort:         "name",
 		SortSafeList: DefaultSafeList(),
 	}
 }
@@ -64,6 +64,12 @@ type SearchFilters struct {
 	Filters
 }
 
+func DefaultSearchFilters() *SearchFilters {
+	return &SearchFilters{
+		Filters: *NewDefaultFilters(),
+	}
+}
+
 func (sf *SearchFilters) Empty() bool {
 	return sf.Filters.Empty() &&
 		sf.Search == ""
@@ -78,11 +84,13 @@ type BookFilters struct {
 }
 
 func DefaultBookFilters() *BookFilters {
-	return &BookFilters{
+	bf := &BookFilters{
 		SearchFilters: SearchFilters{
 			Filters: *NewDefaultFilters(),
 		},
 	}
+	bf.Sort = "title"
+	return bf
 }
 
 func (bf *BookFilters) Empty() bool {

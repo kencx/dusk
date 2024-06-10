@@ -5,17 +5,18 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type Author struct {
-	author *dusk.Author
-	page   *dusk.BooksPage
-	BaseView
+	author dusk.Author
+	page   dusk.Page[dusk.Book]
+	shared.Base
 }
 
-func NewAuthor(bv BaseView, author *dusk.Author, page *dusk.BooksPage, err error) *Author {
-	bv.err = err
-	return &Author{author, page, bv}
+func NewAuthor(base shared.Base, author dusk.Author, page dusk.Page[dusk.Book], err error) *Author {
+	base.Err = err
+	return &Author{author, page, base}
 }
 
 func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
@@ -23,19 +24,17 @@ func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Author) Html() {
-	@v.BaseView.Html() {
+	@v.Base.Html() {
 		<div>
-			if v.err == dusk.ErrDoesNotExist {
-				@partials.NotFound()
-			} else if v.author != nil {
+			if v.Err == dusk.ErrDoesNotExist {
+				@v.Base.NotFound()
+			} else {
 				<div class="author__details">
 					<div class="header">
 						<h2>{ v.author.Name }</h2>
 					</div>
 				</div>
-				@partials.Library(v.page, v.err)
-			} else {
-				<p>Something went wrong, please try again.</p>
+				@partials.Library(v.page, v.Err)
 			}
 		</div>
 	}

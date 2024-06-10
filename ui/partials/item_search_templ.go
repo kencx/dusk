@@ -66,7 +66,7 @@ func ItemSearch(path, target string) templ.Component {
 	})
 }
 
-func ItemSearchResults(items *dusk.Page, err error) templ.Component {
+func ItemSearchResults[T dusk.Pager](items T, err error) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -90,11 +90,11 @@ func ItemSearchResults(items *dusk.Page, err error) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"library__metadata\" class=\"library__metadata\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"search__metadata\" class=\"search__metadata\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if items.Total == 1 {
+			if items.TotalNo() == 1 {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Showing 1 item")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -105,9 +105,9 @@ func ItemSearchResults(items *dusk.Page, err error) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(items.LastRowNo, 10))
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(items.LastNo()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/item_search.templ`, Line: 32, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/item_search.templ`, Line: 32, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -118,9 +118,9 @@ func ItemSearchResults(items *dusk.Page, err error) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(items.Total, 10))
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(items.TotalNo()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/item_search.templ`, Line: 33, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/item_search.templ`, Line: 33, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {

@@ -13,8 +13,6 @@ type Tag struct {
 	Name string `json:"name"`
 }
 
-type Tags []*Tag
-
 func (a Tag) Slugify() string {
 	return sanitize.Path(fmt.Sprintf("%s-%d", a.Name, a.Id))
 }

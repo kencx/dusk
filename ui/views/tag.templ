@@ -5,17 +5,18 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type Tag struct {
-	tag  *dusk.Tag
-	page *dusk.BooksPage
-	BaseView
+	tag  dusk.Tag
+	page dusk.Page[dusk.Book]
+	shared.Base
 }
 
-func NewTag(bv BaseView, tag *dusk.Tag, page *dusk.BooksPage, err error) *Tag {
-	bv.err = err
-	return &Tag{tag, page, bv}
+func NewTag(base shared.Base, tag dusk.Tag, page dusk.Page[dusk.Book], err error) *Tag {
+	base.Err = err
+	return &Tag{tag, page, base}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -23,19 +24,17 @@ func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Tag) Html() {
-	@v.BaseView.Html() {
+	@v.Base.Html() {
 		<div>
-			if v.err == dusk.ErrDoesNotExist {
-				@partials.NotFound()
-			} else if v.tag != nil {
+			if v.Err == dusk.ErrDoesNotExist {
+				@v.Base.NotFound()
+			} else {
 				<div class="tag__details">
 					<div class="header">
 						<h2>{ v.tag.Name }</h2>
 					</div>
 				</div>
-				@partials.Library(v.page, v.err)
-			} else {
-				<p>Something went wrong, please try again.</p>
+				@partials.Library(v.page, v.Err)
 			}
 		</div>
 	}

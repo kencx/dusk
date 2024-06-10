@@ -1,40 +1,64 @@
 package ui
 
 import (
-	"log"
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/ui/views"
+	"github.com/kencx/dusk/validator"
 )
 
 func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
-	tags, err := s.db.GetAllTags(nil)
+	tags, err := s.db.GetAllTags(dusk.DefaultSearchFilters())
 	if err != nil {
 		slog.Error("[ui] failed to get all tags", slog.Any("err", err))
-		views.NewTagList(s.baseView, nil, err).Render(rw, r)
+		views.NewTagList(s.base, dusk.Page[dusk.Tag]{}, err).Render(rw, r)
 		return
 	}
-	views.NewTagList(s.baseView, tags, nil).Render(rw, r)
+	views.NewTagList(s.base, *tags, nil).Render(rw, r)
 }
 
 func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 
 	// TODO trim, escape and filter special chars
-	input := &dusk.SearchFilters{
+	filters := &dusk.SearchFilters{
 		Search: readString(qs, "itemSearch", ""),
+		Filters: dusk.Filters{
+			AfterId:      readInt(qs, "after_id", 0),
+			PageSize:     readInt(qs, "page_size", 30),
+			Sort:         readString(qs, "sort", "name"),
+			SortSafeList: dusk.DefaultSafeList(),
+		},
 	}
 
-	tags, err := s.db.GetAllTags(input)
-	if err != nil {
-		log.Println(err)
-		views.TagSearchResults(nil, err).Render(r.Context(), rw)
+	if errMap := validator.Validate(filters.Filters); errMap != nil {
+		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
+		views.TagSearchResults(dusk.Page[dusk.Tag]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return
 	}
-	views.TagSearchResults(tags, nil).Render(r.Context(), rw)
+
+	page, err := s.db.GetAllTags(filters)
+	if err != nil {
+		if err == dusk.ErrNoRows {
+			views.TagSearchResults(dusk.Page[dusk.Tag]{}, err).Render(r.Context(), rw)
+			return
+		} else {
+			slog.Error("failed to get all tags", slog.Any("err", err))
+			views.TagSearchResults(dusk.Page[dusk.Tag]{}, err).Render(r.Context(), rw)
+			return
+		}
+	}
+
+	// only return page partial when not querying for first page
+	if !page.First() {
+		views.TagListPage(*page).Render(r.Context(), rw)
+	} else {
+		views.TagSearchResults(*page, nil).Render(r.Context(), rw)
+	}
 }
 
 func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
@@ -43,23 +67,37 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tag, err := s.db.GetTag(id)
-	if err != nil {
-		slog.Error("[ui] failed to get tag", slog.Int64("id", id), slog.Any("err", err))
-		views.NewTag(s.baseView, nil, nil, err).Render(rw, r)
+	qs := r.URL.Query()
+	filters := &dusk.BookFilters{
+		SearchFilters: dusk.SearchFilters{
+			Search: readString(qs, "itemSearch", ""),
+			Filters: dusk.Filters{
+				AfterId:      readInt(qs, "after_id", 0),
+				PageSize:     readInt(qs, "page_size", 30),
+				Sort:         readString(qs, "sort", "title"),
+				SortSafeList: dusk.DefaultSafeList(),
+			},
+		},
+	}
+
+	if errMap := validator.Validate(filters.Filters); errMap != nil {
+		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
+		views.TagSearchResults(dusk.Page[dusk.Tag]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return
 	}
 
-	books, err := s.db.GetAllBooksFromTag(tag.Id)
+	tag, err := s.db.GetTag(id)
 	if err != nil {
-		slog.Error("[ui] failed to get books from tag", slog.Int64("id", id), slog.Any("err", err))
-		views.NewTag(s.baseView, nil, nil, err).Render(rw, r)
+		slog.Error("[ui] failed to get tag", slog.Int64("id", id), slog.Any("err", err))
+		views.NewTag(s.base, dusk.Tag{}, dusk.Page[dusk.Book]{}, err).Render(rw, r)
 		return
 	}
-	views.NewTag(s.baseView, tag, &dusk.BooksPage{
-		Page: dusk.Page{
-			Total: int64(len(books)),
-		},
-		Books: books,
-	}, nil).Render(rw, r)
+
+	books, err := s.db.GetAllBooksFromTag(tag.Id, filters)
+	if err != nil {
+		slog.Error("[ui] failed to get books from tag", slog.Int64("id", id), slog.Any("err", err))
+		views.NewTag(s.base, dusk.Tag{}, dusk.Page[dusk.Book]{}, err).Render(rw, r)
+		return
+	}
+	views.NewTag(s.base, *tag, *books, nil).Render(rw, r)
 }

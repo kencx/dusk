@@ -7,7 +7,7 @@ import (
 	"github.com/kencx/dusk"
 )
 
-templ Library(page *dusk.BooksPage, err error) {
+templ Library(page dusk.Page[dusk.Book], err error) {
 	if err == dusk.ErrNoRows {
 		@Empty()
 	} else {
@@ -18,36 +18,30 @@ templ Library(page *dusk.BooksPage, err error) {
 	}
 }
 
-templ BookSearchResults(page *dusk.BooksPage, err error) {
-	if err != nil {
-		@ItemSearchResults(nil, err)
-	} else {
-		@ItemSearchResults(&page.Page, err) {
-			<div class="library__card-view">
-				@BookPage(page, err)
-			</div>
-		}
+templ BookSearchResults(page dusk.Page[dusk.Book], err error) {
+	@ItemSearchResults(page, err) {
+		<div class="library__card-view">
+			@BookPage(page)
+		</div>
 	}
 }
 
-templ BookPage(page *dusk.BooksPage, err error) {
-	if page != nil {
-		for _, book := range page.Books {
-			@bookCard(book)
-		}
-		if !page.Page.Last() {
-			<hr
-				class="message infinite-scroll"
-				hx-get={ fmt.Sprintf("/b/search?%safter_id=%d", page.Query, page.LastRowNo) }
-				hx-target=".library__card-view"
-				hx-swap="beforeend"
-				hx-trigger="revealed"
-			/>
-		} else {
-			<p class="message">END</p>
-		}
-		if !page.Page.First() {
-			<span id="item-counter" hx-swap-oob="true">{ strconv.FormatInt(page.LastRowNo, 10) }</span>
-		}
+templ BookPage(page dusk.Page[dusk.Book]) {
+	for _, book := range page.Items {
+		@bookCard(&book)
+	}
+	if !page.Last() {
+		<hr
+			class="message infinite-scroll"
+			hx-get={ fmt.Sprintf("/b/search?%safter_id=%d", page.Query, page.LastNo()) }
+			hx-target=".library__card-view"
+			hx-swap="beforeend"
+			hx-trigger="revealed"
+		/>
+	} else {
+		<p class="message">END</p>
+	}
+	if !page.First() {
+		<span id="item-counter" hx-swap-oob="true">{ strconv.Itoa(page.LastNo()) }</span>
 	}
 }

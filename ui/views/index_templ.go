@@ -15,16 +15,17 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type Index struct {
-	page *dusk.BooksPage
-	BaseView
+	page dusk.Page[dusk.Book]
+	shared.Base
 }
 
-func NewIndex(bv BaseView, page *dusk.BooksPage, err error) *Index {
-	bv.err = err
-	return &Index{page, bv}
+func NewIndex(base shared.Base, page dusk.Page[dusk.Book], err error) *Index {
+	base.Err = err
+	return &Index{page, base}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -50,11 +51,11 @@ func (v *Index) Html() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Books</h1>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Books</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = partials.Library(v.page, v.err).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = partials.Library(v.page, v.Err).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -63,7 +64,7 @@ func (v *Index) Html() templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = v.BaseView.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = v.Base.Html().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

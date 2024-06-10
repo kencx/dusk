@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
-	views.NewImportIndex(s.baseView, "search", nil).Render(rw, r)
+	views.NewImportIndex(s.base, "search", nil).Render(rw, r)
 }
 
 // TODO handle timeouts, 5XX errors

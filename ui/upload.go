@@ -11,7 +11,7 @@ import (
 )
 
 func (s *Handler) uploadPage(rw http.ResponseWriter, r *http.Request) {
-	views.NewImportIndex(s.baseView, "upload", nil).Render(rw, r)
+	views.NewImportIndex(s.base, "upload", nil).Render(rw, r)
 }
 
 func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {

@@ -6,28 +6,28 @@ import (
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/file"
 	"github.com/kencx/dusk/integration"
-	"github.com/kencx/dusk/ui/views"
+	"github.com/kencx/dusk/ui/shared"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type Store interface {
 	GetBook(id int64) (*dusk.Book, error)
-	GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error)
+	GetAllBooks(filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error)
 	CreateBook(b *dusk.Book) (*dusk.Book, error)
 	UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error)
 	DeleteBook(id int64) error
 
 	GetAuthor(id int64) (*dusk.Author, error)
-	GetAllAuthors(filters *dusk.SearchFilters) (dusk.Authors, error)
-	GetAllBooksFromAuthor(id int64) (dusk.Books, error)
+	GetAllAuthors(filters *dusk.SearchFilters) (*dusk.Page[dusk.Author], error)
+	GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error)
 	CreateAuthor(a *dusk.Author) (*dusk.Author, error)
 	UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error)
 	DeleteAuthor(id int64) error
 
 	GetTag(id int64) (*dusk.Tag, error)
-	GetAllTags(filters *dusk.SearchFilters) (dusk.Tags, error)
-	GetAllBooksFromTag(id int64) (dusk.Books, error)
+	GetAllTags(filters *dusk.SearchFilters) (*dusk.Page[dusk.Tag], error)
+	GetAllBooksFromTag(id int64, filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error)
 	CreateTag(t *dusk.Tag) (*dusk.Tag, error)
 	UpdateTag(id int64, t *dusk.Tag) (*dusk.Tag, error)
 	DeleteTag(id int64) error
@@ -39,15 +39,15 @@ type Fetcher interface {
 }
 
 type Handler struct {
-	db       Store
-	fs       *file.Service
-	f        Fetcher
-	baseView views.BaseView
+	db   Store
+	fs   *file.Service
+	f    Fetcher
+	base shared.Base
 }
 
 func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
-	bv := views.NewBaseView(revision)
-	s := Handler{db, fs, f, bv}
+	base := shared.NewBase(revision)
+	s := Handler{db, fs, f, base}
 	ui := chi.NewRouter()
 
 	staticFiles(ui)
@@ -119,5 +119,5 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 }
 
 func (s *Handler) notFound(rw http.ResponseWriter, r *http.Request) {
-	views.NotFound().Render(r.Context(), rw)
+	s.base.NotFound().Render(r.Context(), rw)
 }

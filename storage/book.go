@@ -15,7 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type BookRows struct {
+type BookRow struct {
 	*dusk.Book
 	AuthorString string      `db:"author_string"`
 	TagString    null.String `db:"tag_string"`
@@ -25,15 +25,15 @@ type BookRows struct {
 	SeriesString null.String `db:"series_string"`
 }
 
-type BookQueryRows struct {
+type BookQueryRow struct {
 	Total int64 `db:"count"`
 	RowNo int64 `db:"rowno"`
-	*BookRows
+	*BookRow
 }
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest BookRows
+		var dest BookRow
 		stmt := `SELECT * FROM book_view b WHERE b.id=$1;`
 
 		err := tx.QueryRowx(stmt, id).StructScan(&dest)
@@ -59,9 +59,9 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	return i.(*dusk.Book), nil
 }
 
-func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error) {
+func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []BookQueryRows
+		var dest []BookQueryRow
 
 		err := queryBooks(tx, filters, &dest)
 		if err != nil {
@@ -74,7 +74,7 @@ func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error) 
 			return nil, dusk.ErrNoRows
 		}
 
-		var books dusk.Books
+		var books []dusk.Book
 		for _, row := range dest {
 			row.Author = strings.Split(row.AuthorString, ",")
 			row.Tag = row.TagString.Split(",")
@@ -82,17 +82,15 @@ func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error) 
 			row.Isbn13 = row.Isbn13String.Split(",")
 			row.Formats = row.FormatString.Split(",")
 			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
-			books = append(books, row.Book)
+			books = append(books, *row.Book)
 		}
 
-		result := &dusk.BooksPage{
-			Page: dusk.Page{
-				Size:       min(int(dest[0].Total), filters.PageSize),
-				Total:      dest[0].Total,
-				FirstRowNo: dest[0].RowNo,
-				LastRowNo:  dest[len(dest)-1].RowNo,
-			},
-			Books: books,
+		result := &dusk.Page[dusk.Book]{
+			Size:       min(int(dest[0].Total), filters.PageSize),
+			Total:      dest[0].Total,
+			FirstRowNo: dest[0].RowNo,
+			LastRowNo:  dest[len(dest)-1].RowNo,
+			Items:      books,
 		}
 
 		// TODO proper building of existing query for pagination
@@ -105,7 +103,7 @@ func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.BooksPage, error) 
 	if err != nil {
 		return nil, err
 	}
-	return i.(*dusk.BooksPage), nil
+	return i.(*dusk.Page[dusk.Book]), nil
 }
 
 func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
@@ -350,7 +348,7 @@ func (s *Store) DeleteBooks(ids []int64) error {
 	return err
 }
 
-func queryBooks(tx *sqlx.Tx, filters *dusk.BookFilters, dest *[]BookQueryRows) error {
+func queryBooks(tx *sqlx.Tx, filters *dusk.BookFilters, dest *[]BookQueryRow) error {
 	// TODO query by:
 	//   - title, subtitle
 	//   - series

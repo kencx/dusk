@@ -11,16 +11,17 @@ import (
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/partials/icons"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type Book struct {
 	book *dusk.Book
-	BaseView
+	shared.Base
 }
 
-func NewBook(bv BaseView, book *dusk.Book, err error) *Book {
-	bv.err = err
-	return &Book{book, bv}
+func NewBook(base shared.Base, book *dusk.Book, err error) *Book {
+	base.Err = err
+	return &Book{book, base}
 }
 
 func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
@@ -28,10 +29,10 @@ func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *Book) Html() {
-	@v.BaseView.Html() {
+	@v.Base.Html() {
 		<div>
-			if v.err == dusk.ErrDoesNotExist {
-				@partials.NotFound()
+			if v.Err == dusk.ErrDoesNotExist {
+				@v.Base.NotFound()
 			} else if v.book != nil {
 				<div class="book__details">
 					@bookCover(v.book.Cover)

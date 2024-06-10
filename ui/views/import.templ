@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 var (
@@ -43,15 +44,15 @@ var (
 type ImportIndex struct {
 	defaultTab string
 	Tabs       partials.TabGroup
-	BaseView
+	shared.Base
 }
 
-func NewImportIndex(bv BaseView, defaultTab string, err error) *ImportIndex {
-	bv.err = err
+func NewImportIndex(base shared.Base, defaultTab string, err error) *ImportIndex {
+	base.Err = err
 	return &ImportIndex{
 		defaultTab: defaultTab,
 		Tabs:       ImportTabs,
-		BaseView:   bv,
+		Base:       base,
 	}
 }
 
@@ -60,8 +61,8 @@ func (v *ImportIndex) Render(rw http.ResponseWriter, r *http.Request) {
 }
 
 templ (v *ImportIndex) Html() {
-	@v.BaseView.Html() {
-		<h2>Import Books</h2>
+	@v.Base.Html() {
+		<h2>Add Books</h2>
 		@partials.Tabs(v.Tabs, v.defaultTab)
 	}
 }

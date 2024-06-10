@@ -19,17 +19,17 @@ func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 	page, err := s.db.GetAllBooks(dusk.DefaultBookFilters())
 	if err != nil {
 		slog.Error("[ui] failed to load index page", slog.Any("err", err))
-		views.NewIndex(s.baseView, nil, err).Render(rw, r)
+		views.NewIndex(s.base, dusk.Page[dusk.Book]{}, err).Render(rw, r)
 		return
 	}
-	views.NewIndex(s.baseView, page, nil).Render(rw, r)
+	views.NewIndex(s.base, *page, nil).Render(rw, r)
 }
 
 func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query()
 
 	// TODO trim, escape and filter special chars
-	var input = &dusk.BookFilters{
+	var filters = &dusk.BookFilters{
 		Title:  readString(qs, "title", ""),
 		Author: readString(qs, "author", ""),
 		SearchFilters: dusk.SearchFilters{
@@ -43,29 +43,29 @@ func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	if errMap := validator.Validate(input.Filters); errMap != nil {
+	if errMap := validator.Validate(filters.Filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
-		partials.BookSearchResults(nil, errors.New("validate error")).Render(r.Context(), rw)
+		partials.BookSearchResults(dusk.Page[dusk.Book]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return
 	}
 
-	page, err := s.db.GetAllBooks(input)
+	page, err := s.db.GetAllBooks(filters)
 	if err != nil {
 		if err == dusk.ErrNoRows {
-			partials.BookSearchResults(&dusk.BooksPage{}, err).Render(r.Context(), rw)
+			partials.BookSearchResults(dusk.Page[dusk.Book]{}, err).Render(r.Context(), rw)
 			return
 		} else {
 			slog.Error("failed to get all books", slog.Any("err", err))
-			partials.BookSearchResults(nil, err).Render(r.Context(), rw)
+			partials.BookSearchResults(dusk.Page[dusk.Book]{}, err).Render(r.Context(), rw)
 			return
 		}
 	}
 
 	// only return page partial when not querying for first page
-	if !page.Page.First() {
-		partials.BookPage(page, nil).Render(r.Context(), rw)
+	if !page.First() {
+		partials.BookPage(*page).Render(r.Context(), rw)
 	} else {
-		partials.BookSearchResults(page, nil).Render(r.Context(), rw)
+		partials.BookSearchResults(*page, nil).Render(r.Context(), rw)
 	}
 }
 
@@ -101,7 +101,7 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 	book, err := s.db.GetBook(int64(id))
 	if err != nil {
 		slog.Error("[ui] failed to find book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.baseView, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, err).Render(rw, r)
 		return
 	}
 
@@ -110,7 +110,7 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 		views.DeleteBookModal(book).Render(r.Context(), rw)
 		return
 	}
-	views.NewBook(s.baseView, book, nil).Render(rw, r)
+	views.NewBook(s.base, book, nil).Render(rw, r)
 }
 
 func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
@@ -122,7 +122,7 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	err := s.db.DeleteBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to delete book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.baseView, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, err).Render(rw, r)
 		return
 	}
 	// redirect to index page
