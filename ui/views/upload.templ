@@ -1,0 +1,21 @@
+package views
+
+templ uploadForm() {
+	<form
+		class="upload-form"
+		hx-post="/upload"
+		hx-target=".import__result_list"
+		hx-swap="innerHTML"
+		enctype="multipart/form-data"
+	>
+		<div class="filedrop-container">
+			<input type="file" name="upload" accept=".epub,.mobi,.pdf,.txt,.html" required/>
+			<small>Supported file types: epub, mobi, pdf</small>
+			<label>
+				<input type="checkbox" name="multiple" checked/>
+				Add another?
+			</label>
+		</div>
+		<button type="submit">Submit</button>
+	</form>
+}
