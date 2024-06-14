@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
-	tags, err := s.db.GetAllTags(dusk.DefaultSearchFilters())
+	tags, err := s.db.GetAllTags(defaultSearchFilters())
 	if err != nil {
 		slog.Error("[ui] failed to get all tags", slog.Any("err", err))
 		views.NewTagList(s.base, dusk.Page[dusk.Tag]{}, err).Render(rw, r)
@@ -22,19 +22,8 @@ func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
-	qs := r.URL.Query()
 
-	// TODO trim, escape and filter special chars
-	filters := &dusk.SearchFilters{
-		Search: readString(qs, "itemSearch", ""),
-		Filters: dusk.Filters{
-			AfterId:      readInt(qs, "after_id", 0),
-			PageSize:     readInt(qs, "page_size", 30),
-			Sort:         readString(qs, "sort", "name"),
-			SortSafeList: dusk.DefaultSafeList(),
-		},
-	}
-
+	filters := initSearchFilters(r)
 	if errMap := validator.Validate(filters.Filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.TagSearchResults(dusk.Page[dusk.Tag]{}, errors.New("validate error")).Render(r.Context(), rw)
@@ -54,7 +43,7 @@ func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// only return page partial when not querying for first page
-	if !page.First() {
+	if !page.IsFirst() {
 		views.TagListPage(*page).Render(r.Context(), rw)
 	} else {
 		views.TagSearchResults(*page, nil).Render(r.Context(), rw)
@@ -67,19 +56,7 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	qs := r.URL.Query()
-	filters := &dusk.BookFilters{
-		SearchFilters: dusk.SearchFilters{
-			Search: readString(qs, "itemSearch", ""),
-			Filters: dusk.Filters{
-				AfterId:      readInt(qs, "after_id", 0),
-				PageSize:     readInt(qs, "page_size", 30),
-				Sort:         readString(qs, "sort", "title"),
-				SortSafeList: dusk.DefaultSafeList(),
-			},
-		},
-	}
-
+	filters := initBookFilters(r)
 	if errMap := validator.Validate(filters.Filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.TagSearchResults(dusk.Page[dusk.Tag]{}, errors.New("validate error")).Render(r.Context(), rw)

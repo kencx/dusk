@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 
 	"github.com/kencx/dusk"
@@ -58,17 +59,23 @@ func (s *Store) GetAllTags(filters *dusk.SearchFilters) (*dusk.Page[dusk.Tag], e
 		}
 
 		result := &dusk.Page[dusk.Tag]{
-			Size:       min(int(dest[0].Total), filters.PageSize),
-			Total:      dest[0].Total,
-			FirstRowNo: dest[0].RowNo,
-			LastRowNo:  dest[len(dest)-1].RowNo,
-			Items:      tags,
+			PageInfo: &dusk.PageInfo{
+				Limit:      min(int(dest[0].Total), filters.PageSize),
+				TotalCount: dest[0].Total,
+				FirstRowNo: dest[0].RowNo,
+				LastRowNo:  dest[len(dest)-1].RowNo,
+			},
+			Items: tags,
 		}
 
-		// TODO proper building of existing query for pagination
+		// TODO
 		if filters.Search != "" {
-			result.Query = fmt.Sprintf("itemSearch=%s&", filters.Search)
+			result.QueryParams.Add("q", filters.Search)
 		}
+		result.QueryParams.Add("after_id", strconv.Itoa(filters.AfterId))
+		result.QueryParams.Add("page_size", strconv.Itoa(filters.PageSize))
+		result.QueryParams.Add("sort", filters.Sort)
+
 		return result, nil
 	})
 
@@ -123,17 +130,23 @@ func (s *Store) GetAllBooksFromTag(id int64, filters *dusk.BookFilters) (*dusk.P
 		}
 
 		result := &dusk.Page[dusk.Book]{
-			Size:       min(int(dest[0].Total), filters.PageSize),
-			Total:      dest[0].Total,
-			FirstRowNo: dest[0].RowNo,
-			LastRowNo:  dest[len(dest)-1].RowNo,
-			Items:      books,
+			PageInfo: &dusk.PageInfo{
+				Limit:      min(int(dest[0].Total), filters.PageSize),
+				TotalCount: dest[0].Total,
+				FirstRowNo: dest[0].RowNo,
+				LastRowNo:  dest[len(dest)-1].RowNo,
+			},
+			Items: books,
 		}
 
-		// TODO proper building of existing query for pagination
+		// TODO
 		if filters.Search != "" {
-			result.Query = fmt.Sprintf("itemSearch=%s&", filters.Search)
+			result.QueryParams.Add("itemSearch", filters.Search)
 		}
+		result.QueryParams.Add("after_id", strconv.Itoa(filters.AfterId))
+		result.QueryParams.Add("page_size", strconv.Itoa(filters.PageSize))
+		result.QueryParams.Add("sort", filters.Sort)
+
 		return result, nil
 	})
 

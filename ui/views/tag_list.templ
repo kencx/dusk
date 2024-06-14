@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"path"
-	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -40,7 +39,7 @@ templ (v *TagList) Html() {
 }
 
 templ TagSearchResults(page dusk.Page[dusk.Tag], err error) {
-	@partials.ItemSearchResults(page, err) {
+	@partials.ItemSearchResults(page, "/t/search", ".list__tag-view", err) {
 		<div class="list__tag-view">
 			<ul>
 				@TagListPage(page)
@@ -53,20 +52,30 @@ templ TagListPage(page dusk.Page[dusk.Tag]) {
 	for _, tag := range page.Items {
 		@listTag(tag)
 	}
-	if !page.Last() {
-		<hr
-			class="message infinite-scroll"
-			hx-get={ fmt.Sprintf("/a/search?%safter_id=%d", page.Query, page.LastNo()) }
-			hx-target=".list__author-view ul"
-			hx-swap="beforeend"
-			hx-trigger="revealed"
-		/>
-	} else {
-		<p class="message">END</p>
-	}
-	if !page.First() {
-		<span id="item-counter" hx-swap-oob="true">{ strconv.Itoa(page.LastNo()) }</span>
-	}
+	<div class="">
+		if !page.IsFirst() {
+			<button
+				class="icon"
+				hx-get={ fmt.Sprintf("/t/search?%s", page.Previous()) }
+				hx-swap="innerHTML"
+				hx-target=".list__tag-view"
+			>
+				// @icons.Previous()
+				previous
+			</button>
+		}
+		if !page.IsLast() {
+			<button
+				class="icon"
+				hx-get={ fmt.Sprintf("/t/search?%s", page.Next()) }
+				hx-swap="innerHTML"
+				hx-target=".list__tag-view"
+			>
+				// @icons.Next()
+				next
+			</button>
+		}
+	</div>
 }
 
 templ listTag(tag dusk.Tag) {

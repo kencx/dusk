@@ -3,6 +3,7 @@ package request
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -41,4 +42,24 @@ func HandleInt64(key string, rw http.ResponseWriter, r *http.Request) int64 {
 
 func FetchKey(r *http.Request, key string) string {
 	return chi.URLParam(r, key)
+}
+
+func QueryString(qv url.Values, key string, defaultValue string) string {
+	if !qv.Has(key) {
+		return defaultValue
+	}
+	return qv.Get(key)
+}
+
+func QueryInt(qv url.Values, key string, defaultValue int) int {
+	if !qv.Has(key) {
+		return defaultValue
+	}
+	value := qv.Get(key)
+
+	i, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+	return i
 }

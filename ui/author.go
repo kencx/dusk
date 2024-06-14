@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Handler) authorList(rw http.ResponseWriter, r *http.Request) {
-	authors, err := s.db.GetAllAuthors(dusk.DefaultSearchFilters())
+	authors, err := s.db.GetAllAuthors(defaultSearchFilters())
 	if err != nil {
 		slog.Error("[ui] failed to get all authors", slog.Any("err", err))
 		views.NewAuthorList(s.base, dusk.Page[dusk.Author]{}, err).Render(rw, r)
@@ -22,19 +22,8 @@ func (s *Handler) authorList(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Handler) authorSearch(rw http.ResponseWriter, r *http.Request) {
-	qs := r.URL.Query()
 
-	// TODO trim, escape and filter special chars
-	filters := &dusk.SearchFilters{
-		Search: readString(qs, "itemSearch", ""),
-		Filters: dusk.Filters{
-			AfterId:      readInt(qs, "after_id", 0),
-			PageSize:     readInt(qs, "page_size", 30),
-			Sort:         readString(qs, "sort", "name"),
-			SortSafeList: dusk.DefaultSafeList(),
-		},
-	}
-
+	filters := initSearchFilters(r)
 	if errMap := validator.Validate(filters.Filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.AuthorSearchResults(dusk.Page[dusk.Author]{}, errors.New("validate error")).Render(r.Context(), rw)
@@ -54,7 +43,7 @@ func (s *Handler) authorSearch(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// only return page partial when not querying for first page
-	if !page.First() {
+	if !page.IsFirst() {
 		views.AuthorListPage(*page).Render(r.Context(), rw)
 	} else {
 		views.AuthorSearchResults(*page, nil).Render(r.Context(), rw)
@@ -67,19 +56,7 @@ func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	qs := r.URL.Query()
-	filters := &dusk.BookFilters{
-		SearchFilters: dusk.SearchFilters{
-			Search: readString(qs, "itemSearch", ""),
-			Filters: dusk.Filters{
-				AfterId:      readInt(qs, "after_id", 0),
-				PageSize:     readInt(qs, "page_size", 30),
-				Sort:         readString(qs, "sort", "title"),
-				SortSafeList: dusk.DefaultSafeList(),
-			},
-		},
-	}
-
+	filters := initBookFilters(r)
 	if errMap := validator.Validate(filters.Filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.AuthorSearchResults(dusk.Page[dusk.Author]{}, errors.New("validate error")).Render(r.Context(), rw)

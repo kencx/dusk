@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"path"
-	"strconv"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -40,7 +39,7 @@ templ (v *AuthorList) Html() {
 }
 
 templ AuthorSearchResults(page dusk.Page[dusk.Author], err error) {
-	@partials.ItemSearchResults(page, err) {
+	@partials.ItemSearchResults(page, "/a/search", "list__author-view", err) {
 		<div class="list__author-view">
 			<ul>
 				@AuthorListPage(page)
@@ -53,20 +52,30 @@ templ AuthorListPage(page dusk.Page[dusk.Author]) {
 	for _, author := range page.Items {
 		@listAuthor(author)
 	}
-	if !page.Last() {
-		<hr
-			class="message infinite-scroll"
-			hx-get={ fmt.Sprintf("/a/search?%safter_id=%d", page.Query, page.LastNo()) }
-			hx-target=".list__author-view ul"
-			hx-swap="beforeend"
-			hx-trigger="revealed"
-		/>
-	} else {
-		<p class="message">END</p>
-	}
-	if !page.First() {
-		<span id="item-counter" hx-swap-oob="true">{ strconv.Itoa(page.LastNo()) }</span>
-	}
+	<div class="">
+		if !page.IsFirst() {
+			<button
+				class="icon"
+				hx-get={ fmt.Sprintf("/a/search?%s", page.Previous()) }
+				hx-swap="innerHTML"
+				hx-target=".list__author-view"
+			>
+				// @icons.Previous()
+				previous
+			</button>
+		}
+		if !page.IsLast() {
+			<button
+				class="icon"
+				hx-get={ fmt.Sprintf("/a/search?%s", page.Next()) }
+				hx-swap="innerHTML"
+				hx-target=".list__author-view"
+			>
+				// @icons.Next()
+				next
+			</button>
+		}
+	</div>
 }
 
 templ listAuthor(author dusk.Author) {

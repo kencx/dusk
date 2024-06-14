@@ -68,6 +68,8 @@ details.dropdown:has(> summary[role="button"].icon) {
 .search__metadata {
   margin-bottom: var(--pico-spacing);
   color: var(--pico-secondary);
+	display: flex;
+	justify-content: space-between;
 }
 
 .library__card-view {

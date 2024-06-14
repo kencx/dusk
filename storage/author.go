@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 
 	"github.com/kencx/dusk"
@@ -59,17 +60,23 @@ func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*dusk.Page[dusk.Auth
 		}
 
 		result := &dusk.Page[dusk.Author]{
-			Size:       min(int(dest[0].Total), filters.PageSize),
-			Total:      dest[0].Total,
-			FirstRowNo: dest[0].RowNo,
-			LastRowNo:  dest[len(dest)-1].RowNo,
-			Items:      authors,
+			PageInfo: &dusk.PageInfo{
+				Limit:      min(int(dest[0].Total), filters.PageSize),
+				TotalCount: dest[0].Total,
+				FirstRowNo: dest[0].RowNo,
+				LastRowNo:  dest[len(dest)-1].RowNo,
+			},
+			Items: authors,
 		}
 
-		// TODO proper building of existing query for pagination
+		// TODO
 		if filters.Search != "" {
-			result.Query = fmt.Sprintf("itemSearch=%s&", filters.Search)
+			result.QueryParams.Add("q", filters.Search)
 		}
+		result.QueryParams.Add("after_id", strconv.Itoa(filters.AfterId))
+		result.QueryParams.Add("page_size", strconv.Itoa(filters.PageSize))
+		result.QueryParams.Add("sort", filters.Sort)
+
 		return result, nil
 	})
 
@@ -125,17 +132,23 @@ func (s *Store) GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*dus
 		}
 
 		result := &dusk.Page[dusk.Book]{
-			Size:       min(int(dest[0].Total), filters.PageSize),
-			Total:      dest[0].Total,
-			FirstRowNo: dest[0].RowNo,
-			LastRowNo:  dest[len(dest)-1].RowNo,
-			Items:      books,
+			PageInfo: &dusk.PageInfo{
+				Limit:      min(int(dest[0].Total), filters.PageSize),
+				TotalCount: dest[0].Total,
+				FirstRowNo: dest[0].RowNo,
+				LastRowNo:  dest[len(dest)-1].RowNo,
+			},
+			Items: books,
 		}
 
-		// TODO proper building of existing query for pagination
+		// TODO
 		if filters.Search != "" {
-			result.Query = fmt.Sprintf("itemSearch=%s&", filters.Search)
+			result.QueryParams.Add("itemSearch", filters.Search)
 		}
+		result.QueryParams.Add("after_id", strconv.Itoa(filters.AfterId))
+		result.QueryParams.Add("page_size", strconv.Itoa(filters.PageSize))
+		result.QueryParams.Add("sort", filters.Sort)
+
 		return result, nil
 	})
 

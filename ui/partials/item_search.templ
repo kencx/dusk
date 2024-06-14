@@ -1,6 +1,7 @@
 package partials
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/kencx/dusk"
@@ -13,26 +14,69 @@ templ ItemSearch(path, target string) {
 		hx-target={ target }
 		hx-swap="innerHTML"
 		hx-trigger="input changed from:find #search delay:500ms"
+		hx-indicator=".spinner"
+		hx-boost="true"
 	>
-		<input id="search" name="itemSearch" placeholder="Search"/>
+		<input id="search" name="q" placeholder="Search"/>
 		<div class="spinner" aria-busy="true"></div>
 	</form>
 }
 
-templ ItemSearchResults[T dusk.Pager](items T, err error) {
+templ ItemSearchResults[T any](page dusk.Page[T], path, target string, err error) {
 	if err == dusk.ErrNoRows {
-		<p class="message">No results found!</p>
+		<p class="message">No items found!</p>
 	} else if err != nil {
 		<p class="message">Something went wrong, please try again.</p>
 	} else {
 		<div id="search__metadata" class="search__metadata">
-			if items.TotalNo() == 1 {
-				Showing 1 item
-			} else {
-				Showing <span id="item-counter">{ strconv.Itoa(items.LastNo()) }</span>
-				of { strconv.Itoa(items.TotalNo()) } items
-			}
+			<div>
+				if page.TotalCount == 1 {
+					Showing 1 item
+				} else {
+					Showing
+					<span id="item-counter">
+						{ fmt.Sprintf("%s - %s",
+            strconv.FormatInt(page.FirstRowNo, 10),
+            strconv.FormatInt(page.LastRowNo, 10) ) }
+					</span>
+					of { strconv.FormatInt(page.TotalCount, 10) } items
+				}
+			</div>
+			<div id="search__page_buttons" class="search__page_buttons">
+				@pageButtons(page, path, target)
+			</div>
 		</div>
 		{ children... }
+	}
+}
+
+templ pageButtons[T any](page dusk.Page[T], path, target string) {
+	if !page.IsFirst() {
+		<button
+			class="icon"
+			hx-get={ fmt.Sprintf("%s?%s", path, page.Previous()) }
+			hx-swap="outerHTML"
+			hx-target={ target }
+			hx-select={ target }
+			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-boost="true"
+		>
+			// @icons.Previous()
+			{ "<" }
+		</button>
+	}
+	if !page.IsLast() {
+		<button
+			class="icon"
+			hx-get={ fmt.Sprintf("%s?%s", path, page.Next()) }
+			hx-swap="outerHTML"
+			hx-target={ target }
+			hx-select={ target }
+			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-boost="true"
+		>
+			// @icons.Next()
+			{ ">" }
+		</button>
 	}
 }

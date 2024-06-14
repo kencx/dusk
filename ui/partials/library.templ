@@ -1,9 +1,6 @@
 package partials
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/kencx/dusk"
 )
 
@@ -19,29 +16,11 @@ templ Library(page dusk.Page[dusk.Book], err error) {
 }
 
 templ BookSearchResults(page dusk.Page[dusk.Book], err error) {
-	@ItemSearchResults(page, err) {
+	@ItemSearchResults(page, "/b/search", ".library__card-view", err) {
 		<div class="library__card-view">
-			@BookPage(page)
+			for _, book := range page.Items {
+				@bookCard(&book)
+			}
 		</div>
-	}
-}
-
-templ BookPage(page dusk.Page[dusk.Book]) {
-	for _, book := range page.Items {
-		@bookCard(&book)
-	}
-	if !page.Last() {
-		<hr
-			class="message infinite-scroll"
-			hx-get={ fmt.Sprintf("/b/search?%safter_id=%d", page.Query, page.LastNo()) }
-			hx-target=".library__card-view"
-			hx-swap="beforeend"
-			hx-trigger="revealed"
-		/>
-	} else {
-		<p class="message">END</p>
-	}
-	if !page.First() {
-		<span id="item-counter" hx-swap-oob="true">{ strconv.Itoa(page.LastNo()) }</span>
 	}
 }

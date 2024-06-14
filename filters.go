@@ -17,15 +17,6 @@ func DefaultSafeList() []string {
 	return []string{"title", "-title", "name", "-name"}
 }
 
-func NewDefaultFilters() *Filters {
-	return &Filters{
-		AfterId:      0,
-		PageSize:     30,
-		Sort:         "name",
-		SortSafeList: DefaultSafeList(),
-	}
-}
-
 func (f Filters) Valid() validator.ErrMap {
 	errMap := validator.New()
 
@@ -64,12 +55,6 @@ type SearchFilters struct {
 	Filters
 }
 
-func DefaultSearchFilters() *SearchFilters {
-	return &SearchFilters{
-		Filters: *NewDefaultFilters(),
-	}
-}
-
 func (sf *SearchFilters) Empty() bool {
 	return sf.Filters.Empty() &&
 		sf.Search == ""
@@ -81,16 +66,6 @@ type BookFilters struct {
 	Tag    string
 	Series string
 	SearchFilters
-}
-
-func DefaultBookFilters() *BookFilters {
-	bf := &BookFilters{
-		SearchFilters: SearchFilters{
-			Filters: *NewDefaultFilters(),
-		},
-	}
-	bf.Sort = "title"
-	return bf
 }
 
 func (bf *BookFilters) Empty() bool {
