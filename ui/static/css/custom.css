@@ -134,14 +134,15 @@ details.dropdown:has(> summary[role="button"].icon) {
 
   .title {
     margin: 0;
-    color: var(--pico-color);
+    color: var(--pico-contrast);
   }
 
   .author {
     margin: 0;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--pico-secondary);
     font-weight: normal;
+    line-height: 1.75;
   }
 }
 
