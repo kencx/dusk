@@ -30,7 +30,9 @@ templ ItemSearchResults[T any](page dusk.Page[T], path, target string, err error
 	} else {
 		@pageMetadata(page, path, target)
 		{ children... }
-		@pageMetadata(page, path, target)
+		if int(page.TotalCount) > page.Limit {
+			@pageMetadata(page, path, target)
+		}
 	}
 }
 
