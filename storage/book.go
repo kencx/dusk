@@ -419,13 +419,8 @@ func queryBooks(tx *sqlx.Tx, filters *dusk.BookFilters, dest *[]BookQueryRow) er
 		params = "1"
 	}
 
-	// trim \n, \t
-	// query = strings.ReplaceAll(query, "\n\t", " ")
-	// query = strings.ReplaceAll(query, "\n", " ")
-	// query = strings.ReplaceAll(query, "\t", " ")
-
 	slog.Info("Running SQL query",
-		slog.String("stmt", query),
+		slog.String("stmt", util.TrimMultiLine(query)),
 		slog.Any("params", params),
 		slog.Int("afterId", filters.AfterId),
 		slog.Int("pageSize", filters.PageSize),
