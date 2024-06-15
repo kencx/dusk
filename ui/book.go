@@ -55,7 +55,7 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 	book, err := s.db.GetBook(int64(id))
 	if err != nil {
 		slog.Error("[ui] failed to find book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
 		return
 	}
 
@@ -64,7 +64,22 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 		views.DeleteBookModal(book).Render(r.Context(), rw)
 		return
 	}
-	views.NewBook(s.base, book, nil).Render(rw, r)
+
+	authors, err := s.db.GetAuthorsFromBook(id)
+	if err != nil {
+		slog.Error("[ui] failed to fetch authors of book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		return
+	}
+
+	tags, err := s.db.GetTagsFromBook(id)
+	if err != nil {
+		slog.Error("[ui] failed to fetch tags of book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		return
+	}
+
+	views.NewBook(s.base, book, authors, tags, nil).Render(rw, r)
 }
 
 func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
@@ -76,7 +91,7 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	err := s.db.DeleteBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to delete book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
 		return
 	}
 	// redirect to index page

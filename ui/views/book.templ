@@ -15,13 +15,15 @@ import (
 )
 
 type Book struct {
-	book *dusk.Book
+	book    *dusk.Book
+	authors []dusk.Author
+	tags    []dusk.Tag
 	shared.Base
 }
 
-func NewBook(base shared.Base, book *dusk.Book, err error) *Book {
+func NewBook(base shared.Base, book *dusk.Book, authors []dusk.Author, tags []dusk.Tag, err error) *Book {
 	base.Err = err
-	return &Book{book, base}
+	return &Book{book, authors, tags, base}
 }
 
 func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
@@ -45,9 +47,9 @@ templ (v *Book) Html() {
 								<small class="subtitle">{ v.book.Subtitle.String }</small>
 							}
 						</hgroup>
-						@bookAuthors(v.book.Author)
+						@v.bookAuthors()
 						@bookRating(v.book.Rating)
-						@bookTags(v.book.Tag)
+						@v.bookTags()
 						@bookDetails(v.book)
 						@bookActions(v.book)
 					</div>
@@ -85,22 +87,22 @@ templ bookCover(cover null.String) {
 	</div>
 }
 
-templ bookAuthors(authors []string) {
+templ (v *Book) bookAuthors() {
 	<p>
-		for _, a := range authors {
-			<span class="author"><a href={ templ.URL(path.Join("/a", a)) }>{ a }</a></span>
+		for _, a := range v.authors {
+			<span class="author"><a href={ templ.URL(path.Join("/a", a.Slugify())) }>{ a.Name }</a></span>
 		}
 	</p>
 }
 
-templ bookTags(tags []string) {
+templ (v *Book) bookTags() {
 	<div class="tags">
-		for _, tag := range tags {
+		for _, tag := range v.tags {
 			<span class="tag">
-				if len(tag) > 25 {
-					<a href={ templ.URL(path.Join("/t", tag)) } data-tooltip={ tag }>{ tag[:25] + "..." }</a>
+				if len(tag.Name) > 25 {
+					<a href={ templ.URL(path.Join("/t", tag.Slugify())) } data-tooltip={ tag.Name }>{ tag.Name[:25] + "..." }</a>
 				} else {
-					<a href={ templ.URL(path.Join("/t", tag)) }>{ tag }</a>
+					<a href={ templ.URL(path.Join("/t", tag.Slugify())) }>{ tag.Name }</a>
 				}
 			</span>
 		}

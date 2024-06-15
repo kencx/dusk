@@ -19,6 +19,7 @@ type Store interface {
 	DeleteBook(id int64) error
 
 	GetAuthor(id int64) (*dusk.Author, error)
+	GetAuthorsFromBook(id int64) ([]dusk.Author, error)
 	GetAllAuthors(filters *dusk.SearchFilters) (*dusk.Page[dusk.Author], error)
 	GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error)
 	CreateAuthor(a *dusk.Author) (*dusk.Author, error)
@@ -26,6 +27,7 @@ type Store interface {
 	DeleteAuthor(id int64) error
 
 	GetTag(id int64) (*dusk.Tag, error)
+	GetTagsFromBook(id int64) ([]dusk.Tag, error)
 	GetAllTags(filters *dusk.SearchFilters) (*dusk.Page[dusk.Tag], error)
 	GetAllBooksFromTag(id int64, filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error)
 	CreateTag(t *dusk.Tag) (*dusk.Tag, error)

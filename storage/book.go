@@ -61,6 +61,28 @@ func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	return i.(*dusk.Book), nil
 }
 
+func (s *Store) GetAuthorsFromBook(id int64) ([]dusk.Author, error) {
+	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
+		var authors []dusk.Author
+
+		stmt := `SELECT a.*
+			FROM book_author_link ba
+			JOIN author a ON a.id=ba.author
+			WHERE ba.book=$1
+			ORDER BY a.name`
+
+		if err := tx.Select(&authors, stmt, id); err != nil {
+			return nil, err
+		}
+		return authors, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return i.([]dusk.Author), err
+}
+
 func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQueryRow

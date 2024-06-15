@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -41,6 +42,28 @@ func (s *Store) GetTag(id int64) (*dusk.Tag, error) {
 	return i.(*dusk.Tag), nil
 }
 
+func (s *Store) GetTagsFromBook(id int64) ([]dusk.Tag, error) {
+	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
+		var tags []dusk.Tag
+
+		stmt := `SELECT a.*
+			FROM book_tag_link ba
+			JOIN tag a ON a.id=ba.tag
+			WHERE ba.book=$1
+			ORDER BY a.name`
+
+		if err := tx.Select(&tags, stmt, id); err != nil {
+			return nil, err
+		}
+		return tags, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return i.([]dusk.Tag), err
+}
+
 func (s *Store) GetAllTags(filters *dusk.SearchFilters) (*dusk.Page[dusk.Tag], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []TagQueryRow
@@ -60,10 +83,11 @@ func (s *Store) GetAllTags(filters *dusk.SearchFilters) (*dusk.Page[dusk.Tag], e
 
 		result := &dusk.Page[dusk.Tag]{
 			PageInfo: &dusk.PageInfo{
-				Limit:      min(int(dest[0].Total), filters.PageSize),
-				TotalCount: dest[0].Total,
-				FirstRowNo: dest[0].RowNo,
-				LastRowNo:  dest[len(dest)-1].RowNo,
+				Limit:       min(int(dest[0].Total), filters.PageSize),
+				TotalCount:  dest[0].Total,
+				FirstRowNo:  dest[0].RowNo,
+				LastRowNo:   dest[len(dest)-1].RowNo,
+				QueryParams: make(url.Values),
 			},
 			Items: tags,
 		}
@@ -131,10 +155,11 @@ func (s *Store) GetAllBooksFromTag(id int64, filters *dusk.BookFilters) (*dusk.P
 
 		result := &dusk.Page[dusk.Book]{
 			PageInfo: &dusk.PageInfo{
-				Limit:      min(int(dest[0].Total), filters.PageSize),
-				TotalCount: dest[0].Total,
-				FirstRowNo: dest[0].RowNo,
-				LastRowNo:  dest[len(dest)-1].RowNo,
+				Limit:       min(int(dest[0].Total), filters.PageSize),
+				TotalCount:  dest[0].Total,
+				FirstRowNo:  dest[0].RowNo,
+				LastRowNo:   dest[len(dest)-1].RowNo,
+				QueryParams: make(url.Values),
 			},
 			Items: books,
 		}

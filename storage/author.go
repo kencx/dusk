@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -61,10 +62,11 @@ func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*dusk.Page[dusk.Auth
 
 		result := &dusk.Page[dusk.Author]{
 			PageInfo: &dusk.PageInfo{
-				Limit:      min(int(dest[0].Total), filters.PageSize),
-				TotalCount: dest[0].Total,
-				FirstRowNo: dest[0].RowNo,
-				LastRowNo:  dest[len(dest)-1].RowNo,
+				Limit:       min(int(dest[0].Total), filters.PageSize),
+				TotalCount:  dest[0].Total,
+				FirstRowNo:  dest[0].RowNo,
+				LastRowNo:   dest[len(dest)-1].RowNo,
+				QueryParams: make(url.Values),
 			},
 			Items: authors,
 		}
@@ -133,10 +135,11 @@ func (s *Store) GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*dus
 
 		result := &dusk.Page[dusk.Book]{
 			PageInfo: &dusk.PageInfo{
-				Limit:      min(int(dest[0].Total), filters.PageSize),
-				TotalCount: dest[0].Total,
-				FirstRowNo: dest[0].RowNo,
-				LastRowNo:  dest[len(dest)-1].RowNo,
+				Limit:       min(int(dest[0].Total), filters.PageSize),
+				TotalCount:  dest[0].Total,
+				FirstRowNo:  dest[0].RowNo,
+				LastRowNo:   dest[len(dest)-1].RowNo,
+				QueryParams: make(url.Values),
 			},
 			Items: books,
 		}
