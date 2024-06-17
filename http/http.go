@@ -8,9 +8,11 @@ import (
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/api"
 	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/http/response"
 	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui"
+	"github.com/kencx/dusk/util"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -104,6 +106,18 @@ func (s *Server) RegisterRoutes() {
 	r.Use(middleware.StripSlashes)
 	r.Use(timeoutHandler(2 * readWriteTimeout / 3))
 
+	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		res, err := util.ToJSON(response.Envelope{
+			"timestamp": time.Now().Unix(),
+			"message":   "pong",
+			"version":   s.revision,
+		})
+		if err != nil {
+			response.InternalServerError(w, r, err)
+			return
+		}
+		response.OK(w, r, res)
+	})
 	r.Mount("/api", api.Router(s.revision, s.db, s.fs))
 	r.Mount("/", ui.Router(s.revision, s.db, s.fs, s.f))
 }
