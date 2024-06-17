@@ -54,6 +54,9 @@ func TestNew(t *testing.T) {
 func TestNext(t *testing.T) {
 	is := is.New(t)
 	got := testPage
+	got.FirstRowNo = 1
+	got.LastRowNo = 5
+
 	want := fmt.Sprintf("%s=%d", After, 5)
 	is.Equal(got.Next(), want)
 }
@@ -71,7 +74,10 @@ func TestNextLastPage(t *testing.T) {
 func TestPrevious(t *testing.T) {
 	is := is.New(t)
 	got := testPage
-	want := fmt.Sprintf("%s=%d", After, 1)
+	got.FirstRowNo = 5
+	got.LastRowNo = 10
+
+	want := fmt.Sprintf("%s=%d", After, 0)
 	is.Equal(got.Previous(), want)
 }
 

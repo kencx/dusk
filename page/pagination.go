@@ -70,8 +70,18 @@ func (p *Page[T]) Previous() string {
 	}
 
 	if p.QueryParams.Has(After) {
-		p.QueryParams.Set(After, strconv.Itoa(int(p.FirstRowNo)-p.Limit-1))
+		p.QueryParams.Set(After, strconv.Itoa(max(0, int(p.FirstRowNo)-p.Limit-1)))
 	}
+	return p.QueryParams.Encode()
+}
+
+func (p *Page[T]) First() string {
+	p.QueryParams.Set(After, "0")
+	return p.QueryParams.Encode()
+}
+
+func (p *Page[T]) Last() string {
+	p.QueryParams.Set(After, strconv.Itoa((p.TotalCount/p.Limit)*p.Limit))
 	return p.QueryParams.Encode()
 }
 

@@ -9,18 +9,19 @@ import (
 )
 
 templ ItemSearch(path, target string) {
-	<form
+	<input
+		id="search"
+		name="q"
+		placeholder="Search"
 		hx-get={ path }
-		hx-params="*"
 		hx-target={ target }
+		hx-params="*"
 		hx-swap="innerHTML"
-		hx-trigger="input changed from:find #search delay:500ms"
+		hx-trigger="input changed delay:500ms, search"
 		hx-indicator=".spinner"
 		hx-boost="true"
-	>
-		<input id="search" name="q" placeholder="Search"/>
-		<div class="spinner" aria-busy="true"></div>
-	</form>
+	/>
+	<div class="spinner" aria-busy="true"></div>
 }
 
 templ ItemSearchResults[T any](page page.Page[T], path, target string, err error) {
@@ -62,6 +63,17 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 	if !page.IsFirst() {
 		<button
 			class="icon"
+			hx-get={ fmt.Sprintf("%s?%s", path, page.First()) }
+			hx-swap="outerHTML"
+			hx-target={ target }
+			hx-select={ target }
+			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-boost="true"
+		>
+			{ "<<" }
+		</button>
+		<button
+			class="icon"
 			hx-get={ fmt.Sprintf("%s?%s", path, page.Previous()) }
 			hx-swap="outerHTML"
 			hx-target={ target }
@@ -85,6 +97,17 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 		>
 			// @icons.Next()
 			{ ">" }
+		</button>
+		<button
+			class="icon"
+			hx-get={ fmt.Sprintf("%s?%s", path, page.Last()) }
+			hx-swap="outerHTML"
+			hx-target={ target }
+			hx-select={ target }
+			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-boost="true"
+		>
+			{ ">>" }
 		</button>
 	}
 }
