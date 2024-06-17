@@ -14,16 +14,17 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type Index struct {
-	page dusk.Page[dusk.Book]
+	page page.Page[dusk.Book]
 	shared.Base
 }
 
-func NewIndex(base shared.Base, page dusk.Page[dusk.Book], err error) *Index {
+func NewIndex(base shared.Base, page page.Page[dusk.Book], err error) *Index {
 	base.Err = err
 	return &Index{page, base}
 }

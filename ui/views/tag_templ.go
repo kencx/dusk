@@ -14,17 +14,18 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type Tag struct {
 	tag  dusk.Tag
-	page dusk.Page[dusk.Book]
+	page page.Page[dusk.Book]
 	shared.Base
 }
 
-func NewTag(base shared.Base, tag dusk.Tag, page dusk.Page[dusk.Book], err error) *Tag {
+func NewTag(base shared.Base, tag dusk.Tag, page page.Page[dusk.Book], err error) *Tag {
 	base.Err = err
 	return &Tag{tag, page, base}
 }
@@ -69,7 +70,7 @@ func (v *Tag) Html() templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(v.tag.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag.templ`, Line: 34, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag.templ`, Line: 35, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {

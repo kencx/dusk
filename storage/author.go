@@ -5,21 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/page"
 
 	"github.com/jmoiron/sqlx"
 )
-
-type AuthorQueryRow struct {
-	Total int64 `db:"count"`
-	RowNo int64 `db:"rowno"`
-	*dusk.Author
-}
 
 func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
@@ -43,7 +35,7 @@ func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 	return i.(*dusk.Author), nil
 }
 
-func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*dusk.Page[dusk.Author], error) {
+func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*page.Page[dusk.Author], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []AuthorQueryRow
 
@@ -51,114 +43,52 @@ func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*dusk.Page[dusk.Auth
 		if err != nil {
 			return nil, fmt.Errorf("db: retrieve all authors with filters failed: %w", err)
 		}
-		if len(dest) == 0 {
-			return nil, dusk.ErrNoRows
-		}
 
-		var authors []dusk.Author
-		for _, row := range dest {
-			authors = append(authors, *row.Author)
+		result, err := newAuthorPage(dest, filters)
+		if err != nil {
+			return nil, err
 		}
-
-		result := &dusk.Page[dusk.Author]{
-			PageInfo: &dusk.PageInfo{
-				Limit:       min(int(dest[0].Total), filters.PageSize),
-				TotalCount:  dest[0].Total,
-				FirstRowNo:  dest[0].RowNo,
-				LastRowNo:   dest[len(dest)-1].RowNo,
-				QueryParams: make(url.Values),
-			},
-			Items: authors,
-		}
-
-		// TODO
-		if filters.Search != "" {
-			result.QueryParams.Add("q", filters.Search)
-		}
-		result.QueryParams.Add("after_id", strconv.Itoa(filters.AfterId))
-		result.QueryParams.Add("page_size", strconv.Itoa(filters.PageSize))
-		result.QueryParams.Add("sort", filters.Sort)
-
 		return result, nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
-	return i.(*dusk.Page[dusk.Author]), nil
+	return i.(*page.Page[dusk.Author]), nil
 }
 
-func (s *Store) GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*dusk.Page[dusk.Book], error) {
+func (s *Store) GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []BookQueryRow
-
-		// TODO handle search query
-		var params string
-		query := `WITH paginate AS (
-			SELECT COUNT() OVER() AS count,
-				ROW_NUMBER() OVER(ORDER BY %s %s) AS rowno,
-				bv.*
-			FROM book_view bv
-			WHERE bv.id IN (SELECT book FROM book_author_link WHERE author=$1)
+		var (
+			dest   []BookQueryRow
+			params string
 		)
-		SELECT * FROM paginate
-		WHERE rowno > $2
-		LIMIT $3;`
-		query = fmt.Sprintf(query, filters.SortColumn(), filters.SortDirection())
+		query := buildPagedStmt("book_view", &filters.Filters, `WHERE t.id IN (SELECT book FROM book_author_link WHERE author=$1)`)
 
 		slog.Info("Running SQL query",
 			slog.String("stmt", query),
 			slog.Int64("id", id),
 			slog.Any("params", params),
 			slog.Int("afterId", filters.AfterId),
-			slog.Int("pageSize", filters.PageSize),
+			slog.Int("pageSize", filters.Limit),
 		)
 
-		err := tx.Select(&dest, query, id, filters.AfterId, filters.PageSize)
+		err := tx.Select(&dest, query, id, filters.AfterId, filters.Limit)
 		if err != nil {
 			return nil, fmt.Errorf("db: retrieve all books from author %d failed: %w", id, err)
 		}
-		if len(dest) == 0 {
-			return nil, dusk.ErrNoRows
-		}
 
-		var books []dusk.Book
-		for _, row := range dest {
-			row.Author = strings.Split(row.AuthorString, ",")
-			row.Tag = row.TagString.Split(",")
-			row.Isbn10 = row.Isbn10String.Split(",")
-			row.Isbn13 = row.Isbn13String.Split(",")
-			row.Formats = row.FormatString.Split(",")
-			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
-			books = append(books, *row.Book)
+		result, err := newBookPage(dest, filters)
+		if err != nil {
+			return nil, err
 		}
-
-		result := &dusk.Page[dusk.Book]{
-			PageInfo: &dusk.PageInfo{
-				Limit:       min(int(dest[0].Total), filters.PageSize),
-				TotalCount:  dest[0].Total,
-				FirstRowNo:  dest[0].RowNo,
-				LastRowNo:   dest[len(dest)-1].RowNo,
-				QueryParams: make(url.Values),
-			},
-			Items: books,
-		}
-
-		// TODO
-		if filters.Search != "" {
-			result.QueryParams.Add("itemSearch", filters.Search)
-		}
-		result.QueryParams.Add("after_id", strconv.Itoa(filters.AfterId))
-		result.QueryParams.Add("page_size", strconv.Itoa(filters.PageSize))
-		result.QueryParams.Add("sort", filters.Sort)
-
 		return result, nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
-	return i.(*dusk.Page[dusk.Book]), nil
+	return i.(*page.Page[dusk.Book]), nil
 }
 
 func (s *Store) CreateAuthor(a *dusk.Author) (*dusk.Author, error) {
@@ -232,41 +162,16 @@ func (s *Store) DeleteAuthor(id int64) error {
 }
 
 func queryAuthors(tx *sqlx.Tx, filters *dusk.SearchFilters, dest *[]AuthorQueryRow) error {
-	var params string
-	query := `WITH paginate AS (
-		SELECT COUNT() OVER() AS count,
-			ROW_NUMBER() OVER(ORDER BY %s %s) AS rowno,
-			*
-		FROM author %s
-	)
-	SELECT * FROM paginate
-	WHERE rowno > $2
-	LIMIT $3;`
-	query = fmt.Sprintf(query, filters.SortColumn(), filters.SortDirection(), "%s")
-
-	switch {
-	case filters == nil || filters.Empty():
-		query = fmt.Sprintf(query, "WHERE $1")
-		params = "1"
-
-	case filters.Search != "":
-		query = fmt.Sprintf(query, `WHERE id IN (SELECT rowid FROM author_fts WHERE author_fts MATCH $1)`)
-		// escape params
-		params = fmt.Sprintf(`"%s"`, filters.Search)
-
-	default:
-		query = fmt.Sprintf(query, "WHERE $1")
-		params = "1"
-	}
+	query, params := buildPagedSearchQuery("author", filters)
 
 	slog.Info("Running SQL query",
 		slog.String("stmt", query),
 		slog.Any("params", params),
 		slog.Int("afterId", filters.AfterId),
-		slog.Int("pageSize", filters.PageSize),
+		slog.Int("pageSize", filters.Limit),
 	)
 
-	err := tx.Select(dest, query, params, filters.AfterId, filters.PageSize)
+	err := tx.Select(dest, query, params, filters.AfterId, filters.Limit)
 	if err != nil {
 		return fmt.Errorf("db: query authors failed: %w", err)
 	}

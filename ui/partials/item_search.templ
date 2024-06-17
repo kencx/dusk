@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 )
 
 templ ItemSearch(path, target string) {
@@ -22,7 +23,7 @@ templ ItemSearch(path, target string) {
 	</form>
 }
 
-templ ItemSearchResults[T any](page dusk.Page[T], path, target string, err error) {
+templ ItemSearchResults[T any](page page.Page[T], path, target string, err error) {
 	if err == dusk.ErrNoRows {
 		<p class="message">No items found!</p>
 	} else if err != nil {
@@ -30,25 +31,25 @@ templ ItemSearchResults[T any](page dusk.Page[T], path, target string, err error
 	} else {
 		@pageMetadata(page, path, target)
 		{ children... }
-		if int(page.TotalCount) > page.Limit {
+		if page.TotalCount > page.Limit {
 			@pageMetadata(page, path, target)
 		}
 	}
 }
 
-templ pageMetadata[T any](page dusk.Page[T], path, target string) {
+templ pageMetadata[T any](page page.Page[T], path, target string) {
 	<div id="search__metadata" class="search__metadata">
-		<div>
+		<div class="search__page_counter">
 			if page.TotalCount == 1 {
 				Showing 1 item
 			} else {
 				Showing
 				<span id="item-counter">
 					{ fmt.Sprintf("%s - %s",
-          strconv.FormatInt(page.FirstRowNo, 10),
-          strconv.FormatInt(page.LastRowNo, 10) ) }
+          strconv.Itoa(page.FirstRowNo),
+          strconv.Itoa(page.LastRowNo) ) }
 				</span>
-				of { strconv.FormatInt(page.TotalCount, 10) } items
+				of { strconv.Itoa(page.TotalCount) } items
 			}
 		</div>
 		<div id="search__page_buttons" class="search__page_buttons">
@@ -57,7 +58,7 @@ templ pageMetadata[T any](page dusk.Page[T], path, target string) {
 	</div>
 }
 
-templ pageButtons[T any](page dusk.Page[T], path, target string) {
+templ pageButtons[T any](page page.Page[T], path, target string) {
 	if !page.IsFirst() {
 		<button
 			class="icon"

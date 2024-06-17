@@ -2,9 +2,10 @@ package partials
 
 import (
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 )
 
-templ Library(page dusk.Page[dusk.Book], err error) {
+templ Library(page page.Page[dusk.Book], err error) {
 	if err == dusk.ErrNoRows {
 		@Empty()
 	} else {
@@ -15,7 +16,7 @@ templ Library(page dusk.Page[dusk.Book], err error) {
 	}
 }
 
-templ BookSearchResults(page dusk.Page[dusk.Book], err error) {
+templ BookSearchResults(page page.Page[dusk.Book], err error) {
 	@ItemSearchResults(page, "/b/search", ".library__card-view", err) {
 		<div class="library__card-view">
 			for _, book := range page.Items {

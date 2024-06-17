@@ -8,7 +8,7 @@ import (
 
 type Filters struct {
 	AfterId      int
-	PageSize     int
+	Limit        int
 	Sort         string
 	SortSafeList []string
 }
@@ -20,10 +20,10 @@ func DefaultSafeList() []string {
 func (f Filters) Valid() validator.ErrMap {
 	errMap := validator.New()
 
-	errMap.Check(f.AfterId >= 0, "after_id", "must be >= 0")
-	errMap.Check(f.AfterId <= 10_000_000, "after_id", "must be <= 10 million")
-	errMap.Check(f.PageSize > 0, "page_size", "must be > 0")
-	errMap.Check(f.PageSize <= 1000, "page_size", "must be <= 1000")
+	errMap.Check(f.AfterId >= 0, "after", "must be >= 0")
+	errMap.Check(f.AfterId <= 10_000_000, "after", "must be <= 10 million")
+	errMap.Check(f.Limit > 0, "limit", "must be > 0")
+	errMap.Check(f.Limit <= 1000, "limit", "must be <= 1000")
 	errMap.Check(validator.In(f.Sort, f.SortSafeList), "sort", "invalid sort value")
 
 	return errMap

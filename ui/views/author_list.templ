@@ -1,21 +1,21 @@
 package views
 
 import (
-	"fmt"
 	"net/http"
 	"path"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type AuthorList struct {
-	page dusk.Page[dusk.Author]
+	page page.Page[dusk.Author]
 	shared.Base
 }
 
-func NewAuthorList(base shared.Base, page dusk.Page[dusk.Author], err error) *AuthorList {
+func NewAuthorList(base shared.Base, page page.Page[dusk.Author], err error) *AuthorList {
 	base.Err = err
 	return &AuthorList{page, base}
 }
@@ -38,44 +38,16 @@ templ (v *AuthorList) Html() {
 	}
 }
 
-templ AuthorSearchResults(page dusk.Page[dusk.Author], err error) {
-	@partials.ItemSearchResults(page, "/a/search", "list__author-view", err) {
+templ AuthorSearchResults(page page.Page[dusk.Author], err error) {
+	@partials.ItemSearchResults(page, "/a/search", ".list__author-view", err) {
 		<div class="list__author-view">
 			<ul>
-				@AuthorListPage(page)
+				for _, author := range page.Items {
+					@listAuthor(author)
+				}
 			</ul>
 		</div>
 	}
-}
-
-templ AuthorListPage(page dusk.Page[dusk.Author]) {
-	for _, author := range page.Items {
-		@listAuthor(author)
-	}
-	<div class="">
-		if !page.IsFirst() {
-			<button
-				class="icon"
-				hx-get={ fmt.Sprintf("/a/search?%s", page.Previous()) }
-				hx-swap="innerHTML"
-				hx-target=".list__author-view"
-			>
-				// @icons.Previous()
-				previous
-			</button>
-		}
-		if !page.IsLast() {
-			<button
-				class="icon"
-				hx-get={ fmt.Sprintf("/a/search?%s", page.Next()) }
-				hx-swap="innerHTML"
-				hx-target=".list__author-view"
-			>
-				// @icons.Next()
-				next
-			</button>
-		}
-	</div>
 }
 
 templ listAuthor(author dusk.Author) {

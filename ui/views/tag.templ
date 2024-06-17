@@ -4,17 +4,18 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type Tag struct {
 	tag  dusk.Tag
-	page dusk.Page[dusk.Book]
+	page page.Page[dusk.Book]
 	shared.Base
 }
 
-func NewTag(base shared.Base, tag dusk.Tag, page dusk.Page[dusk.Book], err error) *Tag {
+func NewTag(base shared.Base, tag dusk.Tag, page page.Page[dusk.Book], err error) *Tag {
 	base.Err = err
 	return &Tag{tag, page, base}
 }

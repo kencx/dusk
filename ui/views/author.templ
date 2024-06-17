@@ -4,17 +4,18 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type Author struct {
 	author dusk.Author
-	page   dusk.Page[dusk.Book]
+	page   page.Page[dusk.Book]
 	shared.Base
 }
 
-func NewAuthor(base shared.Base, author dusk.Author, page dusk.Page[dusk.Book], err error) *Author {
+func NewAuthor(base shared.Base, author dusk.Author, page page.Page[dusk.Book], err error) *Author {
 	base.Err = err
 	return &Author{author, page, base}
 }

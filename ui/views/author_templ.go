@@ -14,17 +14,18 @@ import (
 	"net/http"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type Author struct {
 	author dusk.Author
-	page   dusk.Page[dusk.Book]
+	page   page.Page[dusk.Book]
 	shared.Base
 }
 
-func NewAuthor(base shared.Base, author dusk.Author, page dusk.Page[dusk.Book], err error) *Author {
+func NewAuthor(base shared.Base, author dusk.Author, page page.Page[dusk.Book], err error) *Author {
 	base.Err = err
 	return &Author{author, page, base}
 }
@@ -69,7 +70,7 @@ func (v *Author) Html() templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(v.author.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/author.templ`, Line: 34, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/author.templ`, Line: 35, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {

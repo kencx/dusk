@@ -1,21 +1,21 @@
 package views
 
 import (
-	"fmt"
 	"net/http"
 	"path"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type TagList struct {
-	page dusk.Page[dusk.Tag]
+	page page.Page[dusk.Tag]
 	shared.Base
 }
 
-func NewTagList(base shared.Base, page dusk.Page[dusk.Tag], err error) *TagList {
+func NewTagList(base shared.Base, page page.Page[dusk.Tag], err error) *TagList {
 	base.Err = err
 	return &TagList{page, base}
 }
@@ -38,44 +38,16 @@ templ (v *TagList) Html() {
 	}
 }
 
-templ TagSearchResults(page dusk.Page[dusk.Tag], err error) {
+templ TagSearchResults(page page.Page[dusk.Tag], err error) {
 	@partials.ItemSearchResults(page, "/t/search", ".list__tag-view", err) {
 		<div class="list__tag-view">
 			<ul>
-				@TagListPage(page)
+				for _, tag := range page.Items {
+					@listTag(tag)
+				}
 			</ul>
 		</div>
 	}
-}
-
-templ TagListPage(page dusk.Page[dusk.Tag]) {
-	for _, tag := range page.Items {
-		@listTag(tag)
-	}
-	<div class="">
-		if !page.IsFirst() {
-			<button
-				class="icon"
-				hx-get={ fmt.Sprintf("/t/search?%s", page.Previous()) }
-				hx-swap="innerHTML"
-				hx-target=".list__tag-view"
-			>
-				// @icons.Previous()
-				previous
-			</button>
-		}
-		if !page.IsLast() {
-			<button
-				class="icon"
-				hx-get={ fmt.Sprintf("/t/search?%s", page.Next()) }
-				hx-swap="innerHTML"
-				hx-target=".list__tag-view"
-			>
-				// @icons.Next()
-				next
-			</button>
-		}
-	</div>
 }
 
 templ listTag(tag dusk.Tag) {

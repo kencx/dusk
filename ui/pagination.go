@@ -5,11 +5,12 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
+	"github.com/kencx/dusk/page"
 )
 
 var (
 	defaultAfterId  = 0
-	defaultPageSize = 30
+	defaultLimit    = 30
 	defaultSort     = "name"
 	defaultBookSort = "title"
 )
@@ -17,7 +18,7 @@ var (
 func defaultFilters() *dusk.Filters {
 	return &dusk.Filters{
 		AfterId:      defaultAfterId,
-		PageSize:     defaultPageSize,
+		Limit:        defaultLimit,
 		Sort:         defaultSort,
 		SortSafeList: dusk.DefaultSafeList(),
 	}
@@ -46,9 +47,9 @@ func initSearchFilters(r *http.Request) *dusk.SearchFilters {
 	return &dusk.SearchFilters{
 		Search: request.QueryString(qs, "q", ""),
 		Filters: dusk.Filters{
-			AfterId:      request.QueryInt(qs, "after_id", defaultAfterId),
-			PageSize:     request.QueryInt(qs, "page_size", defaultPageSize),
-			Sort:         request.QueryString(qs, "sort", defaultSort),
+			AfterId:      request.QueryInt(qs, page.After, defaultAfterId),
+			Limit:        request.QueryInt(qs, page.Limit, defaultLimit),
+			Sort:         request.QueryString(qs, page.Sort, defaultSort),
 			SortSafeList: dusk.DefaultSafeList(),
 		},
 	}
@@ -66,9 +67,9 @@ func initBookFilters(r *http.Request) *dusk.BookFilters {
 		SearchFilters: dusk.SearchFilters{
 			Search: request.QueryString(qs, "q", ""),
 			Filters: dusk.Filters{
-				AfterId:      request.QueryInt(qs, "after_id", defaultAfterId),
-				PageSize:     request.QueryInt(qs, "page_size", defaultPageSize),
-				Sort:         request.QueryString(qs, "sort", defaultBookSort),
+				AfterId:      request.QueryInt(qs, page.After, defaultAfterId),
+				Limit:        request.QueryInt(qs, page.Limit, defaultLimit),
+				Sort:         request.QueryString(qs, page.Sort, defaultBookSort),
 				SortSafeList: dusk.DefaultSafeList(),
 			},
 		},
