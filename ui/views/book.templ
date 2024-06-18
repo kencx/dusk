@@ -209,9 +209,14 @@ templ bookActions(book *dusk.Book) {
 				</summary>
 			}
 		</details>
-		<button class="icon" data-tooltip="Edit details">
+		<a
+			role="button"
+			class="icon"
+			data-tooltip="Edit details"
+			href={ templ.SafeURL(fmt.Sprintf("/b/%s/edit", book.Slugify())) }
+		>
 			@icons.Edit()
-		</button>
+		</a>
 		<button class="icon" data-tooltip="Add notes">
 			@icons.Book()
 		</button>

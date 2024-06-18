@@ -76,7 +76,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.db.CreateBook(b)
+	book, err := s.db.CreateBook(b)
 	if err != nil {
 		// TODO handle book that already exists
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
@@ -99,6 +99,6 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
-	// partials.Link(fmt.Sprintf("/b/%s", book.Slugify()), book.Title)
-	SendToastMessage(rw, r, "Book added!")
+	rawMessage := fmt.Sprintf(`Book <a href="/b/%s">%s</a> added`, book.Slugify(), book.Title)
+	SendToastRawMessage(rw, r, rawMessage)
 }

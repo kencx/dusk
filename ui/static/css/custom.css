@@ -29,6 +29,7 @@ footer {
 
 /* ICONS */
 
+a[role="button"].icon,
 summary[role="button"].icon,
 button.icon {
   margin: 0;
@@ -42,6 +43,7 @@ button.icon {
   &:hover {
     background: var(--pico-secondary-hover-background);
     box-shadow: var(--pico-button-hover-box-shadow)
+		border-radius: var(--pico-border-radius);
   }
 }
 
@@ -50,9 +52,9 @@ summary[role="button"].icon::after {
   all: unset;
 }
 
-a.icon > svg,
-button.icon > svg,
-summary[role="button"].icon > svg {
+a[role="button"].icon > svg,
+summary[role="button"].icon > svg,
+button.icon > svg {
   height: 1rem;
   width: 1rem;
 }

@@ -4,10 +4,14 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"strings"
 
+	"github.com/araddon/dateparse"
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/views"
@@ -53,7 +57,7 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := s.db.GetBook(int64(id))
+	book, err := s.db.GetBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to find book", slog.Int64("id", id), slog.Any("err", err))
 		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
@@ -83,6 +87,59 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 	views.NewBook(s.base, book, authors, tags, nil).Render(rw, r)
 }
 
+func (s *Handler) editBookForm(rw http.ResponseWriter, r *http.Request) {
+	id := request.FetchIdFromSlug(rw, r)
+	if id == -1 {
+		return
+	}
+
+	book, err := s.db.GetBook(id)
+	if err != nil {
+		slog.Error("[ui] failed to render edit book form", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBookForm(s.base, nil, err).Render(rw, r)
+		return
+	}
+
+	views.NewBookForm(s.base, book, nil).Render(rw, r)
+}
+
+func (s *Handler) updateBook(rw http.ResponseWriter, r *http.Request) {
+	id := request.FetchIdFromSlug(rw, r)
+	if id == -1 {
+		return
+	}
+
+	book, err := s.db.GetBook(id)
+	if err != nil {
+		slog.Error("[ui] failed to get book", slog.Int64("id", id), slog.Any("err", err))
+		return
+	}
+
+	if err = r.ParseForm(); err != nil {
+		// TODO validation error
+		slog.Error("[ui] failed to parse form", slog.Int64("id", id), slog.Any("err", err))
+		return
+	}
+
+	// TODO validation error
+	// only include values that have changed
+	book = parseBookForm(r, book)
+	if errMap := validator.Validate(book); errMap != nil {
+		slog.Error("[ui] failed to validate book", slog.Int64("id", id), slog.String("err", errMap.Error()))
+		views.NewBookForm(s.base, nil, errMap).Render(rw, r)
+		return
+	}
+
+	new_book, err := s.db.UpdateBook(id, book)
+	if err != nil {
+		slog.Error("[ui] failed to update book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		return
+	}
+	// redirect to book page
+	response.HxRedirect(rw, r, "/b/"+new_book.Slugify())
+}
+
 func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	id := request.FetchIdFromSlug(rw, r)
 	if id == -1 {
@@ -97,4 +154,58 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	}
 	// redirect to index page
 	response.HxRedirect(rw, r, "/")
+}
+
+func parseBookForm(r *http.Request, b *dusk.Book) *dusk.Book {
+	if request.HasValue(r.Form, "title") {
+		b.Title = r.FormValue("title")
+	}
+
+	if request.HasValue(r.Form, "subtitle") {
+		b.Subtitle = null.StringFrom(r.FormValue("subtitle"))
+	}
+
+	if request.HasValue(r.Form, "author") {
+		authors := strings.Split(r.FormValue("author"), ";")
+		for i, a := range authors {
+			authors[i] = strings.TrimSpace(a)
+		}
+		b.Author = authors
+	}
+
+	if request.HasValue(r.Form, "tag") {
+		tags := strings.Split(r.FormValue("tag"), ",")
+		for i, t := range tags {
+			tags[i] = strings.TrimSpace(t)
+		}
+		b.Tag = tags
+	}
+
+	if request.HasValue(r.Form, "numOfPages") {
+		pages, _ := strconv.Atoi(r.FormValue("numOfPages"))
+		b.NumOfPages = pages
+	}
+
+	if request.HasValue(r.Form, "rating") {
+		rating, _ := strconv.Atoi(r.FormValue("rating"))
+		b.Rating = rating
+	}
+
+	if request.HasValue(r.Form, "publisher") {
+		b.Publisher = null.StringFrom(r.FormValue("publisher"))
+	}
+
+	if request.HasValue(r.Form, "datePublished") {
+		dp, _ := dateparse.ParseAny(r.FormValue("datePublished"))
+		b.DatePublished = null.TimeFrom(dp)
+	}
+
+	if request.HasValue(r.Form, "description") {
+		b.Description = null.StringFrom(r.FormValue("description"))
+	}
+
+	if request.HasValue(r.Form, "notes") {
+		b.Notes = null.StringFrom(r.FormValue("notes"))
+	}
+	return b
 }

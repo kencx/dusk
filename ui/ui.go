@@ -60,7 +60,8 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 	ui.HandleFunc("/", s.index)
 	ui.Route("/b", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.bookPage)
-		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
+		c.Get("/{slug:[a-zA-Z0-9-]+}/edit", s.editBookForm)
+		c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
 		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
 		c.Get("/search", s.bookSearch)
 
