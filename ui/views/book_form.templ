@@ -8,6 +8,7 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/shared"
+	"github.com/kencx/dusk/ui/partials/icons"
 )
 
 type BookForm struct {
@@ -26,90 +27,112 @@ func (v *BookForm) Render(rw http.ResponseWriter, r *http.Request) {
 
 templ (v *BookForm) Html() {
 	@v.Base.Html() {
-		<h2>Editing: { v.book.Title }</h2>
 		if v.Err != nil {
 			{ "Something went wrong" }
 		} else if v.book != nil {
-			<form action="" hx-put={ fmt.Sprintf("/b/%s", v.book.Slugify()) }>
-				<fieldset>
+			<div class="book__edit">
+				<div class="back">
+					<a href={ templ.URL(fmt.Sprintf("/b/%s", v.book.Slugify())) }>
+						@icons.LeftArrow()
+						Back
+					</a>
+				</div>
+				<h2>Editing: { v.book.Title }</h2>
+				<form action="" hx-put={ fmt.Sprintf("/b/%s", v.book.Slugify()) }>
+					<fieldset>
+						<label>
+							Title
+							<input type="text" name="title" placeholder={ v.book.Title }/>
+						</label>
+						<label>
+							Subtitle
+							<input type="text" name="subtitle" placeholder={ v.book.Subtitle.ValueOrZero() }/>
+						</label>
+						<label>
+							Author (semicolon-separated)
+							<input type="text" name="author" placeholder={ strings.Join(v.book.Author, "; ") }/>
+						</label>
+						<label>
+							ISBN
+							<input
+								type="text"
+								name="isbn"
+								placeholder={ strings.Join(append(v.book.Isbn10, v.book.Isbn13...), ", ") }
+							/>
+							<small>
+								<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
+							</small>
+						</label>
+						<label>
+							Identifiers
+							<input type="text" name="identifiers"/>
+						</label>
+						<label>
+							Tags (comma-separated)
+							<input type="text" name="tags" placeholder={ strings.Join(v.book.Tag, ", ") }/>
+						</label>
+					</fieldset>
+					<fieldset class="grid">
+						<label>
+							Number of Pages
+							<input
+								type="number"
+								name="numOfPages"
+								placeholder={ strconv.Itoa(v.book.NumOfPages) }
+								min="0"
+							/>
+						</label>
+						<label>
+							Rating (out of 10)
+							<input
+								type="number"
+								name="rating"
+								placeholder={ strconv.Itoa(v.book.Rating) }
+								min="0"
+								max="10"
+							/>
+						</label>
+					</fieldset>
+					<fieldset class="grid">
+						<label>
+							Publisher
+							<input type="text" name="publisher" placeholder={ v.book.Publisher.ValueOrZero() }/>
+						</label>
+						<label>
+							Date Published
+							<input type="date" name="datePublished" placeholder={ v.book.DatePublished.ValueOrZero().String() }/>
+						</label>
+					</fieldset>
+					<details>
+						<summary>Optional</summary>
+						<label>
+							Description
+							<textarea name="description" placeholder={ v.book.Description.ValueOrZero() }></textarea>
+						</label>
+						<label>
+							Notes
+							<textarea name="notes" placeholder={ v.book.Notes.ValueOrZero() }></textarea>
+						</label>
+					</details>
+					// date started
+					// date completed
 					<label>
-						Title
-						<input type="text" name="title" placeholder={ v.book.Title }/>
+						Cover file
+						<div class="filedrop-container">
+							<input type="file" name="cover" accept="image/*"/>
+							<small>Supported file types: jpeg, jpg, png</small>
+						</div>
 					</label>
 					<label>
-						Subtitle
-						<input type="text" name="subtitle" placeholder={ v.book.Subtitle.ValueOrZero() }/>
+						<input type="checkbox" name="another"/>
+						Add another?
 					</label>
-					<label>
-						Author (semicolon-separated)
-						<input type="text" name="author" placeholder={ strings.Join(v.book.Author, "; ") }/>
-					</label>
-					<label>
-						ISBN
-						<input
-							type="text"
-							name="isbn"
-							placeholder={ strings.Join(append(v.book.Isbn10, v.book.Isbn13...), ", ") }
-						/>
-						<small>
-							<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
-						</small>
-					</label>
-					<label>
-						Identifiers
-						<input type="text" name="identifiers"/>
-					</label>
-					<label>
-						Tags (comma-separated)
-						<input type="text" name="tags" placeholder={ strings.Join(v.book.Tag, ", ") }/>
-					</label>
-				</fieldset>
-				<fieldset class="grid">
-					<label>
-						Number of Pages
-						<input type="number" name="numOfPages" placeholder={ strconv.Itoa(v.book.NumOfPages) }/>
-					</label>
-					<label>
-						Rating (out of 10)
-						<input type="number" name="rating" placeholder={ strconv.Itoa(v.book.Rating) }/>
-					</label>
-				</fieldset>
-				<fieldset class="grid">
-					<label>
-						Publisher
-						<input type="text" name="publisher" placeholder={ v.book.Publisher.ValueOrZero() }/>
-					</label>
-					<label>
-						Date Published
-						<input type="date" name="datePublished" placeholder={ v.book.DatePublished.ValueOrZero().String() }/>
-					</label>
-				</fieldset>
-				<details>
-					<summary>Optional</summary>
-					<label>
-						Description
-						<textarea name="description" placeholder={ v.book.Description.ValueOrZero() }></textarea>
-					</label>
-					<label>
-						Notes
-						<textarea name="notes" placeholder={ v.book.Notes.ValueOrZero() }></textarea>
-					</label>
-				</details>
-				// date started
-				// date completed
-				<label>
-					Cover file
-					<div class="filedrop-container">
-						<input type="file" name="cover" accept="image/*"/>
-						<small>Supported file types: jpeg, jpg, png</small>
+					<div class="button-group">
+						<input type="submit" value="Submit"/>
+						<a href={ templ.URL(fmt.Sprintf("/b/%s", v.book.Slugify())) } role="button">Cancel</a>
 					</div>
-				</label>
-				<label>
-					<input type="checkbox" name="another"/>
-					Add another?
-				</label>
-				<input type="submit" value="Submit"/>
-			</form>
+				</form>
+			</div>
 		}
 	}
 }

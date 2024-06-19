@@ -152,42 +152,34 @@ templ bookDetails(book *dusk.Book) {
 
 templ bookMetadata(book *dusk.Book) {
 	<div class="metadata">
-		<div class="key">
-			Series
-			<br/>
-			Publisher
-			<br/>
-			Published
-			<br/>
-			ISBN
-			<br/>
-			ISBN13
-			<br/>
-			Pages
-		</div>
-		<div class="value">
-			if book.Series.Valid {
-				{ book.Series.String }
-			}
-			<br/>
-			if book.Publisher.Valid {
-				{ book.Publisher.String }
-			}
-			<br/>
-			if book.DatePublished.Valid {
-				{ printDateFormat(book.DatePublished) }
-			}
-			<br/>
+		if book.Series.Valid {
+			<div>Series</div>
+			{ book.Series.String }
+		}
+		if book.NumOfPages > 0 {
+			<div>Pages</div>
+			{ strconv.Itoa(book.NumOfPages) }
+		}
+		if book.Publisher.Valid {
+			<div>Publisher</div>
+			{ book.Publisher.String }
+		}
+		if book.DatePublished.Valid {
+			<div>Published</div>
+			{ printDateFormat(book.DatePublished) }
+		}
+		if len(book.Isbn10) > 0 {
+			<div>ISBN</div>
 			for _, i := range book.Isbn10 {
 				{ i }
 			}
-			<br/>
+		}
+		if len(book.Isbn13) > 0 {
+			<div>ISBN13</div>
 			for _, i := range book.Isbn13 {
 				{ i }
 			}
-			<br/>
-			{ strconv.Itoa(book.NumOfPages) }
-		</div>
+		}
 	</div>
 }
 

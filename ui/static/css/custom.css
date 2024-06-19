@@ -270,14 +270,13 @@ details.dropdown:has(> summary[role="button"].icon) {
   }
 
   .metadata {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: min-content;
     column-gap: 4rem;
     line-height: 1.25rem;
-
-    .key, .value {
-      font-size: 0.65rem;
-      color: var(--pico-muted-color);
-    }
+    font-size: 0.65rem;
+    color: var(--pico-muted-color);
   }
 
   .actions {
@@ -561,5 +560,21 @@ details.dropdown:has(> summary[role="button"].icon) {
     height: 0;
     overflow: hidden;
     visibility: hidden;
+  }
+}
+
+.book__edit {
+  .back {
+    margin-bottom: var(--pico-spacing);
+  }
+
+  .button-group {
+    display: inline-flex;
+    margin-top: var(--pico-spacing);
+    gap: 1rem;
+
+    & * {
+      margin-bottom: 0;
+    }
   }
 }
