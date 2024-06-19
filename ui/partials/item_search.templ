@@ -6,22 +6,56 @@ import (
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/page"
+	"github.com/kencx/dusk/ui/partials/icons"
 )
 
 templ ItemSearch(path, target string) {
-	<input
-		id="search"
-		name="q"
-		placeholder="Search"
-		hx-get={ path }
-		hx-target={ target }
-		hx-params="*"
-		hx-swap="innerHTML"
-		hx-trigger="input changed delay:500ms, search"
-		hx-indicator=".spinner"
-		hx-boost="true"
-	/>
+	<div class="search__toolbar">
+		<input
+			class="search"
+			id="search"
+			name="q"
+			placeholder="Search"
+			hx-get={ path }
+			hx-target={ target }
+			hx-params="*"
+			hx-swap="innerHTML"
+			hx-trigger="input changed delay:500ms, search"
+			hx-indicator=".spinner"
+			hx-boost="true"
+		/>
+		@filterButtons(path, target)
+	</div>
 	<div class="spinner" aria-busy="true"></div>
+}
+
+templ filterButtons(path, target string) {
+	<div class="actions">
+		<button
+			class="icon"
+			hx-get={ path }
+			hx-target={ target }
+			data-tooltip="Table view"
+		>
+			@icons.Table()
+		</button>
+		<button
+			class="icon"
+			hx-get={ path }
+			hx-target={ target }
+			data-tooltip="Sort"
+		>
+			@icons.SortAsc()
+		</button>
+		<button
+			class="icon"
+			hx-get={ path }
+			hx-target={ target }
+			data-tooltip="Filter"
+		>
+			@icons.Filter()
+		</button>
+	</div>
 }
 
 templ ItemSearchResults[T any](page page.Page[T], path, target string, err error) {

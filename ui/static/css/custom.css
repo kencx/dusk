@@ -74,6 +74,24 @@ details.dropdown:has(> summary[role="button"].icon) {
 	justify-content: space-between;
 }
 
+.search__toolbar {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+
+  .search {
+    margin-bottom: 0;
+  }
+
+	.actions {
+    display: flex;
+    align-items: center;
+		gap: 0.5rem;
+	}
+}
+
 .library__card-view {
   /* auto scaling grid with max num of columns and min width*/
   /* https://css-tricks.com/an-auto-filling-css-grid-with-max-columns/ */
