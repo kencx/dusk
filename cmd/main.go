@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 
 	"github.com/kencx/dusk/file"
@@ -37,7 +38,16 @@ func main() {
 	flag.StringVar(&config.dataDir, "dataDir", "dusk_data", "Data directory")
 	flag.Parse()
 
-	db, err := storage.Open(config.dsn)
+	fw, err := file.NewService(config.dataDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// TODO allow multiple fetchers
+	fetcher := new(googlebooks.Fetcher)
+
+	dsn := path.Join(config.dataDir, config.dsn)
+	db, err := storage.Open(dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,14 +61,6 @@ func main() {
 	// if err != nil {
 	// 	slog.Error("Migration step failed", slog.Any("err", err))
 	// }
-
-	fw, err := file.NewService(config.dataDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// TODO allow multiple fetchers
-	fetcher := new(googlebooks.Fetcher)
 
 	srv := dhttp.New(version, store, fw, fetcher)
 	go func() error {
