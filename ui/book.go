@@ -173,8 +173,8 @@ func parseBookForm(r *http.Request, b *dusk.Book) *dusk.Book {
 		b.Author = authors
 	}
 
-	if request.HasValue(r.Form, "tag") {
-		tags := strings.Split(r.FormValue("tag"), ",")
+	if request.HasValue(r.Form, "tags") {
+		tags := strings.Split(r.FormValue("tags"), ",")
 		for i, t := range tags {
 			tags[i] = strings.TrimSpace(t)
 		}
