@@ -54,3 +54,74 @@ func TestValidateAuthor(t *testing.T) {
 		})
 	}
 }
+
+func TestEqual(t *testing.T) {
+	tests := []struct {
+		name   string
+		author *Author
+		other  *Author
+		result bool
+	}{{
+		name: "match",
+		author: &Author{
+			Name: "John Doe",
+		},
+		other: &Author{
+			Name: "Doe, John",
+		},
+		result: true,
+	}, {
+		name: "no match",
+		author: &Author{
+			Name: "Jane Adams",
+		},
+		other: &Author{
+			Name: "Adams, John",
+		},
+		result: false,
+	}, {
+		name: "same name",
+		author: &Author{
+			Name: "Jane Adams",
+		},
+		other: &Author{
+			Name: "Jane Adams",
+		},
+		result: true,
+	}, {
+		name: "same name reversed",
+		author: &Author{
+			Name: "Doe, Jane",
+		},
+		other: &Author{
+			Name: "Doe, Jane",
+		},
+		result: true,
+	}, {
+		name: "match middle name",
+		author: &Author{
+			Name: "George R.R. Martin",
+		},
+		other: &Author{
+			Name: "Martin, George R.R.",
+		},
+		result: true,
+	}, {
+		name: "match middle name second",
+		author: &Author{
+			Name: "George R.R. Martin",
+		},
+		other: &Author{
+			Name: "R.R. Martin, George",
+		},
+		result: true,
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.author.Equal(*tt.other) != tt.result {
+				t.Fatalf("not match")
+			}
+		})
+	}
+}

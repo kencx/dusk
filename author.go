@@ -2,6 +2,7 @@ package dusk
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/kencx/dusk/validator"
@@ -24,7 +25,24 @@ func (a Author) Valid() validator.ErrMap {
 	return err
 }
 
-// TODO first name, last name equality
-func (a Author) EqualFLLF() bool {
-	return false
+func (a Author) Equal(other Author) bool {
+	if a.Name == other.Name {
+		return true
+	}
+
+	var split []string
+	split = strings.Split(other.Name, ",")
+	if len(split) < 1 {
+		split = strings.Split(a.Name, ",")
+	}
+
+	if len(split) < 1 {
+		return a.Name == other.Name
+	}
+	for i, s := range split {
+		split[i] = strings.TrimSpace(s)
+	}
+
+	slices.Reverse(split)
+	return a.Name == strings.Join(split, " ")
 }
