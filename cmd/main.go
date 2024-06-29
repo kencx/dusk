@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"strings"
 	"syscall"
 
 	"github.com/kencx/dusk/file"
@@ -20,25 +21,44 @@ import (
 
 var version string
 
+const sqliteDB = "library.db"
+
 type config struct {
-	port    int
-	dsn     string
-	tlsCert string
-	tlsKey  string
-	dataDir string
+	port     int
+	lib      string
+	tlsCert  string
+	tlsKey   string
+	logLevel string
 }
 
 func main() {
 	var config config
 
-	flag.IntVar(&config.port, "port", 9090, "Server Port")
-	flag.StringVar(&config.dsn, "dsn", "library.db", "sqlite DSN")
-	flag.StringVar(&config.tlsCert, "tlsKey", "", "TLS Certificate path")
-	flag.StringVar(&config.tlsKey, "tlsCert", "", "TLS Key path")
-	flag.StringVar(&config.dataDir, "dataDir", "dusk_data", "Data directory")
+	flag.IntVar(&config.port, "port", 9090, "Server port")
+	flag.StringVar(&config.lib, "lib", "lib", "Path to library directory")
+	flag.StringVar(&config.tlsCert, "tlsKey", "", "TLS certificate path")
+	flag.StringVar(&config.tlsKey, "tlsCert", "", "TLS key path")
+	flag.StringVar(&config.logLevel, "log", "info", "Log level")
 	flag.Parse()
 
-	fw, err := file.NewService(config.dataDir)
+	level := new(slog.LevelVar)
+	switch strings.ToLower(config.logLevel) {
+	case "debug":
+		level.Set(slog.LevelDebug)
+	case "info":
+		level.Set(slog.LevelInfo)
+	case "warn":
+		level.Set(slog.LevelWarn)
+	case "err", "error":
+		level.Set(slog.LevelError)
+	}
+
+	l := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+	}))
+	slog.SetDefault(l)
+
+	fw, err := file.NewService(config.lib)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +66,7 @@ func main() {
 	// TODO allow multiple fetchers
 	fetcher := new(googlebooks.Fetcher)
 
-	dsn := path.Join(config.dataDir, config.dsn)
+	dsn := path.Join(config.lib, sqliteDB)
 	db, err := storage.Open(dsn)
 	if err != nil {
 		log.Fatal(err)

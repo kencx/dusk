@@ -26,8 +26,7 @@ run:
 ## clean: remove binaries, dist
 clean:
 	if [ -f cmd/${binary} ]; then rm cmd/${binary}; fi
-	if [ -f cmd/library.db ]; then rm cmd/library.db; fi
-	if [ -d cmd/dusk_data ]; then rm -r cmd/dusk_data; fi
+	if [ -d cmd/lib ]; then rm -r cmd/lib; fi
 	go clean
 
 ## cover: get code coverage

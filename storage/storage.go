@@ -32,6 +32,8 @@ func Open(path string) (*sqlx.DB, error) {
 	if err = db.Ping(); err != nil {
 		return nil, fmt.Errorf("db: failed to connect: %w", err)
 	}
+
+	slog.Debug("Database connection opened", slog.String("dsn", path))
 	return db, nil
 }
 
@@ -55,6 +57,6 @@ func (s *Store) MigrateUp(filePath string) error {
 		return fmt.Errorf("db: failed to execute sql file %q: %w", filePath, err)
 	}
 
-	slog.Info("Database schema loaded", "schema", filePath)
+	slog.Debug("Database schema loaded", "schema", filePath)
 	return nil
 }
