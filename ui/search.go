@@ -90,14 +90,18 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO download book cover
-	// if b.Cover.Valid {
-	// 	if err := s.fs.UploadBookCoverFromUrl(b.Cover.String, book); err != nil {
-	// 		slog.Warn("failed to upload cover image", slog.Any("err", err))
-	// 		views.ImportResultsError(rw, r, err)
-	// 		return
-	// 	}
-	// }
+	if b.Cover.Valid {
+		if err := s.fs.UploadBookCoverFromUrl(b.Cover.ValueOrZero(), book); err != nil {
+			slog.Warn("failed to download cover", slog.Any("err", err))
+			SendToastMessage(rw, r, "Failed to download cover!")
+			return
+		}
+
+		// properly update cover filepath on db
+		if _, err := s.db.UpdateBook(book.Id, book); err != nil {
+			slog.Warn("failed to update book cover in database", slog.Any("err", err))
+		}
+	}
 
 	rawMessage := fmt.Sprintf(`Book <a href="/b/%s">%s</a> added`, book.Slugify(), book.Title)
 	SendToastRawMessage(rw, r, rawMessage)

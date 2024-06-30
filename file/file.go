@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/file/epub"
@@ -167,6 +168,10 @@ func (s *Service) UploadBookCoverFromUrl(url string, book *dusk.Book) error {
 	defer resp.Body.Close()
 
 	ext := path.Ext(path.Base(resp.Request.URL.Path))
+	if ext == "" {
+		ext = ".jpeg"
+	}
+
 	filename := fmt.Sprintf("%s%s", coverFilename, ext)
 	fullPath := filepath.Join(bookDir, filename)
 	if err := s.UploadFile(resp.Body, fullPath); err != nil {
@@ -195,7 +200,7 @@ func (s *Service) UploadFile(file io.Reader, path string) error {
 
 // create or get book directory
 func (s *Service) createBookDirectory(book *dusk.Book) (string, error) {
-	bookDir := filepath.Join(s.Directory, book.SafeTitle())
+	bookDir := filepath.Join(s.Directory, strings.ToLower(book.SafeTitle()))
 	if err := os.MkdirAll(bookDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create book directory: %w", err)
 	}
