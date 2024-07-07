@@ -202,19 +202,25 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 
 		util.Sort(b.Tag)
 		if !reflect.DeepEqual(current_tags, b.Tag) {
+			if len(b.Tag) <= 0 {
+				if err := unlinkBookFromTags(tx, id, []int64{}); err != nil {
+					return nil, err
+				}
+			} else {
+				// Renaming a tag should not update the same tag row for other books
+				// Always create a new tag row, never update the original in this case
+				tagIDs, err := insertTags(tx, b.Tag)
+				if err != nil {
+					return nil, err
+				}
 
-			// Renaming a tag should not update the same tag row for other books
-			// Always create a new tag row, never update the original in this case
-			tagIDs, err := insertTags(tx, b.Tag)
-			if err != nil {
-				return nil, err
-			}
+				if err := linkBookToTags(tx, id, tagIDs); err != nil {
+					return nil, err
+				}
 
-			if err := linkBookToTags(tx, id, tagIDs); err != nil {
-				return nil, err
-			}
-			if err := unlinkBookFromTags(tx, id, tagIDs); err != nil {
-				return nil, err
+				if err := unlinkBookFromTags(tx, id, tagIDs); err != nil {
+					return nil, err
+				}
 			}
 		}
 
