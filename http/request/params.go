@@ -29,6 +29,17 @@ func FetchIdFromSlug(rw http.ResponseWriter, r *http.Request) int64 {
 	return -1
 }
 
+func FetchFormatId(rw http.ResponseWriter, r *http.Request) int64 {
+	param := chi.URLParam(r, "formatId")
+
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		response.BadRequest(rw, r, fmt.Errorf("failed to parse formatId"))
+		return -1
+	}
+	return int64(id)
+}
+
 func HandleInt64(key string, rw http.ResponseWriter, r *http.Request) int64 {
 	param := chi.URLParam(r, key)
 

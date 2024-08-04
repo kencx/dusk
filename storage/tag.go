@@ -179,16 +179,28 @@ func (s *Store) DeleteTag(id int64) error {
 func queryTags(tx *sqlx.Tx, filters *dusk.SearchFilters, dest *[]TagQueryRow) error {
 	query, params := buildPagedSearchQuery("tag", filters)
 
-	slog.Info("Running SQL query",
-		slog.String("stmt", query),
-		slog.Any("params", params),
-		slog.Int("afterId", filters.AfterId),
-		slog.Int("pageSize", filters.Limit),
-	)
+	if params == "1" {
+		slog.Info("Running SQL query",
+			slog.String("stmt", query),
+			slog.Any("params", params),
+		)
+		err := tx.Select(dest, query, params)
+		if err != nil {
+			return fmt.Errorf("db: query tags failed: %w", err)
+		}
 
-	err := tx.Select(dest, query, params, filters.AfterId, filters.Limit)
-	if err != nil {
-		return fmt.Errorf("db: query tags failed: %w", err)
+	} else {
+		slog.Info("Running SQL query",
+			slog.String("stmt", query),
+			slog.Any("params", params),
+			slog.Int("afterId", filters.AfterId),
+			slog.Int("pageSize", filters.Limit),
+		)
+
+		err := tx.Select(dest, query, params, filters.AfterId, filters.Limit)
+		if err != nil {
+			return fmt.Errorf("db: query tags failed: %w", err)
+		}
 	}
 	return nil
 }

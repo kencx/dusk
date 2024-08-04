@@ -1,9 +1,12 @@
 package partials
 
 templ ModalButton(attrs templ.Attributes) {
-	<button hx-target="#modal-content" { attrs... }>
+	<a
+    role="button"
+    hx-target="#modal-content" { attrs... }
+  >
 		{ children... }
-	</button>
+	</a>
 }
 
 templ ModalDialog() {

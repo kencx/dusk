@@ -1,0 +1,53 @@
+package views
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/ui/shared"
+	"github.com/kencx/dusk/ui/partials/icons"
+)
+
+type BookNotesForm struct {
+	book *dusk.Book
+	shared.Base
+}
+
+func NewBookNotesForm(base shared.Base, book *dusk.Book, err error) *BookNotesForm {
+	base.Err = err
+	return &BookNotesForm{book, base}
+}
+
+func (v *BookNotesForm) Render(rw http.ResponseWriter, r *http.Request) {
+	v.Html().Render(r.Context(), rw)
+}
+
+// TODO in-place markdown editor
+templ (v *BookNotesForm) Html() {
+	@v.Base.Html() {
+		if v.Err != nil {
+			{ "Something went wrong" }
+		} else if v.book != nil {
+			<div class="book__edit">
+				<div class="back">
+					<a href={ templ.URL(fmt.Sprintf("/b/%s", v.book.Slugify())) }>
+						@icons.LeftArrow()
+						Back
+					</a>
+				</div>
+				<h2>Editing: { v.book.Title }</h2>
+				<form action="" hx-put={ fmt.Sprintf("/b/%s/notes", v.book.Slugify()) }>
+					<label>
+						Notes
+						<textarea name="notes" value={ v.book.Notes.ValueOrZero() }></textarea>
+					</label>
+					<div class="button-group">
+						<input type="submit" value="Submit"/>
+						<a href={ templ.URL(fmt.Sprintf("/b/%s", v.book.Slugify())) } role="button">Cancel</a>
+					</div>
+				</form>
+			</div>
+		}
+	}
+}

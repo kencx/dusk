@@ -174,20 +174,24 @@ templ bookMetadata(book *dusk.Book) {
 templ bookActions(book *dusk.Book) {
 	<div class="actions">
 		<details class="dropdown">
-			if len(book.Formats) > 0 {
-				<summary role="button" class="icon">
-					@icons.Download()
-				</summary>
-				<ul>
-					for _, format := range book.Formats {
-						<li><a href="#">{ format }</a></li>
-					}
-				</ul>
-			} else {
-				<summary role="button" class="icon" disabled>
-					@icons.Download()
-				</summary>
-			}
+      <summary role="button" class="icon">
+        @icons.Documents()
+      </summary>
+      <ul>
+        for _, format := range book.Formats {
+          // TODO download button
+          // TODO delete button
+          <li><a href="#">{ format }</a></li>
+        }
+        <li>
+          <a
+            hx-get={ fmt.Sprintf("/b/%s?format", book.Slugify()) }
+            hx-target="#modal-content"
+          >
+            + Add new file
+          </a>
+        </li>
+      </ul>
 		</details>
 		<a
 			role="button"
@@ -197,9 +201,14 @@ templ bookActions(book *dusk.Book) {
 		>
 			@icons.Edit()
 		</a>
-		<button class="icon" data-tooltip="Add notes">
+		<a
+		  role="button"
+			class="icon"
+			data-tooltip="Add notes"
+			href={ templ.SafeURL(fmt.Sprintf("/b/%s/notes", book.Slugify()))}
+		>
 			@icons.Book()
-		</button>
+		</a>
 		@partials.ModalButton(templ.Attributes{
 			"class":        "icon",
 			"data-tooltip": "Delete book",
@@ -225,6 +234,34 @@ templ DeleteBookModal(book *dusk.Book) {
 			</button>
 		</footer>
 	}
+}
+
+templ DeleteBookFormatModal(book *dusk.Book, formatId int64) {
+	@partials.ModalDialog() {
+		<h5>Delete { book.Title } format?</h5>
+		<p>This action is irreversible.</p>
+		<footer>
+			<button class="secondary" id="modal-cancel-btn">Cancel</button>
+			<button
+				hx-delete={ fmt.Sprintf("/b/%s/format/%d", book.Slugify(), formatId) }
+				hx-target="body"
+			>
+				Confirm
+			</button>
+		</footer>
+	}
+}
+
+templ UploadBookFormatModal(book *dusk.Book) {
+  @partials.ModalDialog() {
+    <h5>Add new format for { book.Title }</h5>
+    <input type="file" name="upload" accept=".epub,.mobi,.pdf,.txt,.html" required/>
+    <small>Supported file types: epub, mobi, pdf</small>
+    <footer>
+      <button class="secondary" id="modal-cancel-btn">Cancel</button>
+      <button type="submit">Submit</button>
+    </footer>
+  }
 }
 
 func halfRating(rating int) bool {

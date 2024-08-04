@@ -19,6 +19,11 @@ var (
 	SELECT * FROM paginate
 	WHERE rowno > $2
 	LIMIT $3;`
+	stmt = `SELECT COUNT() OVER() AS count,
+			ROW_NUMBER() OVER(ORDER BY %s %s) AS rowno,
+			t.*
+		FROM %s t %s
+	`
 )
 
 func buildPagedStmt(table string, filters *dusk.Filters, conditional string) string {
@@ -49,7 +54,13 @@ func buildPagedSearchQuery(table string, filters *dusk.SearchFilters) (string, s
 		params = "1"
 	}
 
-	query := buildPagedStmt(table, &filters.Filters, conditional)
+	var query string
+	if filters == nil || filters.Empty() {
+		query = fmt.Sprintf(stmt, "name", "ASC", table, conditional)
+	} else {
+		query = buildPagedStmt(table, &filters.Filters, conditional)
+	}
+
 	return query, params
 }
 
@@ -205,6 +216,22 @@ func newAuthorPage(dest []AuthorQueryRow, filters *dusk.SearchFilters) (*page.Pa
 }
 
 func newTagPage(dest []TagQueryRow, filters *dusk.SearchFilters) (*page.Page[dusk.Tag], error) {
+	var tags []dusk.Tag
+	for _, row := range dest {
+		tags = append(tags, *row.Tag)
+	}
+
+	if len(tags) == 0 {
+		return nil, dusk.ErrNoRows
+	}
+
+	if filters == nil {
+		return &page.Page[dusk.Tag]{
+			Info:  nil,
+			Items: tags,
+		}, nil
+	}
+
 	first := dest[0]
 	last := dest[len(dest)-1]
 
@@ -213,15 +240,6 @@ func newTagPage(dest []TagQueryRow, filters *dusk.SearchFilters) (*page.Page[dus
 	}
 	if (last.RowNo - first.RowNo) > int64(filters.Limit) {
 		return nil, fmt.Errorf("db: num of items cannot be larger than page limit")
-	}
-
-	var tags []dusk.Tag
-	for _, row := range dest {
-		tags = append(tags, *row.Tag)
-	}
-
-	if len(tags) == 0 {
-		return nil, dusk.ErrNoRows
 	}
 
 	result := page.New(

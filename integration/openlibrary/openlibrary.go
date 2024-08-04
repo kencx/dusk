@@ -62,7 +62,7 @@ func (f *Fetcher) FetchByQuery(query string) (*integration.QueryResults, error) 
 	return &res, nil
 }
 
-// TODO
+// TODO FetchByWork
 func (f *Fetcher) FetchByWork() error {
 	return nil
 }

@@ -60,10 +60,17 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 	ui.HandleFunc("/", s.index)
 	ui.Route("/b", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.bookPage)
+		c.Get("/{slug:[a-zA-Z0-9-]+}/format/{formatId:[0-9]+}", s.downloadBookFormat)
 		c.Get("/{slug:[a-zA-Z0-9-]+}/edit", s.editBookForm)
-		c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
-		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
+		c.Get("/{slug:[a-zA-Z0-9-]+}/notes", s.editBookNotesForm)
 		c.Get("/search", s.bookSearch)
+
+		c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
+		c.Put("/{slug:[a-zA-Z0-9-]+}/notes", s.updateBookNotes)
+		c.Put("/{slug:[a-zA-Z0-9-]+}/format", s.updateBookFormats)
+
+		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
+		c.Delete("/{slug:[a-zA-Z0-9-]+}/format/{formatId:[0-9]+}", s.deleteBookFormat)
 
 		// c.Get("/partials/rating", s.bookRatingPartial)
 		// c.Get("/partials/tags", s.bookTagsPartial)
@@ -83,6 +90,7 @@ func Router(revision string, db Store, fs *file.Service, f Fetcher) chi.Router {
 	ui.HandleFunc("/tags", s.tagList)
 	ui.Route("/t", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.tagPage)
+		c.Get("/all", s.tagDataList)
 		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updatetag)
 		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deletetag)
 		c.Get("/search", s.tagSearch)

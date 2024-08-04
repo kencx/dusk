@@ -8,6 +8,7 @@ import (
 	"github.com/kencx/dusk"
 )
 
+// TODO pagination for metadata
 type Metadata struct {
 	Title         string
 	Subtitle      string

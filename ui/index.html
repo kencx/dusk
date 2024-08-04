@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8"/>
+      <title>dusk</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <meta name="language" content="English"/>
+      <link rel="stylesheet" href="static/css/pico/pico.slate.css"/>
+      <link rel="stylesheet" href="static/css/custom.css"/>
+      <script src="static/js/htmx.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav class="container">
+        <ul class="logo">
+          <li><a href="/"><strong>dusk</strong></a></li>
+        </ul>
+        <ul>
+          <li>
+            <a href="/authors" class="contrast">Authors</a>
+          </li>
+          <li>
+            <a href="/tags" class="contrast">Tags</a>
+          </li>
+          <li>
+            <a href="/import" class="contrast">Import</a>
+          </li>
+          <li>
+            <a href="/" class="contrast">Settings</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="container">
+			<form
+				class="goodreads-form"
+				action="/goodreads"
+				method="POST"
+				enctype="multipart/form-data"
+				hx-target="#goodreads__result_list"
+				hx-swap="innerHTML"
+				hx-indicator=".spinner"
+			>
+				<div class="filedrop-container">
+					<input type="file" name="goodreads" accept=".csv" required/>
+					<small>Supported file types: csv</small>
+				</div>
+				<button type="submit">Submit</button>
+			</form>
+			<div id="goodreads__result_list">
+				<hgroup>
+					<h2>Results</h2>
+					<small>Total: 4 > Warning: 1 | Success: 3</small>
+				</hgroup>
+        <hr/>
+				<details>
+					<summary>Warning (1)</summary>
+					<div class="goodreads__result">
+						Red Rising - Pierce Brown
+					</div>
+				</details>
+        <hr/>
+				<details>
+					<summary>Success (3)</summary>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">S/N</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>1</th>
+                <th scope="row">Red Rising</th>
+                <th>Pierce Brown</th>
+                <th></th>
+                <th></th>
+              </tr>
+              <tr>
+                <th>2</th>
+                <th scope="row">Red Rising</th>
+                <th>Pierce Brown</th>
+                <th></th>
+                <th></th>
+              </tr>
+              <tr>
+                <th>3</th>
+                <th scope="row">Red Rising</th>
+                <th>Pierce Brown</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </tbody>
+          </table>
+				</details>
+			</div>
+    </main>
+    <footer>
+      <div class="container">
+        2024 •
+        <a href="https://github.com/kencx/dusk">
+          <span class="icon-github"></span>
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>

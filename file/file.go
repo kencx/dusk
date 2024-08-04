@@ -207,6 +207,13 @@ func (s *Service) createBookDirectory(book *dusk.Book) (string, error) {
 	return bookDir, nil
 }
 
+// remove files or directories not linked to any books in database
+func (s *Service) Clean() error {
+	// check slugs
+
+	return nil
+}
+
 // get last 2 elements of file path - parentDir/filename.ext
 func getRelativePath(path string) string {
 	parentDir := filepath.Base(filepath.Dir(path))

@@ -57,3 +57,9 @@ templ listTag(tag dusk.Tag) {
 		</a>
 	</li>
 }
+
+templ TagDataList(page page.Page[dusk.Tag]) {
+	for _, tag := range page.Items {
+		<option value={ tag.Name }></option>
+	}
+}
