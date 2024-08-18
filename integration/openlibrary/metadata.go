@@ -42,7 +42,7 @@ func (m *OlMetadata) UnmarshalJSON(buf []byte) error {
 	// fallback to works metadata if title or authors missing
 	if im.Title == "" || len(im.Authors) == 0 || im.Authors == nil {
 		if len(im.Works) == 0 {
-			return ErrInvalidResult
+			return integration.ErrInvalidMetadata
 		}
 
 		var worksMetadata struct {

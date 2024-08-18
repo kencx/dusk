@@ -58,7 +58,7 @@ func (m *GbMetadata) UnmarshalJSON(buf []byte) error {
 	vol := im.Items[0].VolumeInfo
 
 	if vol.Title == "" || len(vol.Authors) == 0 {
-		return ErrInvalidResult
+		return integration.ErrInvalidMetadata
 	}
 
 	m.Title = vol.Title

@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"errors"
 	"log/slog"
 	"time"
 
@@ -8,6 +9,9 @@ import (
 	"github.com/kencx/dusk"
 )
 
+var ErrInvalidMetadata = errors.New("invalid metadata")
+
+// TODO pagination for metadata
 type Metadata struct {
 	Title         string
 	Subtitle      string

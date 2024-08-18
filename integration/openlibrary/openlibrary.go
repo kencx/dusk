@@ -2,7 +2,6 @@ package openlibrary
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,11 +25,11 @@ const (
 	clientTimeout = 5 * time.Second
 )
 
-var (
-	ErrInvalidResult = errors.New("invalid openlibrary result")
-)
-
 type Fetcher struct{}
+
+func (f *Fetcher) GetName() string {
+	return "Openlibrary"
+}
 
 func (f *Fetcher) FetchByIsbn(isbn string) (*integration.Metadata, error) {
 	url := fmt.Sprintf(isbnEndpoint, isbn)
@@ -62,7 +61,7 @@ func (f *Fetcher) FetchByQuery(query string) (*integration.QueryResults, error) 
 	return &res, nil
 }
 
-// TODO
+// TODO FetchByWork
 func (f *Fetcher) FetchByWork() error {
 	return nil
 }

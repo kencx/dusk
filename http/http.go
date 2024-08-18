@@ -48,20 +48,15 @@ type Store interface {
 	DeleteTag(id int64) error
 }
 
-type Fetcher interface {
-	FetchByIsbn(isbn string) (*integration.Metadata, error)
-	FetchByQuery(query string) (*integration.QueryResults, error)
-}
-
 type Server struct {
 	*http.Server
 	db       Store
 	fs       *file.Service
-	f        Fetcher
+	f        integration.Fetchers
 	revision string
 }
 
-func New(revision string, db Store, fs *file.Service, f Fetcher) *Server {
+func New(revision string, db Store, fs *file.Service, f integration.Fetchers) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,

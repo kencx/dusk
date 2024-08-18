@@ -52,6 +52,7 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 		return dusk.ErrNoRows
 	}
 
+	slog.Debug(fmt.Sprintf("[openlibrary] Found %d results", qj.NumFound))
 	for _, work := range qj.Results {
 		for _, r := range work.Editions.Results {
 			m := &integration.Metadata{
@@ -77,10 +78,10 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 
 			// fallback to works with key
 			if len(m.Authors) == 0 || m.Authors == nil || m.Title == "" {
-				slog.Debug("result has no title or authors, falling back to works")
+				slog.Debug("[openlibrary] result has no title or authors, falling back to works")
 
 				if work.Key == "" {
-					slog.Debug("no work key found, skipping...")
+					slog.Debug("[openlibrary] no work key found, skipping...")
 					continue
 				}
 
@@ -95,7 +96,7 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 
 				url := fmt.Sprintf(olEndpoint, work.Key)
 				if err := fetch(url, &worksMetadata); err != nil {
-					slog.Debug("failed to fetch by works", slog.Any("err", err))
+					slog.Debug("[openlibrary] failed to fetch by works", slog.Any("err", err))
 					continue
 				}
 
@@ -111,7 +112,7 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 						}
 
 						if err := fetch(authorUrl, &author); err != nil {
-							slog.Debug("failed to fetch by author", slog.Any("err", err))
+							slog.Debug("[openlibrary] failed to fetch by author", slog.Any("err", err))
 							continue
 						}
 

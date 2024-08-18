@@ -15,13 +15,15 @@ import (
 
 	"github.com/kencx/dusk/file"
 	dhttp "github.com/kencx/dusk/http"
+	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/integration/googlebooks"
+	"github.com/kencx/dusk/integration/openlibrary"
 	"github.com/kencx/dusk/storage"
 )
 
 var version string
 
-const sqliteDB = "library.db"
+const dbName = "library.db"
 
 type config struct {
 	port     int
@@ -41,6 +43,7 @@ func main() {
 	flag.StringVar(&config.logLevel, "log", "info", "Log level")
 	flag.Parse()
 
+	// init logger
 	level := new(slog.LevelVar)
 	switch strings.ToLower(config.logLevel) {
 	case "debug":
@@ -58,15 +61,20 @@ func main() {
 	}))
 	slog.SetDefault(l)
 
+	// init file service
 	fw, err := file.NewService(config.lib)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// TODO allow multiple fetchers
-	fetcher := new(googlebooks.Fetcher)
+	// init metadata fetchers
+	fetchers := integration.Fetchers{
+		new(openlibrary.Fetcher),
+		new(googlebooks.Fetcher),
+	}
 
-	dsn := path.Join(config.lib, sqliteDB)
+	// init db
+	dsn := path.Join(config.lib, dbName)
 	db, err := storage.Open(dsn)
 	if err != nil {
 		log.Fatal(err)
@@ -82,7 +90,7 @@ func main() {
 	// 	slog.Error("Migration step failed", slog.Any("err", err))
 	// }
 
-	srv := dhttp.New(version, store, fw, fetcher)
+	srv := dhttp.New(version, store, fw, fetchers)
 	go func() error {
 		slog.Info(fmt.Sprintf("Starting server on port %d", config.port))
 		err := srv.Run(fmt.Sprintf(":%d", config.port), config.tlsCert, config.tlsKey)

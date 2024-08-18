@@ -2,6 +2,7 @@ package googlebooks
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 
 	"github.com/kencx/dusk/integration"
@@ -16,11 +17,12 @@ func (q *GbQueryResults) UnmarshalJSON(buf []byte) error {
 		return err
 	}
 
+	slog.Debug(fmt.Sprintf("[googlebooks] Found %d items", qj.TotalItems))
 	for _, item := range qj.Items {
 		vol := item.VolumeInfo
 
 		if vol.Title == "" || len(vol.Authors) == 0 {
-			slog.Debug("volume has no title or authors, skipping...")
+			slog.Debug("[googlebooks] volume has no title or authors, skipping...")
 			continue
 		}
 

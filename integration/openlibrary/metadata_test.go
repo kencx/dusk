@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/kencx/dusk/integration"
 	"github.com/matryer/is"
 )
 
@@ -16,11 +17,11 @@ func TestUnmarshalInvalidMetadata(t *testing.T) {
 	}{{
 		name:  "no author",
 		input: []byte(`{"title": "Foo Bar","isbn_10": ["0123456789"]}`),
-		err:   ErrInvalidResult,
+		err:   integration.ErrInvalidMetadata,
 	}, {
 		name:  "no title",
 		input: []byte(`{"authors": [{"Key": "John Adams"}], "isbn_10": ["0123456789"]}`),
-		err:   ErrInvalidResult,
+		err:   integration.ErrInvalidMetadata,
 	}}
 
 	for _, tt := range tests {
@@ -29,7 +30,7 @@ func TestUnmarshalInvalidMetadata(t *testing.T) {
 			var got OlMetadata
 
 			err := json.Unmarshal(tt.input, &got)
-			is.True(errors.Is(err, ErrInvalidResult))
+			is.True(errors.Is(err, integration.ErrInvalidMetadata))
 		})
 	}
 }
