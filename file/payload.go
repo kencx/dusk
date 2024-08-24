@@ -9,13 +9,13 @@ import (
 
 var (
 	mimeExtMap = map[string]string{
-		"application/epub+zip":           ".epub",
-		"application/vnd.amazon.ebook":   ".azw",
-		"application/x-mobipocket-ebook": ".mobi",
-		"application/pdf":                ".pdf",
-		"image/jpeg":                     ".jpeg",
-		"image/png":                      ".png",
-		"image/vnd.djvu":                 ".djvu",
+		"application/epub+zip":           epubExt,
+		"application/vnd.amazon.ebook":   azwExt,
+		"application/x-mobipocket-ebook": mobiExt,
+		"application/pdf":                pdfExt,
+		"image/jpeg":                     jpegExt,
+		"image/png":                      pngExt,
+		"image/vnd.djvu":                 djvuExt,
 	}
 	defaultMime = "application/octet-stream"
 )

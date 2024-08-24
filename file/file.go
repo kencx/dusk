@@ -18,6 +18,13 @@ import (
 
 const (
 	coverFilename = "cover"
+	epubExt       = ".epub"
+	azwExt        = ".azw"
+	mobiExt       = ".mobi"
+	pdfExt        = ".pdf"
+	jpegExt       = ".jpeg"
+	pngExt        = ".png"
+	djvuExt       = ".djvu"
 )
 
 type Service struct {
@@ -36,7 +43,7 @@ func NewService(path string) (*Service, error) {
 // Upload new format for new book
 func (s *Service) UploadBook(payload *Payload) (*dusk.Book, error) {
 	switch payload.Extension {
-	case ".epub":
+	case epubExt:
 		return s.UploadNewEpub(payload)
 	default:
 		return nil, errors.New("unsupported file format")
@@ -46,7 +53,7 @@ func (s *Service) UploadBook(payload *Payload) (*dusk.Book, error) {
 // Upload new format for existing book
 func (s *Service) UploadBookFormat(payload *Payload, book *dusk.Book) error {
 	switch payload.Extension {
-	case ".epub":
+	case epubExt:
 		return s.UploadEpub(payload, book)
 	default:
 		return s.UploadOtherFormat(payload, book)
