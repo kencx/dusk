@@ -55,7 +55,7 @@ func (s *Store) GetAllSeries() ([]*dusk.Series, error) {
 
 func (s *Store) GetAllBooksFromSeries(id int64) (dusk.Books, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []BookRow
+		var dest []bookRow
 		stmt := `SELECT b.*,
 			GROUP_CONCAT(DISTINCT a.name) AS author_string,
 			GROUP_CONCAT(DISTINCT t.name) AS tag_string,

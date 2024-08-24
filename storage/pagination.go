@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/page"
 )
@@ -19,9 +20,14 @@ var (
 	SELECT * FROM paginate
 	WHERE rowno > $2
 	LIMIT $3;`
+	stmt = `SELECT COUNT() OVER() AS count,
+			ROW_NUMBER() OVER(ORDER BY %s %s) AS rowno,
+			t.*
+		FROM %s t %s
+	`
 )
 
-func buildPagedStmt(table string, filters *dusk.Filters, conditional string) string {
+func buildPagedStmt(table string, filters *filters.Filters, conditional string) string {
 	return fmt.Sprintf(
 		pageStmt,
 		filters.SortColumn(),
@@ -31,7 +37,7 @@ func buildPagedStmt(table string, filters *dusk.Filters, conditional string) str
 	)
 }
 
-func buildPagedSearchQuery(table string, filters *dusk.SearchFilters) (string, string) {
+func buildPagedSearchQuery(table string, filters *filters.Search) (string, string) {
 	var (
 		params, conditional string
 	)
@@ -49,11 +55,17 @@ func buildPagedSearchQuery(table string, filters *dusk.SearchFilters) (string, s
 		params = "1"
 	}
 
-	query := buildPagedStmt(table, &filters.Filters, conditional)
+	var query string
+	if filters == nil || filters.Empty() {
+		query = fmt.Sprintf(stmt, "name", "ASC", table, conditional)
+	} else {
+		query = buildPagedStmt(table, &filters.Filters, conditional)
+	}
+
 	return query, params
 }
 
-func buildPagedBookQuery(filters *dusk.BookFilters) (string, string) {
+func buildPagedBookQuery(f *filters.Book) (string, string) {
 	// TODO query by:
 	//   - title, subtitle
 	//   - series
@@ -62,12 +74,12 @@ func buildPagedBookQuery(filters *dusk.BookFilters) (string, string) {
 	)
 
 	switch {
-	case filters == nil || filters.Empty():
+	case f == nil || f.Empty():
 		conditional = "WHERE $1"
 		params = "1"
 
 	// generic library search
-	case filters.Search != "":
+	case f.Search.Search != "":
 		conditional = `WHERE t.id IN (
 		SELECT ba.book FROM book_author_link ba
 			LEFT JOIN book_tag_link bt ON ba.book=bt.book
@@ -78,35 +90,35 @@ func buildPagedBookQuery(filters *dusk.BookFilters) (string, string) {
 		OR bt.tag IN
 			(SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1))`
 		// escape params
-		params = fmt.Sprintf(`"%s"`, filters.Search)
+		params = fmt.Sprintf(`"%s"`, f.Search)
 
 	// ?title param
-	case filters.Title != "":
+	case f.Title != "":
 		conditional = `WHERE t.id IN (SELECT rowid FROM book_fts WHERE book_fts MATCH $1)`
-		params = fmt.Sprintf(`"%s"`, filters.Title)
+		params = fmt.Sprintf(`"%s"`, f.Title)
 
 	// ?author param
-	case filters.Author != "":
+	case f.Author != "":
 		conditional = `WHERE t.id IN (SELECT ba.book
 			FROM book_author_link ba
 			WHERE ba.author IN
 				(SELECT rowid FROM author_fts WHERE author_fts MATCH $1))`
-		params = fmt.Sprintf(`"%s"`, filters.Author)
+		params = fmt.Sprintf(`"%s"`, f.Author)
 
 	// ?tag param
-	case filters.Tag != "":
+	case f.Tag != "":
 		conditional = `WHERE t.id IN (SELECT bt.book
 			FROM book_tag_link bt
 			WHERE bt.tag IN
 			(SELECT rowid FROM tag_fts WHERE tag_fts MATCH $1))`
-		params = fmt.Sprintf(`"%s"`, filters.Tag)
+		params = fmt.Sprintf(`"%s"`, f.Tag)
 
 	default:
 		conditional = "WHERE $1"
 		params = "1"
 	}
 
-	query := buildPagedStmt("book_view", &filters.Filters, conditional)
+	query := buildPagedStmt("book_view", &f.Filters, conditional)
 	return query, params
 }
 
@@ -117,7 +129,7 @@ type RowMetadata struct {
 
 type BookQueryRow struct {
 	*RowMetadata
-	*BookRow
+	*bookRow
 }
 
 type AuthorQueryRow struct {
@@ -130,7 +142,7 @@ type TagQueryRow struct {
 	*dusk.Tag
 }
 
-func newBookPage(dest []BookQueryRow, filters *dusk.BookFilters) (*page.Page[dusk.Book], error) {
+func newBookPage(dest []BookQueryRow, f *filters.Book) (*page.Page[dusk.Book], error) {
 	// sqlx Select does not return sql.ErrNoRows
 	// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
 	if len(dest) == 0 {
@@ -143,7 +155,7 @@ func newBookPage(dest []BookQueryRow, filters *dusk.BookFilters) (*page.Page[dus
 	if first.RowNo > last.RowNo {
 		return nil, fmt.Errorf("db: first row no cannot be larger than last row no")
 	}
-	if (last.RowNo - first.RowNo) > int64(filters.Limit) {
+	if (last.RowNo - first.RowNo) > int64(f.Limit) {
 		return nil, fmt.Errorf("db: num of items cannot be larger than page limit")
 	}
 
@@ -162,16 +174,16 @@ func newBookPage(dest []BookQueryRow, filters *dusk.BookFilters) (*page.Page[dus
 		int(first.Total),
 		int(first.RowNo),
 		int(last.RowNo),
-		&filters.Filters,
+		&f.Filters,
 		books,
 	)
-	if filters.Search != "" {
-		result.QueryParams.Add("q", filters.Search)
+	if f.Search.Search != "" {
+		result.QueryParams.Add("q", f.Search.Search)
 	}
 	return result, nil
 }
 
-func newAuthorPage(dest []AuthorQueryRow, filters *dusk.SearchFilters) (*page.Page[dusk.Author], error) {
+func newAuthorPage(dest []AuthorQueryRow, filters *filters.Search) (*page.Page[dusk.Author], error) {
 	if len(dest) == 0 {
 		return nil, dusk.ErrNoRows
 	}
@@ -204,7 +216,23 @@ func newAuthorPage(dest []AuthorQueryRow, filters *dusk.SearchFilters) (*page.Pa
 	return result, nil
 }
 
-func newTagPage(dest []TagQueryRow, filters *dusk.SearchFilters) (*page.Page[dusk.Tag], error) {
+func newTagPage(dest []TagQueryRow, filters *filters.Search) (*page.Page[dusk.Tag], error) {
+	var tags []dusk.Tag
+	for _, row := range dest {
+		tags = append(tags, *row.Tag)
+	}
+
+	if len(tags) == 0 {
+		return nil, dusk.ErrNoRows
+	}
+
+	if filters == nil {
+		return &page.Page[dusk.Tag]{
+			Info:  nil,
+			Items: tags,
+		}, nil
+	}
+
 	first := dest[0]
 	last := dest[len(dest)-1]
 
@@ -213,15 +241,6 @@ func newTagPage(dest []TagQueryRow, filters *dusk.SearchFilters) (*page.Page[dus
 	}
 	if (last.RowNo - first.RowNo) > int64(filters.Limit) {
 		return nil, fmt.Errorf("db: num of items cannot be larger than page limit")
-	}
-
-	var tags []dusk.Tag
-	for _, row := range dest {
-		tags = append(tags, *row.Tag)
-	}
-
-	if len(tags) == 0 {
-		return nil, dusk.ErrNoRows
 	}
 
 	result := page.New(

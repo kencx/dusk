@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 
 	"github.com/jmoiron/sqlx"
@@ -55,7 +56,7 @@ func (s *Store) GetTagsFromBook(id int64) ([]dusk.Tag, error) {
 	return i.([]dusk.Tag), err
 }
 
-func (s *Store) GetAllTags(filters *dusk.SearchFilters) (*page.Page[dusk.Tag], error) {
+func (s *Store) GetAllTags(filters *filters.Search) (*page.Page[dusk.Tag], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []TagQueryRow
 
@@ -77,7 +78,7 @@ func (s *Store) GetAllTags(filters *dusk.SearchFilters) (*page.Page[dusk.Tag], e
 	return i.(*page.Page[dusk.Tag]), nil
 }
 
-func (s *Store) GetAllBooksFromTag(id int64, filters *dusk.BookFilters) (*page.Page[dusk.Book], error) {
+func (s *Store) GetAllBooksFromTag(id int64, filters *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var (
 			dest   []BookQueryRow
@@ -176,19 +177,31 @@ func (s *Store) DeleteTag(id int64) error {
 	return err
 }
 
-func queryTags(tx *sqlx.Tx, filters *dusk.SearchFilters, dest *[]TagQueryRow) error {
+func queryTags(tx *sqlx.Tx, filters *filters.Search, dest *[]TagQueryRow) error {
 	query, params := buildPagedSearchQuery("tag", filters)
 
-	slog.Info("Running SQL query",
-		slog.String("stmt", query),
-		slog.Any("params", params),
-		slog.Int("afterId", filters.AfterId),
-		slog.Int("pageSize", filters.Limit),
-	)
+	if params == "1" {
+		slog.Info("Running SQL query",
+			slog.String("stmt", query),
+			slog.Any("params", params),
+		)
+		err := tx.Select(dest, query, params)
+		if err != nil {
+			return fmt.Errorf("db: query tags failed: %w", err)
+		}
 
-	err := tx.Select(dest, query, params, filters.AfterId, filters.Limit)
-	if err != nil {
-		return fmt.Errorf("db: query tags failed: %w", err)
+	} else {
+		slog.Info("Running SQL query",
+			slog.String("stmt", query),
+			slog.Any("params", params),
+			slog.Int("afterId", filters.AfterId),
+			slog.Int("pageSize", filters.Limit),
+		)
+
+		err := tx.Select(dest, query, params, filters.AfterId, filters.Limit)
+		if err != nil {
+			return fmt.Errorf("db: query tags failed: %w", err)
+		}
 	}
 	return nil
 }

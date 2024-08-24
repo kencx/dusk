@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 
 	"github.com/jmoiron/sqlx"
@@ -35,7 +36,7 @@ func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 	return i.(*dusk.Author), nil
 }
 
-func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*page.Page[dusk.Author], error) {
+func (s *Store) GetAllAuthors(filters *filters.Search) (*page.Page[dusk.Author], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []AuthorQueryRow
 
@@ -57,7 +58,7 @@ func (s *Store) GetAllAuthors(filters *dusk.SearchFilters) (*page.Page[dusk.Auth
 	return i.(*page.Page[dusk.Author]), nil
 }
 
-func (s *Store) GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*page.Page[dusk.Book], error) {
+func (s *Store) GetAllBooksFromAuthor(id int64, filters *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var (
 			dest   []BookQueryRow
@@ -161,7 +162,7 @@ func (s *Store) DeleteAuthor(id int64) error {
 	return err
 }
 
-func queryAuthors(tx *sqlx.Tx, filters *dusk.SearchFilters, dest *[]AuthorQueryRow) error {
+func queryAuthors(tx *sqlx.Tx, filters *filters.Search, dest *[]AuthorQueryRow) error {
 	query, params := buildPagedSearchQuery("author", filters)
 
 	slog.Info("Running SQL query",

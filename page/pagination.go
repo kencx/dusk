@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 )
 
 const (
@@ -35,7 +35,7 @@ type Page[T any] struct {
 	Items []T
 }
 
-func New[T any](total, first, last int, filters *dusk.Filters, items []T) *Page[T] {
+func New[T any](total, first, last int, filters *filters.Filters, items []T) *Page[T] {
 	qp := make(url.Values)
 	qp.Add(After, strconv.Itoa(filters.AfterId))
 	qp.Add(Limit, strconv.Itoa(filters.Limit))

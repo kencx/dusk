@@ -10,7 +10,6 @@ import (
 	"github.com/kencx/dusk/file"
 	"github.com/kencx/dusk/http/response"
 	"github.com/kencx/dusk/integration"
-	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui"
 	"github.com/kencx/dusk/util"
 
@@ -24,39 +23,15 @@ var (
 	closeTimeout     = 5 * time.Second
 )
 
-type Store interface {
-	GetBook(id int64) (*dusk.Book, error)
-	GetAllBooks(filters *dusk.BookFilters) (*page.Page[dusk.Book], error)
-	CreateBook(b *dusk.Book) (*dusk.Book, error)
-	UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error)
-	DeleteBook(id int64) error
-
-	GetAuthor(id int64) (*dusk.Author, error)
-	GetAuthorsFromBook(id int64) ([]dusk.Author, error)
-	GetAllAuthors(filters *dusk.SearchFilters) (*page.Page[dusk.Author], error)
-	GetAllBooksFromAuthor(id int64, filters *dusk.BookFilters) (*page.Page[dusk.Book], error)
-	CreateAuthor(a *dusk.Author) (*dusk.Author, error)
-	UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error)
-	DeleteAuthor(id int64) error
-
-	GetTag(id int64) (*dusk.Tag, error)
-	GetTagsFromBook(id int64) ([]dusk.Tag, error)
-	GetAllTags(filters *dusk.SearchFilters) (*page.Page[dusk.Tag], error)
-	GetAllBooksFromTag(id int64, filters *dusk.BookFilters) (*page.Page[dusk.Book], error)
-	CreateTag(t *dusk.Tag) (*dusk.Tag, error)
-	UpdateTag(id int64, t *dusk.Tag) (*dusk.Tag, error)
-	DeleteTag(id int64) error
-}
-
 type Server struct {
 	*http.Server
-	db       Store
+	db       dusk.Store
 	fs       *file.Service
 	f        integration.Fetchers
 	revision string
 }
 
-func New(revision string, db Store, fs *file.Service, f integration.Fetchers) *Server {
+func New(revision string, db dusk.Store, fs *file.Service, f integration.Fetchers) *Server {
 	s := &Server{
 		Server: &http.Server{
 			IdleTimeout:  idleTimeout,

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/util"
@@ -16,7 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type BookRow struct {
+type bookRow struct {
 	*dusk.Book
 	AuthorString string      `db:"author_string"`
 	TagString    null.String `db:"tag_string"`
@@ -28,7 +29,7 @@ type BookRow struct {
 
 func (s *Store) GetBook(id int64) (*dusk.Book, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest BookRow
+		var dest bookRow
 		stmt := `SELECT * FROM book_view b WHERE b.id=$1;`
 
 		err := tx.QueryRowx(stmt, id).StructScan(&dest)
@@ -76,7 +77,7 @@ func (s *Store) GetAuthorsFromBook(id int64) ([]dusk.Author, error) {
 	return i.([]dusk.Author), err
 }
 
-func (s *Store) GetAllBooks(filters *dusk.BookFilters) (*page.Page[dusk.Book], error) {
+func (s *Store) GetAllBooks(filters *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQueryRow
 		err := queryBooks(tx, filters, &dest)
@@ -345,7 +346,7 @@ func (s *Store) DeleteBooks(ids []int64) error {
 	return err
 }
 
-func queryBooks(tx *sqlx.Tx, filters *dusk.BookFilters, dest *[]BookQueryRow) error {
+func queryBooks(tx *sqlx.Tx, filters *filters.Book, dest *[]BookQueryRow) error {
 	query, params := buildPagedBookQuery(filters)
 
 	slog.Info("Running SQL query",

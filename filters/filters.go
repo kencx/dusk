@@ -1,4 +1,4 @@
-package dusk
+package filters
 
 import (
 	"strings"
@@ -48,30 +48,4 @@ func (f Filters) SortDirection() string {
 
 func (f *Filters) Empty() bool {
 	return f.Sort == ""
-}
-
-type SearchFilters struct {
-	Search string
-	Filters
-}
-
-func (sf *SearchFilters) Empty() bool {
-	return sf.Filters.Empty() &&
-		sf.Search == ""
-}
-
-type BookFilters struct {
-	Title  string
-	Author string
-	Tag    string
-	Series string
-	SearchFilters
-}
-
-func (bf *BookFilters) Empty() bool {
-	return bf.SearchFilters.Empty() &&
-		bf.Title == "" &&
-		bf.Author == "" &&
-		bf.Tag == "" &&
-		bf.Series == ""
 }
