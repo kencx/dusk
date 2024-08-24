@@ -24,7 +24,7 @@ func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 			return nil, dusk.ErrDoesNotExist
 		}
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve author %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to retrieve author %d: %w", id, err)
 		}
 
 		return &author, nil
@@ -36,16 +36,16 @@ func (s *Store) GetAuthor(id int64) (*dusk.Author, error) {
 	return i.(*dusk.Author), nil
 }
 
-func (s *Store) GetAllAuthors(filters *filters.Search) (*page.Page[dusk.Author], error) {
+func (s *Store) GetAllAuthors(f *filters.Search) (*page.Page[dusk.Author], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []AuthorQueryRow
 
-		err := queryAuthors(tx, filters, &dest)
+		err := queryAuthors(tx, f, &dest)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all authors with filters failed: %w", err)
+			return nil, fmt.Errorf("[db] failed to query authors: %w", err)
 		}
 
-		result, err := newAuthorPage(dest, filters)
+		result, err := newAuthorPage(dest, f)
 		if err != nil {
 			return nil, err
 		}
@@ -58,28 +58,24 @@ func (s *Store) GetAllAuthors(filters *filters.Search) (*page.Page[dusk.Author],
 	return i.(*page.Page[dusk.Author]), nil
 }
 
-func (s *Store) GetAllBooksFromAuthor(id int64, filters *filters.Book) (*page.Page[dusk.Book], error) {
+func (s *Store) GetAllBooksFromAuthor(id int64, f *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var (
-			dest   []BookQueryRow
-			params string
-		)
-		query := buildPagedStmt("book_view", &filters.Filters, `WHERE t.id IN (SELECT book FROM book_author_link WHERE author=$1)`)
+		var dest []BookQueryRow
+		query := buildPagedStmt(&f.Filters, "book_view", `WHERE t.id IN (SELECT book FROM book_author_link WHERE author=$1)`)
 
 		slog.Info("Running SQL query",
 			slog.String("stmt", query),
 			slog.Int64("id", id),
-			slog.Any("params", params),
-			slog.Int("afterId", filters.AfterId),
-			slog.Int("pageSize", filters.Limit),
+			slog.Int("afterId", f.AfterId),
+			slog.Int("pageSize", f.Limit),
 		)
 
-		err := tx.Select(&dest, query, id, filters.AfterId, filters.Limit)
+		err := tx.Select(&dest, query, id, f.AfterId, f.Limit)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all books from author %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to retrieve books from author %d: %w", id, err)
 		}
 
-		result, err := newBookPage(dest, filters)
+		result, err := newBookPage(dest, f)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +92,7 @@ func (s *Store) CreateAuthor(a *dusk.Author) (*dusk.Author, error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		id, err := insertAuthor(tx, a.Name)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[db] failed to create author: %w", err)
 		}
 
 		a.Id = id
@@ -115,14 +111,14 @@ func (s *Store) UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error) {
 		res, err := tx.Exec(stmt, a.Name, id)
 
 		if err != nil {
-			return nil, fmt.Errorf("db: update author %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to update author %d: %w", id, err)
 		}
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: update author %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to update author %d: %w", id, err)
 		}
 		if count == 0 {
-			return nil, errors.New("db: no authors updated")
+			return nil, errors.New("[db] no authors updated")
 		}
 		return a, nil
 	})
@@ -144,18 +140,18 @@ func (s *Store) DeleteAuthor(id int64) error {
 		res, err := tx.Exec(stmt, id)
 		if err != nil {
 			if strings.Contains(err.Error(), "FOREIGN KEY constraint failed") {
-				return nil, fmt.Errorf("db: unable to delete author %d of existing book: %w", id, err)
+				return nil, fmt.Errorf("[db] failed to delete author %d of existing book: %w", id, err)
 			}
-			return nil, fmt.Errorf("db: unable to delete author %d: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to delete author %d: %w", id, err)
 		}
 
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: unable to delete author %d: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to delete author %d: %w", id, err)
 		}
 
 		if count == 0 {
-			return nil, fmt.Errorf("db: author %d not removed", id)
+			return nil, fmt.Errorf("[db] failed to delete author %d", id)
 		}
 		return nil, nil
 	})
@@ -163,18 +159,15 @@ func (s *Store) DeleteAuthor(id int64) error {
 }
 
 func queryAuthors(tx *sqlx.Tx, filters *filters.Search, dest *[]AuthorQueryRow) error {
-	query, params := buildPagedSearchQuery("author", filters)
+	query, params := buildSearchQuery("author", filters)
 
 	slog.Info("Running SQL query",
 		slog.String("stmt", query),
 		slog.Any("params", params),
-		slog.Int("afterId", filters.AfterId),
-		slog.Int("pageSize", filters.Limit),
 	)
-
-	err := tx.Select(dest, query, params, filters.AfterId, filters.Limit)
+	err := tx.Select(dest, query, params...)
 	if err != nil {
-		return fmt.Errorf("db: query authors failed: %w", err)
+		return err
 	}
 	return nil
 }
@@ -184,12 +177,12 @@ func insertAuthor(tx *sqlx.Tx, author string) (int64, error) {
 	stmt := `INSERT OR IGNORE INTO author (name) VALUES ($1);`
 	res, err := tx.Exec(stmt, author)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to authors table failed: %w", err)
+		return -1, err
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to authors table failed: %w", err)
+		return -1, err
 	}
 
 	// no rows inserted, query to get existing id
@@ -199,14 +192,14 @@ func insertAuthor(tx *sqlx.Tx, author string) (int64, error) {
 		stmt := `SELECT id FROM author WHERE name=$1;`
 		err := tx.Get(&id, stmt, author)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing author failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing author: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing author failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing author: %w", err)
 		}
 		return id, nil
 	}
@@ -220,7 +213,7 @@ func insertAuthors(tx *sqlx.Tx, authors []string) ([]int64, error) {
 	for _, author := range authors {
 		id, err := insertAuthor(tx, author)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to insert author: %w", err)
 		}
 		ids = append(ids, id)
 	}
@@ -233,16 +226,16 @@ func deleteAuthorsWithNoBooks(tx *sqlx.Tx) error {
 				(SELECT author FROM book_author_link);`
 	res, err := tx.Exec(stmt)
 	if err != nil {
-		return fmt.Errorf("db: unable to delete author with no books: %w", err)
+		return fmt.Errorf("failed to delete author with no books: %w", err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: unable to delete author with no books: %w", err)
+		return fmt.Errorf("failed to delete author with no books: %w", err)
 	}
 
 	if count != 0 {
-		slog.Debug("deleted authors", slog.Int64("count", count))
+		slog.Debug("[db] deleted authors", slog.Int64("count", count))
 	}
 	return nil
 }

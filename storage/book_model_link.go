@@ -24,7 +24,7 @@ func linkBookToTags(tx *sqlx.Tx, bookId int64, ids []int64) error {
 
 func linkBookToModels(tx *sqlx.Tx, model model, bookId int64, ids []int64) error {
 	if len(ids) <= 0 {
-		slog.Debug(fmt.Sprintf("db: no %s were linked to book", model), slog.Int64("bookId", bookId))
+		slog.Debug(fmt.Sprintf("[db] no %s were linked to book", model), slog.Int64("bookId", bookId))
 		return nil
 	}
 
@@ -45,7 +45,7 @@ func linkBookToModels(tx *sqlx.Tx, model model, bookId int64, ids []int64) error
 	ON CONFLICT DO NOTHING;`, model)
 	_, err := tx.NamedExec(stmt, args)
 	if err != nil {
-		return fmt.Errorf("db: link book %[2]d to %[1]v %[3]d in book_%[1]v_link failed: %[4]v", model, bookId, ids, err)
+		return fmt.Errorf("link book %[2]d to %[1]v %[3]d in book_%[1]v_link failed: %[4]v", model, bookId, ids, err)
 	}
 	return nil
 }
@@ -69,24 +69,24 @@ func unlinkBookFromModels(tx *sqlx.Tx, model model, bookId int64, ids []int64) e
 		stmt := fmt.Sprintf(`DELETE FROM book_%s_link WHERE book=?;`, model)
 		query, args, err = sqlx.In(stmt, bookId)
 		if err != nil {
-			return fmt.Errorf("db: unlink all %[1]vs from book %[2]v in book_%[1]v_link failed: %[3]v", model, bookId, err)
+			return fmt.Errorf("unlink all %[1]vs from book %[2]v in book_%[1]v_link failed: %[3]v", model, bookId, err)
 		}
 	} else {
 		stmt = fmt.Sprintf(`DELETE FROM book_%[1]v_link WHERE book=? AND %[1]v NOT IN (?);`, model)
 		query, args, err = sqlx.In(stmt, bookId, ids)
 		if err != nil {
-			return fmt.Errorf("db: unlink %[1]vs %[2]v from book %[3]v in book_%[1]v_link failed: %[4]v", model, ids, bookId, err)
+			return fmt.Errorf("unlink %[1]vs %[2]v from book %[3]v in book_%[1]v_link failed: %[4]v", model, ids, bookId, err)
 		}
 	}
 
 	query = tx.Rebind(query)
 	_, err = tx.Exec(query, args...)
 	if err != nil {
-		return fmt.Errorf("db: unlink %[1]vs from book %[2]v in book_%[1]v_link failed: %[3]v", model, bookId, err)
+		return fmt.Errorf("unlink %[1]vs from book %[2]v in book_%[1]v_link failed: %[3]v", model, bookId, err)
 	}
 
 	if len(ids) <= 0 {
-		slog.Debug(fmt.Sprintf("db: all %[1]vs were unlinked from book in book_%[1]v_link", model), slog.Int64("bookId", bookId))
+		slog.Debug(fmt.Sprintf("[db] all %[1]vs were unlinked from book in book_%[1]v_link", model), slog.Int64("bookId", bookId))
 	}
 	return nil
 }

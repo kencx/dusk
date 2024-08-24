@@ -2,8 +2,8 @@ package storage
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kencx/dusk"
@@ -23,7 +23,7 @@ func getFormatsFromBook(tx *sqlx.Tx, bookId int64) ([]string, error) {
 		if err == sql.ErrNoRows {
 			return nil, dusk.ErrDoesNotExist
 		}
-		return nil, fmt.Errorf("db: query formats from book failed: %w", err)
+		return nil, err
 	}
 
 	result := dest.FormatString.Split(",")
@@ -35,12 +35,12 @@ func insertFormat(tx *sqlx.Tx, bookId int64, path string) (int64, error) {
 	stmt := `INSERT OR IGNORE INTO format (bookId, filepath) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, path)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to format table failed: %w", err)
+		return -1, err
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to format table failed: %w", err)
+		return -1, err
 	}
 
 	// no rows inserted, query to get existing id
@@ -50,14 +50,14 @@ func insertFormat(tx *sqlx.Tx, bookId int64, path string) (int64, error) {
 		stmt := `SELECT id FROM format WHERE filepath=$1;`
 		err := tx.Get(&id, stmt, path)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing format failed: %w", err)
+			return -1, fmt.Errorf("[db] failed to query existing format: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing format failed: %w", err)
+			return -1, fmt.Errorf("[db] failed to query existing format: %w", err)
 		}
 		return id, nil
 	}
@@ -71,7 +71,7 @@ func insertFormats(tx *sqlx.Tx, bookId int64, formats []string) ([]int64, error)
 	for _, format := range formats {
 		id, err := insertFormat(tx, bookId, format)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to insert format to book %d: %w", bookId, err)
 		}
 		ids = append(ids, id)
 	}
@@ -82,16 +82,16 @@ func deleteFormat(tx *sqlx.Tx, format string) error {
 	stmt := `DELETE FROM format WHERE filepath=$1;`
 	res, err := tx.Exec(stmt, format)
 	if err != nil {
-		return fmt.Errorf("db: delete format %s failed: %w", format, err)
+		return err
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: delete format %s failed: %w", format, err)
+		return err
 	}
 
-	if count != 0 {
-		slog.Debug("deleted format", slog.Int64("count", count), slog.String("format", format))
+	if count == 0 {
+		return errors.New("[db] no formats deleted")
 	}
 	return nil
 }

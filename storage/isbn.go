@@ -1,8 +1,8 @@
 package storage
 
 import (
+	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -32,12 +32,12 @@ func insertIsbn10(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 	stmt := `INSERT INTO isbn10 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert %s to isbn10 table failed: %w", i, err)
+		return -1, err
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert %s to isbn10 table failed: %w", i, err)
+		return -1, err
 	}
 
 	// no rows inserted, query to get existing id
@@ -47,14 +47,14 @@ func insertIsbn10(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 		stmt := `SELECT id FROM isbn10 WHERE isbn=$1;`
 		err := tx.Get(&id, stmt, i)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing isbn10 failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing isbn10: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing isbn10 failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing isbn10: %w", err)
 		}
 		return id, nil
 	}
@@ -69,7 +69,7 @@ func insertIsbn10s(tx *sqlx.Tx, bookId int64, isbn10s []string) ([]int64, error)
 		if isbn10 != "" {
 			id, err := insertIsbn10(tx, bookId, isbn10)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to insert isbn10 to book %d: %w", bookId, err)
 			}
 			ids = append(ids, id)
 		}
@@ -81,16 +81,16 @@ func deleteIsbn10(tx *sqlx.Tx, isbn string) error {
 	stmt := `DELETE FROM isbn10 WHERE isbn=$1;`
 	res, err := tx.Exec(stmt, isbn)
 	if err != nil {
-		return fmt.Errorf("db: delete isbn10 %s failed: %w", isbn, err)
+		return err
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: delete isbn10 %s failed: %w", isbn, err)
+		return err
 	}
 
-	if count != 0 {
-		slog.Debug("deleted isbn10", slog.Int64("count", count), slog.String("isbn10", isbn))
+	if count == 0 {
+		return errors.New("[db] no isbn10 deleted")
 	}
 	return nil
 }
@@ -120,12 +120,12 @@ func insertIsbn13(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 	stmt := `INSERT INTO isbn13 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert %s to isbn13 table failed: %w", i, err)
+		return -1, err
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert %s to isbn13 table failed: %w", i, err)
+		return -1, err
 	}
 
 	// no rows inserted, query to get existing id
@@ -135,14 +135,14 @@ func insertIsbn13(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 		stmt := `SELECT id FROM isbn13 WHERE isbn=$1;`
 		err := tx.Get(&id, stmt, i)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing isbn13 failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing isbn13: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing isbn13 failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing isbn13: %w", err)
 		}
 		return id, nil
 	}
@@ -157,7 +157,7 @@ func insertIsbn13s(tx *sqlx.Tx, bookId int64, isbn13s []string) ([]int64, error)
 		if isbn13 != "" {
 			id, err := insertIsbn13(tx, bookId, isbn13)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to insert isbn13 to book %d: %w", bookId, err)
 			}
 			ids = append(ids, id)
 		}
@@ -169,16 +169,16 @@ func deleteIsbn13(tx *sqlx.Tx, isbn string) error {
 	stmt := `DELETE FROM isbn13 WHERE isbn=$1;`
 	res, err := tx.Exec(stmt, isbn)
 	if err != nil {
-		return fmt.Errorf("db: delete isbn13 %s failed: %w", isbn, err)
+		return err
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: delete isbn13 %s failed: %w", isbn, err)
+		return err
 	}
 
-	if count != 0 {
-		slog.Debug("deleted isbn13", slog.Int64("count", count), slog.String("isbn13", isbn))
+	if count == 0 {
+		return errors.New("[db] no isbn13 deleted")
 	}
 	return nil
 }

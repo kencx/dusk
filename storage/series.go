@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
+	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/null"
+	"github.com/kencx/dusk/filters"
+	"github.com/kencx/dusk/page"
 )
 
 func (s *Store) GetSeries(id int64) (*dusk.Series, error) {
@@ -21,7 +22,7 @@ func (s *Store) GetSeries(id int64) (*dusk.Series, error) {
 			return nil, dusk.ErrDoesNotExist
 		}
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve series %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to retrieve series %d: %w", id, err)
 		}
 		return &series, nil
 	})
@@ -39,7 +40,7 @@ func (s *Store) GetAllSeries() ([]*dusk.Series, error) {
 
 		err := tx.Select(&series, stmt)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all series failed: %w", err)
+			return nil, fmt.Errorf("[db] failed to query series: %w", err)
 		}
 		if len(series) == 0 {
 			return nil, dusk.ErrNoRows
@@ -53,54 +54,34 @@ func (s *Store) GetAllSeries() ([]*dusk.Series, error) {
 	return i.([]*dusk.Series), nil
 }
 
-func (s *Store) GetAllBooksFromSeries(id int64) (dusk.Books, error) {
+func (s *Store) GetAllBooksFromSeries(id int64, f *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
-		var dest []bookRow
-		stmt := `SELECT b.*,
-			GROUP_CONCAT(DISTINCT a.name) AS author_string,
-			GROUP_CONCAT(DISTINCT t.name) AS tag_string,
-			GROUP_CONCAT(DISTINCT it.isbn) AS isbn10_string,
-			GROUP_CONCAT(DISTINCT ith.isbn) AS isbn13_string,
-			GROUP_CONCAT(DISTINCT f.filepath) AS format_string,
-			s.Name AS series_string
-            FROM book b
-                INNER JOIN book_author_link ba ON ba.book=b.id
-                INNER JOIN author a ON ba.author=a.id
-                LEFT JOIN  book_tag_link bt ON b.id=bt.book
-                LEFT JOIN  tag t ON bt.tag=t.id
-                LEFT JOIN  isbn10 it ON it.bookId=b.id
-                LEFT JOIN  isbn13 ith ON ith.bookId=b.id
-                LEFT JOIN  format f ON f.bookId=b.id
-				LEFT JOIN  series s ON s.bookId=b.id
-            WHERE b.id IN (SELECT bookId FROM series WHERE id=$1)
-			GROUP BY b.id
-			ORDER BY b.id;`
+		var dest []BookQueryRow
+		query := buildPagedStmt(&f.Filters, "book_view", `WHERE b.id IN (SELECT bookId FROM series WHERE id=$1)`)
 
-		err := tx.Select(&dest, stmt, id)
+		slog.Info("Running SQL query",
+			slog.String("stmt", query),
+			slog.Int64("id", id),
+			slog.Int("afterId", f.AfterId),
+			slog.Int("pageSize", f.Limit),
+		)
+
+		err := tx.Select(&dest, query, id, f.AfterId, f.Limit)
 		if err != nil {
-			return nil, fmt.Errorf("db: retrieve all books from series %d failed: %w", id, err)
-		}
-		if len(dest) == 0 {
-			return nil, dusk.ErrNoRows
+			return nil, fmt.Errorf("[db] failed to retrieve books from series %d: %w", id, err)
 		}
 
-		var books dusk.Books
-		for _, row := range dest {
-			row.Author = strings.Split(row.AuthorString, ",")
-			row.Tag = row.TagString.Split(",")
-			row.Isbn10 = row.Isbn10String.Split(",")
-			row.Isbn13 = row.Isbn13String.Split(",")
-			row.Formats = row.FormatString.Split(",")
-			row.Series = null.StringFrom(row.SeriesString.ValueOrZero())
-			books = append(books, row.Book)
+		result, err := newBookPage(dest, f)
+		if err != nil {
+			return nil, err
 		}
-		return books, nil
+		return result, nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
-	return i.(dusk.Books), nil
+	return i.(*page.Page[dusk.Book]), nil
 }
 
 func (s *Store) UpdateSeries(id int64, a *dusk.Series) (*dusk.Series, error) {
@@ -109,14 +90,14 @@ func (s *Store) UpdateSeries(id int64, a *dusk.Series) (*dusk.Series, error) {
 		res, err := tx.Exec(stmt, a.Name, id)
 
 		if err != nil {
-			return nil, fmt.Errorf("db: update series %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to update series %d: %w", id, err)
 		}
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: update series %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to update series %d: %w", id, err)
 		}
 		if count == 0 {
-			return nil, errors.New("db: no series updated")
+			return nil, errors.New("[db] no series updated")
 		}
 		return a, nil
 	})
@@ -133,14 +114,14 @@ func (s *Store) UpdateSeriesByName(name string, a *dusk.Series) (*dusk.Series, e
 		res, err := tx.Exec(stmt, a.Name, name)
 
 		if err != nil {
-			return nil, fmt.Errorf("db: update series %s failed: %w", name, err)
+			return nil, fmt.Errorf("[db] failed to update series %s: %w", name, err)
 		}
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: update series %s failed: %w", name, err)
+			return nil, fmt.Errorf("[db] failed to update series %s: %w", name, err)
 		}
 		if count == 0 {
-			return nil, errors.New("db: no series updated")
+			return nil, errors.New("[db] no series updated")
 		}
 		return a, nil
 	})
@@ -158,16 +139,16 @@ func (s *Store) DeleteSeries(id int64) error {
 		stmt := `DELETE FROM series WHERE id=$1;`
 		res, err := tx.Exec(stmt, id)
 		if err != nil {
-			return nil, fmt.Errorf("db: delete series %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to delete series %d: %w", id, err)
 		}
 
 		count, err := res.RowsAffected()
 		if err != nil {
-			return nil, fmt.Errorf("db: delete series %d failed: %w", id, err)
+			return nil, fmt.Errorf("[db] failed to delete series %d: %w", id, err)
 		}
 
 		if count == 0 {
-			return nil, fmt.Errorf("db: series %d not removed", id)
+			return nil, fmt.Errorf("[db] series %d not removed", id)
 		}
 		return nil, nil
 	})
@@ -185,7 +166,7 @@ func getSeriesFromBook(tx *sqlx.Tx, bookId int64) (*dusk.Series, error) {
 		if err == sql.ErrNoRows {
 			return nil, dusk.ErrDoesNotExist
 		}
-		return nil, fmt.Errorf("db: query series from book failed: %w", err)
+		return nil, fmt.Errorf("failed to query series from book %d: %w", bookId, err)
 	}
 	return &series, nil
 }
@@ -195,12 +176,12 @@ func insertSeries(tx *sqlx.Tx, bookId int64, t string) (int64, error) {
 	stmt := `INSERT OR IGNORE INTO series (bookId, name) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, t)
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to series table failed: %w", err)
+		return -1, err
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("db: insert to series table failed: %w", err)
+		return -1, err
 	}
 
 	// no rows inserted, query to get existing id
@@ -210,14 +191,14 @@ func insertSeries(tx *sqlx.Tx, bookId int64, t string) (int64, error) {
 		stmt := `SELECT id FROM series WHERE name=$1;`
 		err := tx.Get(&id, stmt, t)
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing series failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing series: %w", err)
 		}
 		return id, nil
 
 	} else {
 		id, err := res.LastInsertId()
 		if err != nil {
-			return -1, fmt.Errorf("db: query existing series failed: %w", err)
+			return -1, fmt.Errorf("failed to query existing series: %w", err)
 		}
 		return id, nil
 	}
@@ -227,16 +208,16 @@ func deleteBookFromSeries(tx *sqlx.Tx, bookId, id int64) error {
 	stmt := `DELETE FROM series WHERE id=$1 AND bookId=$2;`
 	res, err := tx.Exec(stmt, id, bookId)
 	if err != nil {
-		return fmt.Errorf("db: delete book %d from series %d failed: %w", bookId, id, err)
+		return fmt.Errorf("failed to delete book %d from series %d: %w", bookId, id, err)
 	}
 
 	count, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("db: delete book %d from series %d failed: %w", bookId, id, err)
+		return fmt.Errorf("failed to delete book %d from series %d: %w", bookId, id, err)
 	}
 
 	if count == 0 {
-		return fmt.Errorf("db: book %d from series %d not removed", bookId, id)
+		return fmt.Errorf("book %d from series %d not removed", bookId, id)
 	}
 	return nil
 }
