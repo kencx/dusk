@@ -57,7 +57,7 @@ func (s *Store) GetAllSeries() ([]*dusk.Series, error) {
 func (s *Store) GetAllBooksFromSeries(id int64, f *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQueryRow
-		query := buildPagedStmt(&f.Filters, "book_view", `WHERE b.id IN (SELECT bookId FROM series WHERE id=$1)`)
+		query := buildPagedStmt(&f.Base, "book_view", `WHERE b.id IN (SELECT bookId FROM series WHERE id=$1)`)
 
 		slog.Info("Running SQL query",
 			slog.String("stmt", query),

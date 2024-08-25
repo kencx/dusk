@@ -28,10 +28,10 @@ func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 	views.NewIndex(s.base, *p, nil).Render(rw, r)
 }
 
+// Perform FTS on library (with pagination)
 func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
-
 	filters := initBookFilters(r)
-	if errMap := validator.Validate(filters.Filters); errMap != nil {
+	if errMap := validator.Validate(filters.Base); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		partials.BookSearchResults(page.Page[dusk.Book]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return

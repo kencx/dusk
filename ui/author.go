@@ -25,7 +25,7 @@ func (s *Handler) authorList(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) authorSearch(rw http.ResponseWriter, r *http.Request) {
 
 	filters := initSearchFilters(r)
-	if errMap := validator.Validate(filters.Filters); errMap != nil {
+	if errMap := validator.Validate(filters.Base); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.AuthorSearchResults(page.Page[dusk.Author]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return
@@ -52,7 +52,7 @@ func (s *Handler) authorPage(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	filters := initBookFilters(r)
-	if errMap := validator.Validate(filters.Filters); errMap != nil {
+	if errMap := validator.Validate(filters.Base); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.AuthorSearchResults(page.Page[dusk.Author]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return

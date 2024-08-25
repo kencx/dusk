@@ -25,7 +25,7 @@ func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
 
 	filters := initSearchFilters(r)
-	if errMap := validator.Validate(filters.Filters); errMap != nil {
+	if errMap := validator.Validate(filters.Base); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.TagSearchResults(page.Page[dusk.Tag]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return
@@ -52,7 +52,7 @@ func (s *Handler) tagPage(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	filters := initBookFilters(r)
-	if errMap := validator.Validate(filters.Filters); errMap != nil {
+	if errMap := validator.Validate(filters.Base); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
 		views.TagSearchResults(page.Page[dusk.Tag]{}, errors.New("validate error")).Render(r.Context(), rw)
 		return

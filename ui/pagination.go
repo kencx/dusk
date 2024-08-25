@@ -15,8 +15,8 @@ var (
 	defaultBookSort = "title"
 )
 
-func defaultFilters() *filters.Filters {
-	return &filters.Filters{
+func defaultFilters() *filters.Base {
+	return &filters.Base{
 		AfterId:      defaultAfterId,
 		Limit:        defaultLimit,
 		Sort:         defaultSort,
@@ -26,14 +26,14 @@ func defaultFilters() *filters.Filters {
 
 func defaultSearchFilters() *filters.Search {
 	return &filters.Search{
-		Filters: *defaultFilters(),
+		Base: *defaultFilters(),
 	}
 }
 
 func defaultBookFilters() *filters.Book {
 	bf := &filters.Book{
 		Search: filters.Search{
-			Filters: *defaultFilters(),
+			Base: *defaultFilters(),
 		},
 	}
 	bf.Sort = defaultBookSort
@@ -46,7 +46,7 @@ func initSearchFilters(r *http.Request) *filters.Search {
 	// TODO trim, escape and filter special chars
 	return &filters.Search{
 		Search: request.QueryString(qs, "q", ""),
-		Filters: filters.Filters{
+		Base: filters.Base{
 			AfterId:      request.QueryInt(qs, page.After, defaultAfterId),
 			Limit:        request.QueryInt(qs, page.Limit, defaultLimit),
 			Sort:         request.QueryString(qs, page.Sort, defaultSort),
@@ -66,7 +66,7 @@ func initBookFilters(r *http.Request) *filters.Book {
 		Series: request.QueryString(qs, "series", ""),
 		Search: filters.Search{
 			Search: request.QueryString(qs, "q", ""),
-			Filters: filters.Filters{
+			Base: filters.Base{
 				AfterId:      request.QueryInt(qs, page.After, defaultAfterId),
 				Limit:        request.QueryInt(qs, page.Limit, defaultLimit),
 				Sort:         request.QueryString(qs, page.Sort, defaultBookSort),

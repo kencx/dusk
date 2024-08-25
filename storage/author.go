@@ -62,7 +62,7 @@ func (s *Store) GetAllAuthors(f *filters.Search) (*page.Page[dusk.Author], error
 func (s *Store) GetAllBooksFromAuthor(id int64, f *filters.Book) (*page.Page[dusk.Book], error) {
 	i, err := Tx(s.db, func(tx *sqlx.Tx) (any, error) {
 		var dest []BookQueryRow
-		query := buildPagedStmt(&f.Filters, "book_view", `WHERE t.id IN (SELECT book FROM book_author_link WHERE author=$1)`)
+		query := buildPagedStmt(&f.Base, "book_view", `WHERE t.id IN (SELECT book FROM book_author_link WHERE author=$1)`)
 
 		slog.Info("Running SQL query",
 			slog.String("stmt", query),

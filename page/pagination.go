@@ -35,7 +35,7 @@ type Page[T any] struct {
 	Items []T
 }
 
-func New[T any](total, first, last int, filters *filters.Filters, items []T) *Page[T] {
+func New[T any](total, first, last int, filters *filters.Base, items []T) *Page[T] {
 	qp := make(url.Values)
 	qp.Add(After, strconv.Itoa(filters.AfterId))
 	qp.Add(Limit, strconv.Itoa(filters.Limit))

@@ -6,7 +6,7 @@ import (
 	"github.com/kencx/dusk/validator"
 )
 
-type Filters struct {
+type Base struct {
 	AfterId      int
 	Limit        int
 	Sort         string
@@ -17,35 +17,35 @@ func DefaultSafeList() []string {
 	return []string{"title", "-title", "name", "-name"}
 }
 
-func (f Filters) Valid() validator.ErrMap {
+func (b Base) Valid() validator.ErrMap {
 	errMap := validator.New()
 
-	errMap.Check(f.AfterId >= 0, "after", "must be >= 0")
-	errMap.Check(f.AfterId <= 10_000_000, "after", "must be <= 10 million")
-	errMap.Check(f.Limit > 0, "limit", "must be > 0")
-	errMap.Check(f.Limit <= 1000, "limit", "must be <= 1000")
-	errMap.Check(validator.In(f.Sort, f.SortSafeList), "sort", "invalid sort value")
+	errMap.Check(b.AfterId >= 0, "after", "must be >= 0")
+	errMap.Check(b.AfterId <= 10_000_000, "after", "must be <= 10 million")
+	errMap.Check(b.Limit > 0, "limit", "must be > 0")
+	errMap.Check(b.Limit <= 1000, "limit", "must be <= 1000")
+	errMap.Check(validator.In(b.Sort, b.SortSafeList), "sort", "invalid sort value")
 
 	return errMap
 }
 
-func (f Filters) SortColumn() string {
-	for _, sv := range f.SortSafeList {
-		if f.Sort == sv {
-			return strings.TrimPrefix(f.Sort, "-")
+func (b *Base) Empty() bool {
+	return b.Sort == ""
+}
+
+func (b Base) SortColumn() string {
+	for _, sv := range b.SortSafeList {
+		if b.Sort == sv {
+			return strings.TrimPrefix(b.Sort, "-")
 		}
 	}
 	// panic in case of SQL injection
-	panic("unsafe sort parameter: " + f.Sort)
+	panic("unsafe sort parameter: " + b.Sort)
 }
 
-func (f Filters) SortDirection() string {
-	if strings.HasPrefix(f.Sort, "-") {
+func (b Base) SortDirection() string {
+	if strings.HasPrefix(b.Sort, "-") {
 		return "DESC"
 	}
 	return "ASC"
-}
-
-func (f *Filters) Empty() bool {
-	return f.Sort == ""
 }

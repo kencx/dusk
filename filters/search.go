@@ -2,10 +2,10 @@ package filters
 
 type Search struct {
 	Search string
-	Filters
+	Base
 }
 
 func (sf *Search) Empty() bool {
-	return sf.Filters.Empty() &&
+	return sf.Base.Empty() &&
 		sf.Search == ""
 }

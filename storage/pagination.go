@@ -36,7 +36,7 @@ func buildBaseStmt(sortColumn, sortDirection, table, conditional string) string 
 	return Tprintf(baseStmt, data)
 }
 
-func buildPagedStmt(f *filters.Filters, table, conditional string) string {
+func buildPagedStmt(f *filters.Base, table, conditional string) string {
 	data := map[string]interface{}{
 		"SortColumn":    f.SortColumn(),
 		"SortDirection": f.SortDirection(),
@@ -76,7 +76,7 @@ func buildSearchQuery(table string, f *filters.Search) (string, []any) {
 	}
 
 	params = append(params, f.AfterId, f.Limit)
-	return buildPagedStmt(&f.Filters, table, conditional), params
+	return buildPagedStmt(&f.Base, table, conditional), params
 }
 
 func buildBookQuery(f *filters.Book) (string, []any) {
@@ -135,7 +135,7 @@ func buildBookQuery(f *filters.Book) (string, []any) {
 	}
 
 	params = append(params, f.AfterId, f.Limit)
-	return buildPagedStmt(&f.Filters, "book_view", conditional), params
+	return buildPagedStmt(&f.Base, "book_view", conditional), params
 }
 
 type RowMetadata struct {
@@ -190,7 +190,7 @@ func newBookPage(dest []BookQueryRow, f *filters.Book) (*page.Page[dusk.Book], e
 		int(first.Total),
 		int(first.RowNo),
 		int(last.RowNo),
-		&f.Filters,
+		&f.Base,
 		books,
 	)
 	if f.Search.Search != "" {
@@ -230,7 +230,7 @@ func newAuthorPage(dest []AuthorQueryRow, f *filters.Search) (*page.Page[dusk.Au
 		int(first.Total),
 		int(first.RowNo),
 		int(last.RowNo),
-		&f.Filters,
+		&f.Base,
 		authors,
 	)
 	if f.Search != "" {
@@ -270,7 +270,7 @@ func newTagPage(dest []TagQueryRow, f *filters.Search) (*page.Page[dusk.Tag], er
 		int(first.Total),
 		int(first.RowNo),
 		int(last.RowNo),
-		&f.Filters,
+		&f.Base,
 		tags,
 	)
 	if f.Search != "" {
