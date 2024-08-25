@@ -27,7 +27,7 @@ func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *TagList) Html() {
 	@v.Base.Html() {
 		<h2>Tags</h2>
-		if v.Err == dusk.ErrNoRows {
+		if v.page.Empty() {
 			@partials.Empty()
 		} else {
 			@partials.ItemSearch("/t/search", ".list")

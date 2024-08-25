@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials/icons"
 )
@@ -59,7 +58,7 @@ templ filterButtons(path, target string) {
 }
 
 templ ItemSearchResults[T any](page page.Page[T], path, target string, err error) {
-	if err == dusk.ErrNoRows {
+	if page.Empty() {
 		<p class="message">No items found!</p>
 	} else if err != nil {
 		<p class="message">Something went wrong, please try again.</p>

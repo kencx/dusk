@@ -67,7 +67,7 @@ func (s *Store) GetAllTags(f *filters.Search) (*page.Page[dusk.Tag], error) {
 
 		result, err := newTagPage(dest, f)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[db] failed to create new tag page: %w", err)
 		}
 		return result, nil
 	})

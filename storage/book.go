@@ -88,7 +88,7 @@ func (s *Store) GetAllBooks(f *filters.Book) (*page.Page[dusk.Book], error) {
 
 		result, err := newBookPage(dest, f)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[db] failed to create new book page: %w", err)
 		}
 		return result, nil
 	})

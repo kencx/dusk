@@ -6,7 +6,7 @@ import (
 )
 
 templ Library(page page.Page[dusk.Book], err error) {
-	if err == dusk.ErrNoRows {
+	if page.Empty() {
 		@Empty()
 	} else {
 		@ItemSearch("/b/search", ".library")

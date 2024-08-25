@@ -27,7 +27,7 @@ func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *AuthorList) Html() {
 	@v.Base.Html() {
 		<h2>Authors</h2>
-		if v.Err == dusk.ErrNoRows {
+		if v.page.Empty() {
 			@partials.Empty()
 		} else {
 			@partials.ItemSearch("/a/search", ".list")

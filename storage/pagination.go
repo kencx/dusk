@@ -162,7 +162,7 @@ func newBookPage(dest []BookQueryRow, f *filters.Book) (*page.Page[dusk.Book], e
 	// sqlx Select does not return sql.ErrNoRows
 	// related issue: https://github.com/jmoiron/sqlx/issues/762#issuecomment-1062649063
 	if len(dest) == 0 {
-		return nil, dusk.ErrNoRows
+		return page.NewEmpty[dusk.Book](), nil
 	}
 
 	first := dest[0]
@@ -201,7 +201,7 @@ func newBookPage(dest []BookQueryRow, f *filters.Book) (*page.Page[dusk.Book], e
 
 func newAuthorPage(dest []AuthorQueryRow, f *filters.Search) (*page.Page[dusk.Author], error) {
 	if len(dest) == 0 {
-		return nil, dusk.ErrNoRows
+		return page.NewEmpty[dusk.Author](), nil
 	}
 
 	first := dest[0]
@@ -241,7 +241,7 @@ func newAuthorPage(dest []AuthorQueryRow, f *filters.Search) (*page.Page[dusk.Au
 
 func newTagPage(dest []TagQueryRow, f *filters.Search) (*page.Page[dusk.Tag], error) {
 	if len(dest) == 0 {
-		return nil, dusk.ErrNoRows
+		return page.NewEmpty[dusk.Tag](), nil
 	}
 
 	first := dest[0]

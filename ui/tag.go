@@ -33,14 +33,9 @@ func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
 
 	p, err := s.db.GetAllTags(filters)
 	if err != nil {
-		if err == dusk.ErrNoRows {
-			views.TagSearchResults(page.Page[dusk.Tag]{}, err).Render(r.Context(), rw)
-			return
-		} else {
-			slog.Error("failed to get all tags", slog.Any("err", err))
-			views.TagSearchResults(page.Page[dusk.Tag]{}, err).Render(r.Context(), rw)
-			return
-		}
+		slog.Error("failed to get all tags", slog.Any("err", err))
+		views.TagSearchResults(page.Page[dusk.Tag]{}, err).Render(r.Context(), rw)
+		return
 	}
 	views.TagSearchResults(*p, nil).Render(r.Context(), rw)
 }

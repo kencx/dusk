@@ -18,6 +18,7 @@ import (
 	"github.com/kencx/dusk/validator"
 )
 
+// Render index page and book library
 func (s *Handler) index(rw http.ResponseWriter, r *http.Request) {
 	p, err := s.db.GetAllBooks(defaultBookFilters())
 	if err != nil {
@@ -39,18 +40,14 @@ func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 
 	p, err := s.db.GetAllBooks(filters)
 	if err != nil {
-		if err == dusk.ErrNoRows {
-			partials.BookSearchResults(page.Page[dusk.Book]{}, err).Render(r.Context(), rw)
-			return
-		} else {
-			slog.Error("failed to get all books", slog.Any("err", err))
-			partials.BookSearchResults(page.Page[dusk.Book]{}, err).Render(r.Context(), rw)
-			return
-		}
+		slog.Error("failed to query books", slog.Any("err", err))
+		partials.BookSearchResults(page.Page[dusk.Book]{}, err).Render(r.Context(), rw)
+		return
 	}
 	partials.BookSearchResults(*p, nil).Render(r.Context(), rw)
 }
 
+// Render details of book
 func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 	id := request.FetchIdFromSlug(rw, r)
 	if id == -1 {

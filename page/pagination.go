@@ -53,6 +53,17 @@ func New[T any](total, first, last int, filters *filters.Base, items []T) *Page[
 	}
 }
 
+func NewEmpty[T any]() *Page[T] {
+	return &Page[T]{}
+}
+
+func (p *Page[T]) Empty() bool {
+	if p.Info != nil {
+		return len(p.Items) == 0 && p.TotalCount == 0
+	}
+	return len(p.Items) == 0
+}
+
 func (p *Page[T]) Next() string {
 	if p.IsLast() {
 		return ""

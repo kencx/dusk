@@ -28,7 +28,7 @@ func Library(page page.Page[dusk.Book], err error) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if err == dusk.ErrNoRows {
+		if page.Empty() {
 			templ_7745c5c3_Err = Empty().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

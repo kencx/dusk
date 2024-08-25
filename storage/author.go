@@ -48,7 +48,7 @@ func (s *Store) GetAllAuthors(f *filters.Search) (*page.Page[dusk.Author], error
 
 		result, err := newAuthorPage(dest, f)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[db] failed to create new author page: %w", err)
 		}
 		return result, nil
 	})
