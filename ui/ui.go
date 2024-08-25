@@ -53,6 +53,7 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 	ui.HandleFunc("/tags", s.tagList)
 	ui.Route("/t", func(c chi.Router) {
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.tagPage)
+		c.Get("/all", s.tagDataList)
 		// c.Put("/{slug:[a-zA-Z0-9-]+}", s.updatetag)
 		// c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deletetag)
 		c.Get("/search", s.tagSearch)

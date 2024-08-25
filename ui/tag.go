@@ -22,6 +22,17 @@ func (s *Handler) tagList(rw http.ResponseWriter, r *http.Request) {
 	views.NewTagList(s.base, *tags, nil).Render(rw, r)
 }
 
+func (s *Handler) tagDataList(rw http.ResponseWriter, r *http.Request) {
+	tags, err := s.db.GetAllTags(nil)
+	if err != nil {
+		slog.Error("[ui] failed to get all tags", slog.Any("err", err))
+		views.TagDataList(page.Page[dusk.Tag]{}).Render(r.Context(), rw)
+		return
+	}
+
+	views.TagDataList(*tags).Render(r.Context(), rw)
+}
+
 func (s *Handler) tagSearch(rw http.ResponseWriter, r *http.Request) {
 
 	filters := initSearchFilters(r)
