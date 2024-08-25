@@ -1,9 +1,11 @@
 package storage
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"strings"
+	"text/template"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/filters"
@@ -12,11 +14,11 @@ import (
 
 var (
 	baseStmt = `SELECT COUNT() OVER() AS count,
-			ROW_NUMBER() OVER(ORDER BY %s %s) AS rowno,
+			ROW_NUMBER() OVER(ORDER BY {{.SortColumn}} {{.SortDirection}}) AS rowno,
 			t.*
-		FROM %s t %s
+		FROM {{.Table}} t {{.Conditional}}
 	`
-	paginatedStmt = fmt.Sprintf(`WITH paginate AS (%s)
+	pagedStmt = fmt.Sprintf(`WITH paginate AS (%s)
 		SELECT * FROM paginate
 		WHERE rowno > $2
 		LIMIT $3;`,
@@ -25,23 +27,32 @@ var (
 )
 
 func buildBaseStmt(sortColumn, sortDirection, table, conditional string) string {
-	return fmt.Sprintf(
-		baseStmt,
-		sortColumn,
-		sortDirection,
-		table,
-		conditional,
-	)
+	data := map[string]interface{}{
+		"SortColumn":    sortColumn,
+		"SortDirection": sortDirection,
+		"Table":         table,
+		"Conditional":   conditional,
+	}
+	return Tprintf(baseStmt, data)
 }
 
 func buildPagedStmt(f *filters.Filters, table, conditional string) string {
-	return fmt.Sprintf(
-		paginatedStmt,
-		f.SortColumn(),
-		f.SortDirection(),
-		table,
-		conditional,
-	)
+	data := map[string]interface{}{
+		"SortColumn":    f.SortColumn(),
+		"SortDirection": f.SortDirection(),
+		"Table":         table,
+		"Conditional":   conditional,
+	}
+	return Tprintf(pagedStmt, data)
+}
+
+func Tprintf(tmpl string, data map[string]interface{}) string {
+	t := template.Must(template.New("paginationSql").Parse(tmpl))
+	buf := &bytes.Buffer{}
+	if err := t.Execute(buf, data); err != nil {
+		return ""
+	}
+	return buf.String()
 }
 
 func buildSearchQuery(table string, f *filters.Search) (string, []any) {

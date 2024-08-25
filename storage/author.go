@@ -10,6 +10,7 @@ import (
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
+	"github.com/kencx/dusk/util"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -162,7 +163,7 @@ func queryAuthors(tx *sqlx.Tx, filters *filters.Search, dest *[]AuthorQueryRow) 
 	query, params := buildSearchQuery("author", filters)
 
 	slog.Info("Running SQL query",
-		slog.String("stmt", query),
+		slog.String("stmt", util.TrimMultiLine(query)),
 		slog.Any("params", params),
 	)
 	err := tx.Select(dest, query, params...)
