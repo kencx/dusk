@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
 pre_cmd = ["templ generate -path ui"]
-cmd = "go build -tags \"fts5\" -v -o tmp/dusk ./cmd"
+cmd = "CGO_ENABLED=1 go build -tags \"libsqlite3 linux fts5\" -v -o tmp/dusk ./cmd"
 bin = "tmp/dusk"
 full_bin = "./tmp/dusk -lib ./tmp/dusk_data -log debug"
 include_ext = ["go", "templ", "css", "js"]

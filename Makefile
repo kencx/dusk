@@ -17,7 +17,7 @@ air:
 ## build: build binary
 build:
 	templ generate -path ui
-	cd cmd && go build ${ldflags} -tags "fts5" -o ${binary} .
+	cd cmd && CGO_ENABLED=1 go build ${ldflags} -tags "linux libsqlite3 fts5" -o ${binary} .
 
 ## run: run binary
 run:
