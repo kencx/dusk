@@ -122,7 +122,7 @@ func (b Base) NotFound() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hgroup><h2>404</h2><small>Item does not exist.</small></hgroup><p><a href=\"/\">Return to home.</a></p>")
+			templ_7745c5c3_Err = NotFound().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -141,17 +141,3 @@ func (b Base) NotFound() templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
-
-// templ ServerError() {
-// 	@shared.Base() {
-// 		<hgroup>
-// 			<h2>502</h2>
-// 			<small>Item does not exist.</small>
-// 		</hgroup>
-// 		<p>
-// 			<a href="/">
-// 				Return to home.
-// 			</a>
-// 		</p>
-// 	}
-// }

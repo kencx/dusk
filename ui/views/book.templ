@@ -34,7 +34,7 @@ templ (v *Book) Html() {
 	@v.Base.Html() {
 		<div>
 			if v.Err == dusk.ErrDoesNotExist {
-				@v.Base.NotFound()
+				@shared.NotFound()
 			} else if v.book != nil {
 				<div class="book__details">
 					@bookCover(v.book.Cover)

@@ -92,7 +92,3 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 	ui.NotFound(s.notFound)
 	return ui
 }
-
-func (s *Handler) notFound(rw http.ResponseWriter, r *http.Request) {
-	s.base.NotFound().Render(r.Context(), rw)
-}

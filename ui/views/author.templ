@@ -28,7 +28,7 @@ templ (v *Author) Html() {
 	@v.Base.Html() {
 		<div>
 			if v.Err == dusk.ErrDoesNotExist {
-				@v.Base.NotFound()
+				@shared.NotFound()
 			} else {
 				<div class="author__details">
 					<div class="header">
