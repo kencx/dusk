@@ -49,6 +49,7 @@ templ (v *Book) Html() {
 						</hgroup>
 						@v.bookAuthors()
 						@bookRating(v.book.Rating)
+						@bookStatus(v.book.Status)
 						@v.bookTags()
 						@bookDetails(v.book)
 						@bookActions(v.book)
@@ -94,6 +95,23 @@ templ (v *Book) bookTags() {
 				}
 			</span>
 		}
+	</div>
+}
+
+templ bookStatus(status dusk.ReadStatus) {
+	<div class="status">
+		<p>
+			switch status {
+				case dusk.Unread:
+					{ "Unread" }
+				case dusk.Read:
+					{ "Read" }
+				case dusk.Reading:
+					{ "Reading" }
+				default:
+					{ "Unread" }
+			}
+		</p>
 	</div>
 }
 

@@ -14,21 +14,32 @@ import (
 	"github.com/kennygrant/sanitize"
 )
 
+type ReadStatus int
+
+const (
+	Unread ReadStatus = iota
+	Read
+	Reading
+)
+
 type Book struct {
 	Id       int64       `json:"id" db:"id"`
 	Title    string      `json:"title" db:"title"`
 	Subtitle null.String `json:"subtitle,omitempty" db:"subtitle"`
 
-	// one to many
+	// many to many (one-way)
 	Author []string `json:"author"`
 	Tag    []string `json:"tag,omitempty"`
+
+	// one to many
 	Isbn10 []string `json:"isbn,omitempty"`
 	Isbn13 []string `json:"isbn13,omitempty"`
 	// Identifiers map[string][]string `json:"identifiers"`
 
-	NumOfPages int `json:"num_of_pages" db:"numOfPages"`
-	Rating     int `json:"rating" db:"rating"`
-	Progress   int `json:"progress" db:"progress"`
+	NumOfPages int        `json:"num_of_pages" db:"numOfPages"`
+	Progress   int        `json:"progress" db:"progress"`
+	Rating     int        `json:"rating" db:"rating"`
+	Status     ReadStatus `json:"status" db:"status"`
 
 	Publisher     null.String `json:"publisher" db:"publisher"`
 	DatePublished null.Time   `json:"date_published" db:"datePublished"`
@@ -53,6 +64,7 @@ func NewBook(
 	title, subtitle string,
 	author, tag, formats, isbn, isbn13 []string,
 	numOfPages, progress, rating int,
+	status ReadStatus,
 	publisher, series, description, notes, cover string,
 	datePublished, dateStarted, dateCompleted time.Time,
 ) *Book {
@@ -84,6 +96,7 @@ func NewBook(
 		NumOfPages: numOfPages,
 		Progress:   progress,
 		Rating:     rating,
+		Status:     status,
 
 		Publisher:     null.StringFrom(util.TitleCase(publisher)),
 		DatePublished: null.TimeFrom(datePublished),
@@ -149,6 +162,7 @@ func (b Book) Valid() validator.ErrMap {
 	errMap.Check(b.Progress >= 0, "progress", "must be <= 100")
 	errMap.Check(b.Rating >= 0, "rating", "must be >= 0")
 	errMap.Check(b.Rating <= 10, "rating", "must be <= 10")
+	errMap.Check(b.Status >= Unread, "status", "invalid status: must be unread, read or reading")
 
 	return errMap
 }
@@ -169,6 +183,7 @@ func (b *Book) Equal(a *Book) bool {
 			a.NumOfPages == b.NumOfPages &&
 			a.Rating == b.Rating &&
 			a.Progress == b.Progress &&
+			a.Status == b.Status &&
 			a.Publisher.Equal(b.Publisher) &&
 			a.DatePublished.Equal(b.DatePublished) &&
 			a.Series.Equal(b.Series) &&

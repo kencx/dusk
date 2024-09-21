@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS book (
     numOfPages    INTEGER DEFAULT 0,
     progress      INTEGER DEFAULT 0,
     rating        INTEGER DEFAULT 0,
+    status        INTEGER NOT NULL DEFAULT (0) CHECK( status IN (0,1,2) ),
 
     publisher     TEXT,
     datePublished TIMESTAMP,

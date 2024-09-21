@@ -55,6 +55,18 @@ func RecordToBook(record []string) (*dusk.Book, error) {
 	rating = rating * 2
 	numOfPages, _ := strconv.Atoi(record[11])
 
+	var status dusk.ReadStatus
+	switch record[18] {
+	case "to-read":
+		status = dusk.Unread
+	case "read":
+		status = dusk.Read
+	case "currently-reading":
+		status = dusk.Reading
+	default:
+		status = dusk.Unread
+	}
+
 	datePublished, _ := dateparse.ParseAny(record[12])
 	dateRead, _ := dateparse.ParseAny(record[14])
 	dateAdded, _ := dateparse.ParseAny(record[15])
@@ -63,7 +75,7 @@ func RecordToBook(record []string) (*dusk.Book, error) {
 		title, subtitle,
 		authors, tags, nil,
 		[]string{isbn10}, []string{isbn13},
-		numOfPages, 0, rating,
+		numOfPages, 0, rating, status,
 		record[9], series, "", record[21], "",
 		datePublished, dateAdded, dateRead,
 	)

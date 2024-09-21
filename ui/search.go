@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
@@ -53,7 +54,18 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 
 func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	isbn := r.FormValue("result")
-	readStatus := r.FormValue("read-status")
+
+	var readStatus dusk.ReadStatus
+	switch r.FormValue("read-status") {
+	case "unread":
+		readStatus = dusk.Unread
+	case "read":
+		readStatus = dusk.Read
+	case "reading":
+		readStatus = dusk.Reading
+	default:
+		readStatus = dusk.Unread
+	}
 
 	// TODO We are fetching this endpoint and performing the same operations twice. It
 	// would be good if we can cache the previously fetched data in importOpenLibrary on
@@ -67,7 +79,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	b := metadata.ToBook()
-	b.Tag = append(b.Tag, readStatus)
+	b.Status = readStatus
 
 	errMap := validator.Validate(b)
 	if len(errMap) > 0 {

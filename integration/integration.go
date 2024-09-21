@@ -62,7 +62,7 @@ func (m *Metadata) ToBook() *dusk.Book {
 		m.Title, m.Subtitle,
 		m.Authors, tags, nil,
 		isbn, isbn13,
-		m.NumberOfPages, 0, 0,
+		m.NumberOfPages, 0, 0, 0,
 		publisher, series, "", "", m.CoverUrl,
 		datePublished, time.Time{}, time.Time{},
 	)
