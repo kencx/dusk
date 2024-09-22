@@ -416,13 +416,13 @@ details.dropdown[data-tooltip]:has(> summary[role="button"].icon) {
 }
 
 .spinner {
-    opacity:0;
+    display:none;
     transition: opacity 500ms ease-in;
 }
 
 .htmx-request .spinner,
 .htmx-request.spinner {
-    opacity:1
+    display: block;
 }
 
 

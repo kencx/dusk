@@ -12,7 +12,7 @@ templ searchForm() {
 		hx-post="/search"
 		hx-target="#search__result_list"
 		hx-swap="innerHTML"
-		hx-indicator=".spinner"
+		hx-indicator="#search-spinner"
 	>
 		<fieldset role="group">
 			<input id="search" name="search" placeholder="Search for an ISBN, title or author"/>
@@ -21,7 +21,7 @@ templ searchForm() {
 		<small>
 			<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
 		</small>
-		<div class="spinner" aria-busy="true"></div>
+		<div id="search-spinner" class="spinner" aria-busy="true"></div>
 	</form>
 	<div id="search__result_list"></div>
 }
@@ -52,10 +52,12 @@ templ SearchError(err error) {
 }
 
 templ SearchResults(results integration.QueryResults, pagesize ...int) {
-	<h2>
-		Results
+	<hgroup>
+		<h2>
+			Results
+		</h2>
 		<small>Total: { strconv.Itoa(len(results)) }</small>
-	</h2>
+	</hgroup>
 	if len(results) == 0 {
 		No results found!
 	}
@@ -71,6 +73,7 @@ templ searchResult(r *integration.Metadata) {
 		hx-swap="beforeend"
 		hx-trigger="change"
 		hx-include="this"
+		hx-indicator="#add-result-spinner"
 	>
 		<div class="search__result">
 			<img alt="" src={ r.CoverUrl }/>
@@ -136,6 +139,11 @@ templ searchAddAction() {
 					<label>
 						<input type="radio" id="read" name="read-status" value="read"/>
 						Read
+					</label>
+				</li>
+				<li>
+					<label>
+						<div id="add-result-spinner" class="spinner" aria-busy="true"></div>
 					</label>
 				</li>
 			</ul>
