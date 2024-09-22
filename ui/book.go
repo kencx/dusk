@@ -126,6 +126,42 @@ func (s *Handler) updateBook(rw http.ResponseWriter, r *http.Request) {
 	response.HxRedirect(rw, r, "/b/"+new_book.Slugify())
 }
 
+func (s *Handler) updateBookStatus(rw http.ResponseWriter, r *http.Request) {
+	var readStatus dusk.ReadStatus
+	switch r.FormValue("read-status") {
+	case "unread":
+		readStatus = dusk.Unread
+	case "read":
+		readStatus = dusk.Read
+	case "reading":
+		readStatus = dusk.Reading
+	default:
+		readStatus = dusk.Unread
+	}
+
+	id := request.FetchIdFromSlug(rw, r)
+	if id == -1 {
+		return
+	}
+
+	book, err := s.db.GetBook(id)
+	if err != nil {
+		slog.Error("[ui] failed to get book", slog.Int64("id", id), slog.Any("err", err))
+		return
+	}
+
+	book.Status = readStatus
+
+	new_book, err := s.db.UpdateBook(id, book)
+	if err != nil {
+		slog.Error("[ui] failed to update book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		return
+	}
+
+	views.BookStatus(new_book).Render(r.Context(), rw)
+}
+
 func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	id := request.FetchIdFromSlug(rw, r)
 	if id == -1 {

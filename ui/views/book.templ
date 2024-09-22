@@ -12,6 +12,7 @@ import (
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/partials/icons"
 	"github.com/kencx/dusk/ui/shared"
+	"github.com/kencx/dusk/util"
 )
 
 type Book struct {
@@ -49,7 +50,6 @@ templ (v *Book) Html() {
 						</hgroup>
 						@v.bookAuthors()
 						@bookRating(v.book.Rating)
-						@bookStatus(v.book.Status)
 						@v.bookTags()
 						@bookDetails(v.book)
 						@bookActions(v.book)
@@ -95,23 +95,6 @@ templ (v *Book) bookTags() {
 				}
 			</span>
 		}
-	</div>
-}
-
-templ bookStatus(status dusk.ReadStatus) {
-	<div class="status">
-		<p>
-			switch status {
-				case dusk.Unread:
-					{ "Unread" }
-				case dusk.Read:
-					{ "Read" }
-				case dusk.Reading:
-					{ "Reading" }
-				default:
-					{ "Unread" }
-			}
-		</p>
 	</div>
 }
 
@@ -191,6 +174,7 @@ templ bookMetadata(book *dusk.Book) {
 
 templ bookActions(book *dusk.Book) {
 	<div class="actions">
+		@BookStatus(book)
 		<details class="dropdown">
 			if len(book.Formats) > 0 {
 				<summary role="button" class="icon">
@@ -227,6 +211,67 @@ templ bookActions(book *dusk.Book) {
 		}
 		<div id="modal-content"></div>
 	</div>
+}
+
+templ BookStatus(book *dusk.Book) {
+	<form
+		hx-put={ fmt.Sprintf("/b/%s/status", book.Slugify()) }
+		hx-target="this"
+		hx-swap="outerHTML"
+		hx-trigger="change #unread, change #reading, change #read"
+		hx-include="this"
+	>
+		switch book.Status {
+			case dusk.Unread:
+				<details class="dropdown" data-tooltip="Unread">
+					<summary role="button" class="icon">
+						@icons.CheckBoxEmpty()
+					</summary>
+					@bookStatusRadio(book.Status)
+				</details>
+			case dusk.Reading:
+				<details class="dropdown" data-tooltip="Reading">
+					<summary role="button" class="icon">
+						@icons.CheckBoxIndeterminate()
+					</summary>
+					@bookStatusRadio(book.Status)
+				</details>
+			case dusk.Read:
+				<details class="dropdown" data-tooltip="Read">
+					<summary role="button" class="icon">
+						@icons.CheckBoxFilled()
+					</summary>
+					@bookStatusRadio(book.Status)
+				</details>
+		}
+	</form>
+}
+
+var statusMap = map[dusk.ReadStatus]string{
+	dusk.Unread:  "unread",
+	dusk.Reading: "reading",
+	dusk.Read:    "read",
+}
+
+templ bookStatusRadio(status dusk.ReadStatus) {
+	<ul>
+		for i := range 3 {
+			<li>
+				<label>
+					<input
+						type="radio"
+						name="read-status"
+						id={ statusMap[dusk.ReadStatus(i)] }
+						value={ statusMap[dusk.ReadStatus(i)] }
+						if status == dusk.ReadStatus(i) {
+							checked
+						}
+					/>
+					{ util.TitleCase(statusMap[dusk.ReadStatus(i)]) }
+				</label>
+			</li>
+		}
+	</ul>
 }
 
 templ DeleteBookModal(book *dusk.Book) {

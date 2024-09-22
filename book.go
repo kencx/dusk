@@ -18,8 +18,8 @@ type ReadStatus int
 
 const (
 	Unread ReadStatus = iota
-	Read
 	Reading
+	Read
 )
 
 type Book struct {

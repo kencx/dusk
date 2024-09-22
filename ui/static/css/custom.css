@@ -65,6 +65,11 @@ details.dropdown:has(> summary[role="button"].icon) {
   margin-bottom: 0;
 }
 
+details.dropdown[data-tooltip]:has(> summary[role="button"].icon) {
+	border-bottom: none;
+	cursor: auto;
+}
+
 /* LIBRARY CARD VIEW */
 
 .search__metadata {

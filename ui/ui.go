@@ -32,6 +32,7 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 		c.Get("/{slug:[a-zA-Z0-9-]+}", s.bookPage)
 		c.Get("/{slug:[a-zA-Z0-9-]+}/edit", s.editBookForm)
 		c.Put("/{slug:[a-zA-Z0-9-]+}", s.updateBook)
+		c.Put("/{slug:[a-zA-Z0-9-]+}/status", s.updateBookStatus)
 		c.Delete("/{slug:[a-zA-Z0-9-]+}", s.deleteBook)
 		c.Get("/search", s.bookSearch)
 
