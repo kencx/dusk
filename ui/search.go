@@ -5,9 +5,11 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/integration"
+	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
@@ -79,6 +81,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	b := metadata.ToBook()
+	b.DateAdded = null.TimeFrom(time.Now())
 	b.Status = readStatus
 
 	errMap := validator.Validate(b)
