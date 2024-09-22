@@ -9,3 +9,6 @@ cover.out
 
 # dependencies
 */node_modules/**
+*.css
+!custom.css
+!*.min.css

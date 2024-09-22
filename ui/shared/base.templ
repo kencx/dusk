@@ -1,9 +1,8 @@
 package shared
 
 import (
-	"net/http"
-
 	"github.com/kencx/dusk/ui/partials"
+	"net/http"
 )
 
 type View interface {
@@ -34,7 +33,7 @@ templ (b Base) Html() {
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta name="language" content="English"/>
 			<link rel="stylesheet" href="/static/css/custom.css"/>
-			<link rel="stylesheet" href="/static/css/pico/pico.slate.css"/>
+			<link rel="stylesheet" href="/static/css/pico/pico.slate.min.css"/>
 			<script src="/static/js/htmx.min.js"></script>
 			<script src="/static/js/actions.js" defer></script>
 		</head>
@@ -50,7 +49,7 @@ templ (b Base) Html() {
 }
 
 templ (b Base) NotFound() {
-  @b.Html() {
-    @NotFound()
-  }
+	@b.Html() {
+		@NotFound()
+	}
 }
