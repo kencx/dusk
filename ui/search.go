@@ -47,7 +47,7 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		slog.Debug(fmt.Sprintf("Fetched %d results", len(*results)))
+		slog.Debug(fmt.Sprintf("[search] Fetched %d results", len(*results)), slog.String("query", value))
 		views.SearchResults(*results).Render(r.Context(), rw)
 	}
 }

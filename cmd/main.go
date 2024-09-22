@@ -69,8 +69,8 @@ func main() {
 
 	// init metadata fetchers
 	fetchers := integration.Fetchers{
-		new(openlibrary.Fetcher),
 		new(googlebooks.Fetcher),
+		new(openlibrary.Fetcher),
 	}
 
 	// init db
