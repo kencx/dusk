@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/ui/shared"
 	"github.com/kencx/dusk/ui/partials/icons"
+	"github.com/kencx/dusk/ui/shared"
 )
 
 type BookForm struct {
@@ -42,22 +42,22 @@ templ (v *BookForm) Html() {
 					<fieldset>
 						<label>
 							Title
-							<input type="text" name="title" placeholder={ v.book.Title }/>
+							<input type="text" name="title" value={ v.book.Title }/>
 						</label>
 						<label>
 							Subtitle
-							<input type="text" name="subtitle" placeholder={ v.book.Subtitle.ValueOrZero() }/>
+							<input type="text" name="subtitle" value={ v.book.Subtitle.ValueOrZero() }/>
 						</label>
 						<label>
 							Author (semicolon-separated)
-							<input type="text" name="author" placeholder={ strings.Join(v.book.Author, "; ") }/>
+							<input type="text" name="author" value={ strings.Join(v.book.Author, "; ") }/>
 						</label>
 						<label>
 							ISBN
 							<input
 								type="text"
 								name="isbn"
-								placeholder={ strings.Join(append(v.book.Isbn10, v.book.Isbn13...), ", ") }
+								value={ strings.Join(append(v.book.Isbn10, v.book.Isbn13...), ", ") }
 							/>
 							<small>
 								<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
@@ -69,7 +69,11 @@ templ (v *BookForm) Html() {
 						</label>
 						<label>
 							Tags (comma-separated)
-							<input type="text" name="tags" placeholder={ strings.Join(v.book.Tag, ", ") }/>
+							<input
+								type="text"
+								name="tags"
+								value={ strings.Join(v.book.Tag, ", ") }
+							/>
 						</label>
 					</fieldset>
 					<fieldset class="grid">
@@ -78,7 +82,7 @@ templ (v *BookForm) Html() {
 							<input
 								type="number"
 								name="numOfPages"
-								placeholder={ strconv.Itoa(v.book.NumOfPages) }
+								value={ strconv.Itoa(v.book.NumOfPages) }
 								min="0"
 							/>
 						</label>
@@ -87,7 +91,7 @@ templ (v *BookForm) Html() {
 							<input
 								type="number"
 								name="rating"
-								placeholder={ strconv.Itoa(v.book.Rating) }
+								value={ strconv.Itoa(v.book.Rating) }
 								min="0"
 								max="10"
 							/>
@@ -96,22 +100,18 @@ templ (v *BookForm) Html() {
 					<fieldset class="grid">
 						<label>
 							Publisher
-							<input type="text" name="publisher" placeholder={ v.book.Publisher.ValueOrZero() }/>
+							<input type="text" name="publisher" value={ v.book.Publisher.ValueOrZero() }/>
 						</label>
 						<label>
 							Date Published
-							<input type="date" name="datePublished" placeholder={ v.book.DatePublished.ValueOrZero().String() }/>
+							<input type="date" name="datePublished" value={ v.book.DatePublished.ValueOrZero().String() }/>
 						</label>
 					</fieldset>
 					<details>
 						<summary>Optional</summary>
 						<label>
 							Description
-							<textarea name="description" placeholder={ v.book.Description.ValueOrZero() }></textarea>
-						</label>
-						<label>
-							Notes
-							<textarea name="notes" placeholder={ v.book.Notes.ValueOrZero() }></textarea>
+							<textarea name="description" value={ v.book.Description.ValueOrZero() }></textarea>
 						</label>
 					</details>
 					// date started
