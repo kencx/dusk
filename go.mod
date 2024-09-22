@@ -3,7 +3,7 @@ module github.com/kencx/dusk
 go 1.22.0
 
 require (
-	github.com/a-h/templ v0.2.771
+	github.com/a-h/templ v0.2.778
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/jmoiron/sqlx v1.3.5
