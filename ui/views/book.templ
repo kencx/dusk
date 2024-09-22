@@ -155,7 +155,7 @@ templ bookMetadata(book *dusk.Book) {
 		}
 		if book.DatePublished.Valid {
 			<div>Published</div>
-			{ printDateFormat(book.DatePublished) }
+			{ util.PrintDateMonthYear(book.DatePublished) }
 		}
 		if len(book.Isbn10) > 0 {
 			<div>ISBN</div>
@@ -168,6 +168,14 @@ templ bookMetadata(book *dusk.Book) {
 			for _, i := range book.Isbn13 {
 				{ i }
 			}
+		}
+		if book.DateAdded.Valid {
+			<div>Date Added</div>
+			{ util.PrintDateFull(book.DateAdded) }
+		}
+		if book.DateCompleted.Valid {
+			<div>Date Completed</div>
+			{ util.PrintDateFull(book.DateCompleted) }
 		}
 	</div>
 }
@@ -218,7 +226,7 @@ templ BookStatus(book *dusk.Book) {
 		hx-put={ fmt.Sprintf("/b/%s/status", book.Slugify()) }
 		hx-target="this"
 		hx-swap="outerHTML"
-		hx-trigger="change #unread, change #reading, change #read"
+		hx-trigger="change"
 		hx-include="this"
 	>
 		switch book.Status {
@@ -293,9 +301,4 @@ templ DeleteBookModal(book *dusk.Book) {
 func halfRating(rating int) bool {
 	rating5 := float64(rating) / 2
 	return rating5 != float64(int64(rating5))
-}
-
-func printDateFormat(date null.Time) string {
-	year, month, _ := date.ValueOrZero().Date()
-	return fmt.Sprintf("%s %d", month.String()[:3], year)
 }

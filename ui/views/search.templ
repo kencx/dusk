@@ -1,11 +1,10 @@
 package views
 
 import (
-	"strconv"
-
-	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/ui/partials"
+	"github.com/kencx/dusk/util"
+	"strconv"
 )
 
 templ searchForm() {
@@ -70,7 +69,7 @@ templ searchResult(r *integration.Metadata) {
 		hx-post="/search/add"
 		hx-target="#toast-container"
 		hx-swap="beforeend"
-		hx-trigger="change #unread, change #reading, change #read"
+		hx-trigger="change"
 		hx-include="this"
 	>
 		<div class="search__result">

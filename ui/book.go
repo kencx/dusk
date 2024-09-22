@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/araddon/dateparse"
 	"github.com/kencx/dusk"
@@ -131,10 +132,10 @@ func (s *Handler) updateBookStatus(rw http.ResponseWriter, r *http.Request) {
 	switch r.FormValue("read-status") {
 	case "unread":
 		readStatus = dusk.Unread
-	case "read":
-		readStatus = dusk.Read
 	case "reading":
 		readStatus = dusk.Reading
+	case "read":
+		readStatus = dusk.Read
 	default:
 		readStatus = dusk.Unread
 	}
@@ -151,6 +152,9 @@ func (s *Handler) updateBookStatus(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	book.Status = readStatus
+	if readStatus == dusk.Read {
+		book.DateCompleted = null.TimeFrom(time.Now())
+	}
 
 	new_book, err := s.db.UpdateBook(id, book)
 	if err != nil {
