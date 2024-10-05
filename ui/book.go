@@ -226,6 +226,36 @@ func parseBookForm(r *http.Request, b *dusk.Book) *dusk.Book {
 		b.DatePublished = null.TimeFrom(dp)
 	}
 
+	if request.HasValue(r.Form, "read-status") {
+		var status dusk.ReadStatus
+		switch strings.ToLower(r.FormValue("read-status")) {
+		case "unread":
+			status = dusk.Unread
+		case "reading":
+			status = dusk.Reading
+		case "read":
+			status = dusk.Read
+		default:
+			status = dusk.Unread
+		}
+		b.Status = status
+	}
+
+	if request.HasValue(r.Form, "dateAdded") {
+		dp, _ := dateparse.ParseAny(r.FormValue("dateAdded"))
+		b.DateAdded = null.TimeFrom(dp)
+	}
+
+	if request.HasValue(r.Form, "dateStarted") {
+		dp, _ := dateparse.ParseAny(r.FormValue("dateStarted"))
+		b.DateStarted = null.TimeFrom(dp)
+	}
+
+	if request.HasValue(r.Form, "dateCompleted") {
+		dp, _ := dateparse.ParseAny(r.FormValue("dateCompleted"))
+		b.DateCompleted = null.TimeFrom(dp)
+	}
+
 	if request.HasValue(r.Form, "description") {
 		b.Description = null.StringFrom(r.FormValue("description"))
 	}

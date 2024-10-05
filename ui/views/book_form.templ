@@ -49,8 +49,11 @@ templ (v *BookForm) Html() {
 							<input type="text" name="subtitle" value={ v.book.Subtitle.ValueOrZero() }/>
 						</label>
 						<label>
-							Author (semicolon-separated)
+							Author(s)
 							<input type="text" name="author" value={ strings.Join(v.book.Author, "; ") }/>
+							<small>
+								Authors should be semicolon-separated.
+							</small>
 						</label>
 						<label>
 							ISBN
@@ -63,17 +66,20 @@ templ (v *BookForm) Html() {
 								<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
 							</small>
 						</label>
+						/* <label> */
+						/* 	Identifiers */
+						/* 	<input type="text" name="identifiers"/> */
+						/* </label> */
 						<label>
-							Identifiers
-							<input type="text" name="identifiers"/>
-						</label>
-						<label>
-							Tags (comma-separated)
+							Tags
 							<input
 								type="text"
 								name="tags"
 								value={ strings.Join(v.book.Tag, ", ") }
 							/>
+							<small>
+								Tags should be comma-separated.
+							</small>
 						</label>
 					</fieldset>
 					<fieldset class="grid">
@@ -96,6 +102,16 @@ templ (v *BookForm) Html() {
 								max="10"
 							/>
 						</label>
+						<label>
+							Date Added
+							<input
+								type="date"
+								name="dateAdded"
+								if v.book.DateAdded.Valid {
+									value={ v.book.DateAdded.ValueOrZero().Format("2006-01-02") }
+								}
+							/>
+						</label>
 					</fieldset>
 					<fieldset class="grid">
 						<label>
@@ -104,18 +120,60 @@ templ (v *BookForm) Html() {
 						</label>
 						<label>
 							Date Published
-							<input type="date" name="datePublished" value={ v.book.DatePublished.ValueOrZero().String() }/>
+							<input
+								type="date"
+								name="datePublished"
+								if v.book.DatePublished.Valid {
+									value={ v.book.DatePublished.ValueOrZero().Format("2006-01-02") }
+								}
+							/>
 						</label>
 					</fieldset>
-					<details>
-						<summary>Optional</summary>
+					<fieldset class="grid">
 						<label>
-							Description
-							<textarea name="description" value={ v.book.Description.ValueOrZero() }></textarea>
+							Status
+							<select name="read-status">
+								switch v.book.Status {
+									case dusk.Unread:
+										<option selected>Unread</option>
+										<option>Reading</option>
+										<option>Read</option>
+									case dusk.Reading:
+										<option>Unread</option>
+										<option selected>Reading</option>
+										<option>Read</option>
+									case dusk.Read:
+										<option>Unread</option>
+										<option>Reading</option>
+										<option selected>Read</option>
+								}
+							</select>
 						</label>
-					</details>
-					// date started
-					// date completed
+						<label>
+							Date Started
+							<input
+								type="date"
+								name="dateStarted"
+								if v.book.DateStarted.Valid {
+									value={ v.book.DateStarted.ValueOrZero().Format("2006-01-02") }
+								}
+							/>
+						</label>
+						<label>
+							Date Completed
+							<input
+								type="date"
+								name="dateCompleted"
+								if v.book.DateCompleted.Valid {
+									value={ v.book.DateCompleted.ValueOrZero().Format("2006-01-02") }
+								}
+							/>
+						</label>
+					</fieldset>
+					<label>
+						Description
+						<textarea name="description" value={ v.book.Description.ValueOrZero() }></textarea>
+					</label>
 					<label>
 						Cover file
 						<div class="filedrop-container">
