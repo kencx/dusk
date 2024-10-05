@@ -2,10 +2,9 @@ package partials
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials/icons"
+	"strconv"
 )
 
 templ ItemSearch(path, target string) {
@@ -21,7 +20,6 @@ templ ItemSearch(path, target string) {
 			hx-swap="innerHTML"
 			hx-trigger="input changed delay:500ms, search"
 			hx-indicator=".spinner"
-			hx-boost="true"
 		/>
 		@filterButtons(path, target)
 	</div>
@@ -101,7 +99,6 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
-			hx-boost="true"
 		>
 			{ "<<" }
 		</button>
@@ -112,7 +109,6 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
-			hx-boost="true"
 		>
 			// @icons.Previous()
 			{ "<" }
@@ -126,7 +122,6 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
-			hx-boost="true"
 		>
 			// @icons.Next()
 			{ ">" }
@@ -138,7 +133,6 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
-			hx-boost="true"
 		>
 			{ ">>" }
 		</button>
