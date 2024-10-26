@@ -7,21 +7,35 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/kencx/dusk/http/response"
 	"github.com/tdewolff/minify/v2"
 )
 
 //go:embed static/*
 var staticFS embed.FS
 
-func staticFiles(router *chi.Mux) {
+func staticRouter() *chi.Mux {
+	static := chi.NewRouter()
+
+	// static middleware
+	static.Use(
+		response.ETag,
+		response.SetCache,
+	)
+
+	static.Handle("/*", minified())
+	return static
+}
+
+func minified() http.Handler {
 	staticFs, err := fs.Sub(staticFS, "static")
 	if err != nil {
 		slog.Error("[UI] failed to locate \"static\" directory in embed FS")
-		return
+		return nil
 	}
 
 	m := minify.New()
 	sfs := http.FileServer(http.FS(staticFs))
-	minified := m.Middleware(http.StripPrefix("/static/", sfs))
-	router.Handle("/static/*", minified)
+	mini := m.Middleware(http.StripPrefix("/static/", sfs))
+	return mini
 }

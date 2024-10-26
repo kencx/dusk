@@ -22,8 +22,8 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 	base := shared.NewBase(revision)
 	s := Handler{db, fs, f, base}
 	ui := chi.NewRouter()
+	ui.Mount("/static", staticRouter())
 
-	staticFiles(ui)
 	dfs := http.FileServer(http.Dir(fs.Directory))
 	ui.Handle("/files/*", http.StripPrefix("/files/", dfs))
 
