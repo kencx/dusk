@@ -47,9 +47,18 @@ func ETag(next http.Handler) http.Handler {
 	})
 }
 
-func SetCache(next http.Handler) http.Handler {
+func SetCache(duration int) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+			rw.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", duration))
+			next.ServeHTTP(rw, r)
+		})
+	}
+}
+
+func NoCache(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		rw.Header().Set("Cache-Control", "max-age=31536000")
+		rw.Header().Set("Cache-Control", "no-cache")
 		next.ServeHTTP(rw, r)
 	})
 }

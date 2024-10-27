@@ -1,10 +1,9 @@
 package ui
 
 import (
-	"net/http"
-
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/http/response"
 	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/ui/shared"
 
@@ -22,10 +21,13 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 	base := shared.NewBase(revision)
 	s := Handler{db, fs, f, base}
 	ui := chi.NewRouter()
-	ui.Mount("/static", staticRouter())
 
-	dfs := http.FileServer(http.Dir(fs.Directory))
-	ui.Handle("/files/*", http.StripPrefix("/files/", dfs))
+	// middlewares
+	ui.Use(response.NoCache)
+
+	// static
+	ui.Mount("/static", staticRouter(604800))
+	ui.Mount("/files", filesRouter(fs, 604800))
 
 	ui.HandleFunc("/", s.index)
 	ui.Route("/b", func(c chi.Router) {

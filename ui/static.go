@@ -14,13 +14,13 @@ import (
 //go:embed static/*
 var staticFS embed.FS
 
-func staticRouter() *chi.Mux {
+func staticRouter(cacheDuration int) *chi.Mux {
 	static := chi.NewRouter()
 
 	// static middleware
 	static.Use(
 		response.ETag,
-		response.SetCache,
+		response.SetCache(cacheDuration),
 	)
 
 	static.Handle("/*", minified())
