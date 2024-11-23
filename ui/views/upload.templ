@@ -1,16 +1,22 @@
 package views
 
+import (
+	"fmt"
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/ui/partials"
+)
+
 templ uploadForm() {
 	<form
 		class="upload-form"
 		hx-post="/upload"
-		hx-target=".import__result_list"
+		hx-target="#upload__results"
 		hx-swap="innerHTML"
 		enctype="multipart/form-data"
 	>
 		<div class="filedrop-container">
 			<input type="file" name="upload" accept=".epub,.mobi,.pdf,.txt,.html" required/>
-			<small>Supported file types: epub, mobi, pdf</small>
+			<small>Supported file types: epub, mobi, pdf, text, html</small>
 			<label>
 				<input type="checkbox" name="multiple" checked/>
 				Add another?
@@ -18,4 +24,24 @@ templ uploadForm() {
 		</div>
 		<button type="submit">Submit</button>
 	</form>
+	<div id="upload__results"></div>
+}
+
+templ UploadSuccess(book *dusk.Book) {
+	if book != nil {
+		<div class="card">
+			Book <a href={ templ.SafeURL(fmt.Sprintf("/b/%s", book.Slugify())) }>{ book.Title }</a> added!
+		</div>
+	}
+}
+
+templ UploadError(err error) {
+	if err != nil {
+		<div class="card error">
+			switch err {
+				default:
+					@partials.Error(err)
+			}
+		</div>
+	}
 }

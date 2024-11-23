@@ -106,7 +106,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if b.Cover.Valid {
-		if err := s.fs.UploadBookCoverFromUrl(b.Cover.ValueOrZero(), book); err != nil {
+		if err := s.fs.UploadCoverFromUrl(b.Cover.ValueOrZero(), book); err != nil {
 			slog.Warn("failed to download cover", slog.Any("err", err))
 			SendToastMessage(rw, r, "Failed to download cover!")
 			return

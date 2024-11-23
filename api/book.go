@@ -108,7 +108,7 @@ func (s *Handler) AddBookCover(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.fs.UploadBookCover(file, b); err != nil {
+	if err := s.fs.UploadCoverFromPayload(file, b); err != nil {
 		slog.Error("[API] Failed to upload file", slog.Any("err", err))
 		response.InternalServerError(rw, r, err)
 		return

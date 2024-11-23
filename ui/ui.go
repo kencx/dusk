@@ -74,7 +74,7 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 
 	ui.Route("/upload", func(c chi.Router) {
 		c.Get("/", s.uploadPage)
-		c.Post("/upload", s.upload)
+		c.Post("/", s.upload)
 	})
 
 	// ui.Route("/manual", func(c chi.Router) {
