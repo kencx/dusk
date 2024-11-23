@@ -40,11 +40,30 @@ func NewService(path string) (*Service, error) {
 	return &Service{path}, nil
 }
 
-// Upload format for new book
-func (s *Service) UploadNewBook(payload *Payload) (*dusk.Book, error) {
+// Book format and cover files should not be uploaded to the filesystem directly if they
+// have not been initialized in the database, in case of database errors. This removes
+// the need to perform clean up if any database errors should occur.
+//
+// As such, the full flow of adding a new book via upload is:
+//  1. Parse book from payload
+//  2. Add book entry to database
+//  3. Upload book files
+//  4. Update database with book file paths
+func (s *Service) ParseBook(payload *Payload) (*dusk.Book, error) {
 	switch payload.Extension {
 	case epubExt:
-		return s.uploadNewEpub(payload)
+		ep, err := s.parseEpub(payload)
+		if err != nil {
+			return nil, err
+		}
+
+		book := ep.ToBook()
+		errMap := book.Valid()
+		if len(errMap) > 0 {
+			return nil, errMap
+		}
+
+		return book, nil
 	default:
 		return nil, errors.New("unsupported file format")
 	}
@@ -81,39 +100,23 @@ func (s *Service) UploadCoverFromUrl(url string, book *dusk.Book) error {
 		ext = ".jpeg"
 	}
 
-	if err := s.uploadCover(resp.Body, ext, book); err != nil {
-		return err
-	}
-	return nil
+	return s.uploadCover(resp.Body, ext, book)
 }
 
-// Upload EPUB format for new book
-func (s *Service) uploadNewEpub(payload *Payload) (*dusk.Book, error) {
+func (s *Service) parseEpub(payload *Payload) (*epub.Epub, error) {
 	ep, err := epub.NewFromReader(payload.File, payload.Size)
 	if err != nil && !errors.Is(err, epub.ErrNoCovers) {
 		return nil, fmt.Errorf("failed to parse epub file: %w", err)
 	}
 
-	book := ep.ToBook()
-	errMap := book.Valid()
-	if len(errMap) > 0 {
-		return nil, errMap
-	}
-
-	if err := s.uploadFormatFile(payload, book); err != nil {
-		return nil, err
-	}
-	if err := s.uploadCoverFromEpub(ep, book); err != nil {
-		return nil, err
-	}
-	return book, nil
+	return ep, nil
 }
 
 // Upload EPUB format for existing book
 func (s *Service) uploadEpub(payload *Payload, book *dusk.Book) error {
-	ep, err := epub.NewFromReader(payload.File, payload.Size)
-	if err != nil && !errors.Is(err, epub.ErrNoCovers) {
-		return fmt.Errorf("failed to parse epub file: %w", err)
+	ep, err := s.parseEpub(payload)
+	if err != nil {
+		return err
 	}
 
 	if err := s.uploadFormatFile(payload, book); err != nil {

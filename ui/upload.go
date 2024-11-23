@@ -21,9 +21,10 @@ func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := s.fs.UploadNewBook(f)
+	// get book metadata from payload
+	b, err := s.fs.ParseBook(f)
 	if err != nil {
-		slog.Error("[UI] Failed to upload file", slog.Any("err", err))
+		slog.Error("[UI] Failed to parse file", slog.Any("err", err))
 		views.UploadError(err).Render(r.Context(), rw)
 		return
 	}
@@ -32,6 +33,19 @@ func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("[UI] Failed to create book", slog.Any("err", err))
 		views.UploadError(err).Render(r.Context(), rw)
+		return
+	}
+
+	if err = s.fs.UploadBookFormat(f, res); err != nil {
+		slog.Error("[UI] Failed to upload file", slog.Any("err", err))
+		views.UploadError(err).Render(r.Context(), rw)
+		return
+	}
+
+	// update format and cover file paths
+	_, err = s.db.UpdateBook(res.Id, res)
+	if err != nil {
+		slog.Warn("[UI] Failed to update book", slog.Any("err", err))
 		return
 	}
 
