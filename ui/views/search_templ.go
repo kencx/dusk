@@ -112,20 +112,20 @@ func SearchResults(results integration.QueryResults, pagesize ...int) templ.Comp
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hgroup><h2>Results</h2><small>Total: ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hgroup><h2>Results</h2><small>Showing ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(len(results)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 59, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 59, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</small></hgroup> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" of 1000 results</small></hgroup> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

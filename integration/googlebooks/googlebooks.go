@@ -28,7 +28,7 @@ const (
 type Fetcher struct{}
 
 func (f *Fetcher) GetName() string {
-	return "Openlibrary"
+	return "Googlebooks"
 }
 
 func (f *Fetcher) FetchByIsbn(isbn string) (*integration.Metadata, error) {
