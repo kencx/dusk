@@ -201,41 +201,51 @@ func parseBookForm(r *http.Request, b *dusk.Book) *dusk.Book {
 		b.Title = r.FormValue("title")
 	}
 
-	if request.HasValue(r.Form, "subtitle") {
+	if request.HasOptionalValue(r.Form, "subtitle") {
 		b.Subtitle = null.StringFrom(r.FormValue("subtitle"))
 	}
 
-	if request.HasValue(r.Form, "author") {
-		authors := strings.Split(r.FormValue("author"), ";")
-		for i, a := range authors {
-			authors[i] = strings.TrimSpace(a)
+	if request.HasOptionalValue(r.Form, "author") {
+		var authors []string
+
+		for _, a := range strings.Split(r.FormValue("author"), ";") {
+			author := strings.TrimSpace(a)
+			if author != "" {
+				authors = append(authors, author)
+			}
 		}
+
 		b.Author = authors
 	}
 
-	if request.HasValue(r.Form, "tags") {
-		tags := strings.Split(r.FormValue("tags"), ",")
-		for i, t := range tags {
-			tags[i] = strings.TrimSpace(t)
+	if request.HasOptionalValue(r.Form, "tags") {
+		var tags []string
+
+		for _, t := range strings.Split(r.FormValue("tags"), ",") {
+			tag := strings.TrimSpace(t)
+			if tag != "" {
+				tags = append(tags, tag)
+			}
 		}
+
 		b.Tag = tags
 	}
 
-	if request.HasValue(r.Form, "numOfPages") {
+	if request.HasOptionalValue(r.Form, "numOfPages") {
 		pages, _ := strconv.Atoi(r.FormValue("numOfPages"))
 		b.NumOfPages = pages
 	}
 
-	if request.HasValue(r.Form, "rating") {
+	if request.HasOptionalValue(r.Form, "rating") {
 		rating, _ := strconv.Atoi(r.FormValue("rating"))
 		b.Rating = rating
 	}
 
-	if request.HasValue(r.Form, "publisher") {
+	if request.HasOptionalValue(r.Form, "publisher") {
 		b.Publisher = null.StringFrom(r.FormValue("publisher"))
 	}
 
-	if request.HasValue(r.Form, "datePublished") {
+	if request.HasOptionalValue(r.Form, "datePublished") {
 		dp, _ := dateparse.ParseAny(r.FormValue("datePublished"))
 		b.DatePublished = null.TimeFrom(dp)
 	}
@@ -255,26 +265,26 @@ func parseBookForm(r *http.Request, b *dusk.Book) *dusk.Book {
 		b.Status = status
 	}
 
-	if request.HasValue(r.Form, "dateAdded") {
+	if request.HasOptionalValue(r.Form, "dateAdded") {
 		dp, _ := dateparse.ParseAny(r.FormValue("dateAdded"))
 		b.DateAdded = null.TimeFrom(dp)
 	}
 
-	if request.HasValue(r.Form, "dateStarted") {
+	if request.HasOptionalValue(r.Form, "dateStarted") {
 		dp, _ := dateparse.ParseAny(r.FormValue("dateStarted"))
 		b.DateStarted = null.TimeFrom(dp)
 	}
 
-	if request.HasValue(r.Form, "dateCompleted") {
+	if request.HasOptionalValue(r.Form, "dateCompleted") {
 		dp, _ := dateparse.ParseAny(r.FormValue("dateCompleted"))
 		b.DateCompleted = null.TimeFrom(dp)
 	}
 
-	if request.HasValue(r.Form, "description") {
+	if request.HasOptionalValue(r.Form, "description") {
 		b.Description = null.StringFrom(r.FormValue("description"))
 	}
 
-	if request.HasValue(r.Form, "notes") {
+	if request.HasOptionalValue(r.Form, "notes") {
 		b.Notes = null.StringFrom(r.FormValue("notes"))
 	}
 	return b

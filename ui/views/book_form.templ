@@ -42,7 +42,7 @@ templ (v *BookForm) Html() {
 					<fieldset>
 						<label>
 							Title
-							<input type="text" name="title" value={ v.book.Title }/>
+							<input type="text" name="title" value={ v.book.Title } required/>
 						</label>
 						<label>
 							Subtitle
@@ -50,7 +50,7 @@ templ (v *BookForm) Html() {
 						</label>
 						<label>
 							Author(s)
-							<input type="text" name="author" value={ strings.Join(v.book.Author, "; ") }/>
+							<input type="text" name="author" value={ strings.Join(v.book.Author, "; ") } required/>
 							<small>
 								Authors should be semicolon-separated.
 							</small>

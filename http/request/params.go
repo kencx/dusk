@@ -66,3 +66,7 @@ func HasValue(params url.Values, value string) bool {
 	}
 	return false
 }
+
+func HasOptionalValue(params url.Values, value string) bool {
+	return params.Has(value)
+}
