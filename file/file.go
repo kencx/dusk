@@ -29,6 +29,7 @@ const (
 
 type Service struct {
 	Directory string
+	Archive   string
 }
 
 func NewService(path string) (*Service, error) {
@@ -37,7 +38,7 @@ func NewService(path string) (*Service, error) {
 		return nil, err
 	}
 
-	return &Service{path}, nil
+	return &Service{path, "archive"}, nil
 }
 
 // Book format and cover files should not be uploaded to the filesystem directly if they
@@ -130,7 +131,7 @@ func (s *Service) uploadEpub(payload *Payload, book *dusk.Book) error {
 
 // Upload format file for book
 func (s *Service) uploadFormatFile(payload *Payload, book *dusk.Book) error {
-	bookDir, err := s.createBookDirectory(book)
+	bookDir, err := s.getBookDirectory(book)
 	if err != nil {
 		return err
 	}
@@ -165,7 +166,7 @@ func (s *Service) uploadCoverFromEpub(ep *epub.Epub, book *dusk.Book) error {
 }
 
 func (s *Service) uploadCover(f io.Reader, extension string, book *dusk.Book) error {
-	bookDir, err := s.createBookDirectory(book)
+	bookDir, err := s.getBookDirectory(book)
 	if err != nil {
 		return err
 	}
@@ -197,7 +198,7 @@ func (s *Service) upload(file io.Reader, path string) error {
 }
 
 // create or get book directory
-func (s *Service) createBookDirectory(book *dusk.Book) (string, error) {
+func (s *Service) getBookDirectory(book *dusk.Book) (string, error) {
 	bookDir := filepath.Join(s.Directory, strings.ToLower(book.SafeTitle()))
 	if err := os.MkdirAll(bookDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create book directory: %w", err)

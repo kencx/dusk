@@ -172,12 +172,26 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.db.DeleteBook(id)
+	book, err := s.db.GetBook(id)
+	if err != nil {
+		slog.Error("[ui] failed to get book", slog.Int64("id", id), slog.Any("err", err))
+		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		return
+	}
+
+	err = s.db.DeleteBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to delete book", slog.Int64("id", id), slog.Any("err", err))
 		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
 		return
 	}
+
+	// TODO: allow archive files instead of permenently delete
+	err = s.fs.DeleteBook(book)
+	if err != nil {
+		slog.Warn("[ui] failed to delete book from filesystem", slog.Int64("id", id), slog.Any("err", err))
+	}
+
 	// redirect to index page
 	response.HxRedirect(rw, r, "/")
 }
