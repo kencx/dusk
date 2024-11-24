@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/araddon/dateparse"
@@ -211,12 +212,15 @@ func (e *Epub) getMetadata(p *contentPackage) error {
 
 func (e *Epub) getCover(p *contentPackage) error {
 	for _, item := range p.Manifest.Item {
-		if item.Properties == "cover-image" || item.Id == "cover" {
-			// The cover-image property returns a path that is relative to
-			// the root file. Thus, we prefix it with with the root file's
-			// parent directory to get the absolute path from the EPUB root.
-			e.CoverFile = filepath.Join(filepath.Dir(e.RootFile), item.Href)
-			return nil
+		if item.Properties == "cover-image" || strings.Contains(item.Id, "cover") {
+			// handle only image files
+			if strings.Contains(item.MediaType, "image/") || slices.Contains(coverExtension, filepath.Ext(item.Href)) {
+				// The cover-image property returns a path that is relative to
+				// the root file. Thus, we prefix it with with the root file's
+				// parent directory to get the absolute path from the EPUB root.
+				e.CoverFile = filepath.Join(filepath.Dir(e.RootFile), item.Href)
+				return nil
+			}
 		}
 	}
 
@@ -227,7 +231,6 @@ func (e *Epub) getCover(p *contentPackage) error {
 			return nil
 		}
 	}
-
 	return ErrNoCovers
 }
 
