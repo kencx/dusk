@@ -1,6 +1,7 @@
 package views
 
 import (
+	"errors"
 	"fmt"
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -38,7 +39,9 @@ templ UploadSuccess(book *dusk.Book) {
 templ UploadError(err error) {
 	if err != nil {
 		<div class="card error">
-			switch err {
+			switch  {
+				case errors.Is(err, dusk.ErrIsbnExists):
+					@partials.ErrorFromString("Book already exists!")
 				default:
 					@partials.Error(err)
 			}

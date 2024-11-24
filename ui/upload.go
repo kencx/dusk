@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
+	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/http/response"
 	"github.com/kencx/dusk/ui/views"
@@ -31,6 +33,12 @@ func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
 
 	res, err := s.db.CreateBook(b)
 	if err != nil {
+		if errors.Is(err, dusk.ErrIsbnExists) {
+			slog.Error("[UI] Failed to create book", slog.Any("err", err))
+			views.UploadError(err).Render(r.Context(), rw)
+			return
+		}
+
 		slog.Error("[UI] Failed to create book", slog.Any("err", err))
 		views.UploadError(err).Render(r.Context(), rw)
 		return

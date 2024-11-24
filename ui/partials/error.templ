@@ -1,5 +1,17 @@
 package partials
 
+templ baseError(message string) {
+	<p>{ message }</p>
+}
+
+templ DefaultError() {
+	@baseError("An error occurred. Please check the logs for more information.")
+}
+
+templ ErrorFromString(message string) {
+	@baseError(message)
+}
+
 templ Error(err error) {
-	<p>An error occurred. Please check the logs for more information.</p>
+	@baseError(err.Error())
 }

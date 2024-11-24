@@ -1,10 +1,11 @@
 package storage
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/kencx/dusk"
+	"github.com/mattn/go-sqlite3"
 )
 
 func getIsbn10FromBook(tx *sqlx.Tx, bookId int64) ([]string, error) {
@@ -32,32 +33,27 @@ func insertIsbn10(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 	stmt := `INSERT INTO isbn10 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
-		return -1, err
+		if sqErr, ok := err.(sqlite3.Error); ok && sqErr.Code == sqlite3.ErrConstraint && sqErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+			return -1, dusk.ErrIsbnExists
+		} else {
+			return -1, err
+		}
 	}
 
-	n, err := res.RowsAffected()
+	count, err := res.RowsAffected()
 	if err != nil {
 		return -1, err
 	}
 
-	// no rows inserted, query to get existing id
-	if n == 0 {
-		// isbn10s.isbn is unique
-		var id int64
-		stmt := `SELECT id FROM isbn10 WHERE isbn=$1;`
-		err := tx.Get(&id, stmt, i)
-		if err != nil {
-			return -1, fmt.Errorf("failed to query existing isbn10: %w", err)
-		}
-		return id, nil
-
-	} else {
-		id, err := res.LastInsertId()
-		if err != nil {
-			return -1, fmt.Errorf("failed to query existing isbn10: %w", err)
-		}
-		return id, nil
+	if count == 0 {
+		return -1, dusk.ErrNoChange
 	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, fmt.Errorf("failed to create isbn10: %w", err)
+	}
+	return id, nil
 }
 
 // Insert given slice of isbn10s and returns slice of isbn10 IDs. If isbn10 already
@@ -90,7 +86,7 @@ func deleteIsbn10(tx *sqlx.Tx, isbn string) error {
 	}
 
 	if count == 0 {
-		return errors.New("[db] no isbn10 deleted")
+		return dusk.ErrNoChange
 	}
 	return nil
 }
@@ -120,32 +116,27 @@ func insertIsbn13(tx *sqlx.Tx, bookId int64, i string) (int64, error) {
 	stmt := `INSERT INTO isbn13 (bookId, isbn) VALUES ($1, $2);`
 	res, err := tx.Exec(stmt, bookId, i)
 	if err != nil {
-		return -1, err
+		if sqErr, ok := err.(sqlite3.Error); ok && sqErr.Code == sqlite3.ErrConstraint && sqErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+			return -1, dusk.ErrIsbnExists
+		} else {
+			return -1, err
+		}
 	}
 
-	n, err := res.RowsAffected()
+	count, err := res.RowsAffected()
 	if err != nil {
 		return -1, err
 	}
 
-	// no rows inserted, query to get existing id
-	if n == 0 {
-		// isbn13s.isbn is unique
-		var id int64
-		stmt := `SELECT id FROM isbn13 WHERE isbn=$1;`
-		err := tx.Get(&id, stmt, i)
-		if err != nil {
-			return -1, fmt.Errorf("failed to query existing isbn13: %w", err)
-		}
-		return id, nil
-
-	} else {
-		id, err := res.LastInsertId()
-		if err != nil {
-			return -1, fmt.Errorf("failed to query existing isbn13: %w", err)
-		}
-		return id, nil
+	if count == 0 {
+		return -1, dusk.ErrNoChange
 	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, fmt.Errorf("failed to create isbn13: %w", err)
+	}
+	return id, nil
 }
 
 // Insert given slice of isbn13s and returns slice of isbn13 IDs. If isbn13 already
@@ -178,7 +169,7 @@ func deleteIsbn13(tx *sqlx.Tx, isbn string) error {
 	}
 
 	if count == 0 {
-		return errors.New("[db] no isbn13 deleted")
+		return dusk.ErrNoChange
 	}
 	return nil
 }

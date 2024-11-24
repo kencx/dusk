@@ -2,7 +2,6 @@ package storage
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -97,7 +96,7 @@ func (s *Store) UpdateSeries(id int64, a *dusk.Series) (*dusk.Series, error) {
 			return nil, fmt.Errorf("[db] failed to update series %d: %w", id, err)
 		}
 		if count == 0 {
-			return nil, errors.New("[db] no series updated")
+			return nil, dusk.ErrNoChange
 		}
 		return a, nil
 	})
@@ -121,7 +120,7 @@ func (s *Store) UpdateSeriesByName(name string, a *dusk.Series) (*dusk.Series, e
 			return nil, fmt.Errorf("[db] failed to update series %s: %w", name, err)
 		}
 		if count == 0 {
-			return nil, errors.New("[db] no series updated")
+			return nil, dusk.ErrNoChange
 		}
 		return a, nil
 	})
@@ -148,7 +147,7 @@ func (s *Store) DeleteSeries(id int64) error {
 		}
 
 		if count == 0 {
-			return nil, fmt.Errorf("[db] series %d not removed", id)
+			return nil, dusk.ErrNoChange
 		}
 		return nil, nil
 	})
@@ -217,7 +216,7 @@ func deleteBookFromSeries(tx *sqlx.Tx, bookId, id int64) error {
 	}
 
 	if count == 0 {
-		return fmt.Errorf("book %d from series %d not removed", bookId, id)
+		return dusk.ErrNoChange
 	}
 	return nil
 }

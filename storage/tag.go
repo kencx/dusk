@@ -2,7 +2,6 @@ package storage
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -137,7 +136,7 @@ func (s *Store) UpdateTag(id int64, a *dusk.Tag) (*dusk.Tag, error) {
 			return nil, fmt.Errorf("[db] failed to update tag %d: %w", id, err)
 		}
 		if count == 0 {
-			return nil, errors.New("[db] no tags updated")
+			return nil, dusk.ErrNoChange
 		}
 		return a, nil
 	})
@@ -166,7 +165,7 @@ func (s *Store) DeleteTag(id int64) error {
 		}
 
 		if count == 0 {
-			return nil, fmt.Errorf("[db] failed to delete tag %d", id)
+			return nil, dusk.ErrNoChange
 		}
 		return nil, nil
 	})

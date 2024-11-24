@@ -2,7 +2,6 @@ package storage
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -119,7 +118,7 @@ func (s *Store) UpdateAuthor(id int64, a *dusk.Author) (*dusk.Author, error) {
 			return nil, fmt.Errorf("[db] failed to update author %d: %w", id, err)
 		}
 		if count == 0 {
-			return nil, errors.New("[db] no authors updated")
+			return nil, dusk.ErrNoChange
 		}
 		return a, nil
 	})
@@ -152,7 +151,7 @@ func (s *Store) DeleteAuthor(id int64) error {
 		}
 
 		if count == 0 {
-			return nil, fmt.Errorf("[db] failed to delete author %d", id)
+			return nil, dusk.ErrNoChange
 		}
 		return nil, nil
 	})

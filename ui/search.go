@@ -1,10 +1,10 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/kencx/dusk"
@@ -23,17 +23,17 @@ func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
 func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 	value := r.FormValue("search")
 
-	ok, err := util.IsbnCheck(value)
+	isbnValid, err := util.IsbnCheck(value)
 	if err != nil {
 		slog.Error("[search] invalid isbn", slog.String("isbn", value), slog.Any("err", err))
 		views.SearchError(err).Render(r.Context(), rw)
 		return
 	}
 
-	if ok {
+	if isbnValid {
 		metadata, err := s.f.FetchByIsbn(value)
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("[search] Failed to fetch by isbn", slog.String("isbn", value), slog.Any("err", err))
 			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
@@ -44,12 +44,12 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 	} else {
 		results, err := s.f.FetchByQuery(value)
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("[search] Failed to fetch by query", slog.String("query", value), slog.Any("err", err))
 			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
 
-		slog.Debug(fmt.Sprintf("[search] Fetched %d results", len(*results)), slog.String("query", value))
+		slog.Debug("[search] Search successful", slog.Int("total", len(*results)), slog.String("query", value), slog.String("fetcher", ""))
 		views.SearchResults(*results).Render(r.Context(), rw)
 	}
 }
@@ -93,8 +93,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 
 	book, err := s.db.CreateBook(b)
 	if err != nil {
-		// TODO handle book that already exists
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+		if errors.Is(err, dusk.ErrIsbnExists) {
 			slog.Error("failed to create book", slog.Any("err", err))
 			SendToastMessage(rw, r, "Book already exists!")
 			return

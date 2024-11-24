@@ -107,7 +107,7 @@ func (s *Store) CreateBook(b *dusk.Book) (*dusk.Book, error) {
 		}
 
 		if len(b.Author) <= 0 {
-			return nil, errors.New("no authors provided")
+			return nil, dusk.ErrNoChange
 		}
 
 		author_ids, err := insertAuthors(tx, b.Author)
@@ -403,7 +403,7 @@ func insertBook(tx *sqlx.Tx, b *dusk.Book) (*dusk.Book, error) {
 		return nil, err
 	}
 	if count == 0 {
-		return nil, errors.New("no books added")
+		return nil, dusk.ErrNoChange
 	}
 	id, err := res.LastInsertId()
 	if err != nil {
@@ -444,14 +444,13 @@ func updateBook(tx *sqlx.Tx, id int64, b *dusk.Book) error {
 		return err
 	}
 	if count == 0 {
-		return errors.New("no books updated")
+		return dusk.ErrNoChange
 	}
 	return nil
 }
 
 // delete book entry from books table
 func deleteBook(tx *sqlx.Tx, id int64) error {
-
 	stmt := `DELETE from book WHERE id=$1;`
 	res, err := tx.Exec(stmt, id)
 	if err != nil {
@@ -462,7 +461,7 @@ func deleteBook(tx *sqlx.Tx, id int64) error {
 		return err
 	}
 	if count == 0 {
-		return errors.New("no books removed")
+		return dusk.ErrNoChange
 	}
 	return nil
 }

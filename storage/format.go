@@ -2,7 +2,6 @@ package storage
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -91,7 +90,7 @@ func deleteFormat(tx *sqlx.Tx, format string) error {
 	}
 
 	if count == 0 {
-		return errors.New("[db] no formats deleted")
+		return dusk.ErrNoChange
 	}
 	return nil
 }

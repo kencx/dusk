@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"errors"
 	"fmt"
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
@@ -81,7 +82,7 @@ func UploadSuccess(book *dusk.Book) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(book.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/upload.templ`, Line: 33, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/upload.templ`, Line: 34, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -122,7 +123,12 @@ func UploadError(err error) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			switch err {
+			switch {
+			case errors.Is(err, dusk.ErrIsbnExists):
+				templ_7745c5c3_Err = partials.ErrorFromString("Book already exists!").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			default:
 				templ_7745c5c3_Err = partials.Error(err).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
