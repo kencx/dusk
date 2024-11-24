@@ -9,31 +9,25 @@ import (
 )
 
 var (
-	defaultAfterId  = 0
-	defaultLimit    = 30
-	defaultSort     = "name"
+	defaultFilters = &filters.Base{
+		AfterId:      0,
+		Limit:        30,
+		Sort:         "name",
+		SortSafeList: filters.DefaultSafeList(),
+	}
 	defaultBookSort = "title"
 )
 
-func defaultFilters() *filters.Base {
-	return &filters.Base{
-		AfterId:      defaultAfterId,
-		Limit:        defaultLimit,
-		Sort:         defaultSort,
-		SortSafeList: filters.DefaultSafeList(),
-	}
-}
-
 func defaultSearchFilters() *filters.Search {
 	return &filters.Search{
-		Base: *defaultFilters(),
+		Base: *defaultFilters,
 	}
 }
 
 func defaultBookFilters() *filters.Book {
 	bf := &filters.Book{
 		Search: filters.Search{
-			Base: *defaultFilters(),
+			Base: *defaultFilters,
 		},
 	}
 	bf.Sort = defaultBookSort
@@ -47,9 +41,9 @@ func initSearchFilters(r *http.Request) *filters.Search {
 	return &filters.Search{
 		Search: request.QueryString(qs, "q", ""),
 		Base: filters.Base{
-			AfterId:      request.QueryInt(qs, page.After, defaultAfterId),
-			Limit:        request.QueryInt(qs, page.Limit, defaultLimit),
-			Sort:         request.QueryString(qs, page.Sort, defaultSort),
+			AfterId:      request.QueryInt(qs, page.After, defaultFilters.AfterId),
+			Limit:        request.QueryInt(qs, page.Limit, defaultFilters.Limit),
+			Sort:         request.QueryString(qs, page.Sort, defaultFilters.Sort),
 			SortSafeList: filters.DefaultSafeList(),
 		},
 	}
@@ -67,8 +61,8 @@ func initBookFilters(r *http.Request) *filters.Book {
 		Search: filters.Search{
 			Search: request.QueryString(qs, "q", ""),
 			Base: filters.Base{
-				AfterId:      request.QueryInt(qs, page.After, defaultAfterId),
-				Limit:        request.QueryInt(qs, page.Limit, defaultLimit),
+				AfterId:      request.QueryInt(qs, page.After, defaultFilters.AfterId),
+				Limit:        request.QueryInt(qs, page.Limit, defaultFilters.Limit),
 				Sort:         request.QueryString(qs, page.Sort, defaultBookSort),
 				SortSafeList: filters.DefaultSafeList(),
 			},
