@@ -10,6 +10,7 @@ import (
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/util"
 	"github.com/kencx/dusk/validator"
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/kennygrant/sanitize"
 )
@@ -83,6 +84,11 @@ func NewBook(
 		}
 		smallTag = append(smallTag, util.LowerCase(a))
 	}
+
+	p := bluemonday.StrictPolicy()
+	title = p.Sanitize(title)
+	subtitle = p.Sanitize(subtitle)
+	description = p.Sanitize(description)
 
 	b := &Book{
 		Title:    util.SentenceCase(title),
