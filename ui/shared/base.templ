@@ -5,11 +5,10 @@ import (
 	"net/http"
 )
 
-type View interface {
-	Render(rw http.ResponseWriter, r *http.Request) templ.Component
-	// RenderError(rw http.ResponseWriter, r *http.Request, err error)
-	Html() templ.Component
-}
+// type View interface {
+// 	Render(rw http.ResponseWriter, r *http.Request) templ.Component
+// 	Html() templ.Component
+// }
 
 type Base struct {
 	Revision string

@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"runtime/debug"
 	"strings"
 	"syscall"
 
@@ -42,6 +43,16 @@ func main() {
 	flag.StringVar(&config.tlsKey, "tlsCert", "", "TLS key path")
 	flag.StringVar(&config.logLevel, "log", "info", "Log level")
 	flag.Parse()
+
+	if version == "" {
+		if info, ok := debug.ReadBuildInfo(); ok {
+			for _, setting := range info.Settings {
+				if setting.Key == "vcs.revision" {
+					version = setting.Value[:6]
+				}
+			}
+		}
+	}
 
 	// init logger
 	level := new(slog.LevelVar)
