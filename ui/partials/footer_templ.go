@@ -8,9 +8,7 @@ package partials
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"github.com/kencx/dusk/ui/partials/icons"
-)
+import "github.com/kencx/dusk/ui/partials/icons"
 
 func Footer(revision string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -40,13 +38,13 @@ func Footer(revision string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(revision)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/footer.templ`, Line: 10, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/footer.templ`, Line: 8, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" • Licensed by MIT • <a href=\"https://github.com/kencx/dusk\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" • <a href=\"https://github.com/kencx/dusk\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

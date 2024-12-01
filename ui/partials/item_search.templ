@@ -60,7 +60,7 @@ templ ItemSearchResults[T any](page page.Page[T], path, target string, err error
 	if page.Empty() {
 		<p class="message">No items found!</p>
 	} else if err != nil {
-		<p class="message">Something went wrong, please try again.</p>
+		@DefaultError()
 	} else {
 		@pageMetadata(page, path, target)
 		{ children... }

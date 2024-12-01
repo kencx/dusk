@@ -97,6 +97,9 @@ func UploadSuccess(book *dusk.Book) templ.Component {
 	})
 }
 
+// TODO if book already exists, give existing book link
+// if similar book but different isbn, warn about similar book with link, give option to
+// merge
 func UploadError(err error) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -119,10 +122,6 @@ func UploadError(err error) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if err != nil {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card error\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 			switch {
 			case errors.Is(err, dusk.ErrIsbnExists):
 				templ_7745c5c3_Err = partials.ErrorFromString("Book already exists!").Render(ctx, templ_7745c5c3_Buffer)
@@ -134,10 +133,6 @@ func UploadError(err error) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
 			}
 		}
 		return templ_7745c5c3_Err

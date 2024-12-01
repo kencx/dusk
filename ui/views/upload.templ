@@ -36,15 +36,16 @@ templ UploadSuccess(book *dusk.Book) {
 	}
 }
 
+// TODO if book already exists, give existing book link
+// if similar book but different isbn, warn about similar book with link, give option to
+// merge
 templ UploadError(err error) {
 	if err != nil {
-		<div class="card error">
-			switch  {
-				case errors.Is(err, dusk.ErrIsbnExists):
-					@partials.ErrorFromString("Book already exists!")
-				default:
-					@partials.Error(err)
-			}
-		</div>
+		switch  {
+			case errors.Is(err, dusk.ErrIsbnExists):
+				@partials.ErrorFromString("Book already exists!")
+			default:
+				@partials.Error(err)
+		}
 	}
 }

@@ -1,21 +1,47 @@
 package partials
 
-templ baseError(message string) {
-	<div class="error">{ message }</div>
+templ baseError() {
+	<div class="error">
+		{ children... }
+	</div>
 }
 
 templ DefaultError() {
-	@baseError("An unexpected error occurred, please try again later.")
+	@baseError() {
+		"An unexpected error occurred, please try again later."
+	}
 }
 
 templ ErrorFromString(message string) {
-	@baseError(message)
+	@baseError() {
+		message
+	}
 }
 
 templ Error(err error) {
-	@baseError(err.Error())
+	@baseError() {
+		err.Error()
+	}
+}
+
+templ ErrorFromRaw() {
+	@baseError() {
+		{ children... }
+	}
 }
 
 templ HtmxError() {
 	<div id="htmx-alert" class="error" hidden></div>
+}
+
+templ NotFound() {
+	<hgroup>
+		<h2>404</h2>
+		<small>Item does not exist.</small>
+	</hgroup>
+	<p>
+		<a href="/">
+			Return to home.
+		</a>
+	</p>
 }

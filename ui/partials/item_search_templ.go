@@ -240,7 +240,7 @@ func ItemSearchResults[T any](page page.Page[T], path, target string, err error)
 				return templ_7745c5c3_Err
 			}
 		} else if err != nil {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p class=\"message\">Something went wrong, please try again.</p>")
+			templ_7745c5c3_Err = DefaultError().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

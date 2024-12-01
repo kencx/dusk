@@ -28,9 +28,9 @@ templ searchForm() {
 
 templ SearchError(err error) {
 	if err != nil {
-		<div class="card error">
-			switch err {
-				case util.ErrInvalidIsbn:
+		switch err {
+			case util.ErrInvalidIsbn:
+				@partials.ErrorFromRaw() {
 					<p>
 						You entered an invalid ISBN. A book's ISBN is usually found on the
 						back cover, near the barcode. It will contain 10 or 13 characters, plus
@@ -44,10 +44,10 @@ templ SearchError(err error) {
 						Alternatively, you can try searching for the book's title or
 						author.
 					</p>
-				default:
-					@partials.Error(err)
-			}
-		</div>
+				}
+			default:
+				@partials.Error(err)
+		}
 	}
 }
 

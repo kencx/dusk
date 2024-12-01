@@ -49,6 +49,6 @@ templ (b Base) Html() {
 
 templ (b Base) NotFound() {
 	@b.Html() {
-		@NotFound()
+		@partials.NotFound()
 	}
 }

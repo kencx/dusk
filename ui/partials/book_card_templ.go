@@ -52,21 +52,15 @@ func bookCard(b *dusk.Book) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if !b.Cover.Valid {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<img alt=\"\" src=\"/static/img/default_cover.jpg\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else if strings.HasPrefix(b.Cover.String, "http://") ||
-			strings.HasPrefix(b.Cover.String, "https://") {
+		if b.Cover.Valid {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<img alt=\"\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(b.Cover.String)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(path.Join("/files", b.Cover.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/book_card.templ`, Line: 21, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/book_card.templ`, Line: 18, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -76,21 +70,27 @@ func bookCard(b *dusk.Book) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
+		} else if strings.HasPrefix(b.Cover.String, "http://") ||
+			strings.HasPrefix(b.Cover.String, "https://") {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<img alt=\"\" src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(path.Join("/files", b.Cover.String))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(b.Cover.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/book_card.templ`, Line: 23, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/book_card.templ`, Line: 21, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<img alt=\"\" src=\"/static/img/default_cover.jpg\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

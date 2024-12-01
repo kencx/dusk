@@ -27,7 +27,7 @@ templ (v *Tag) Html() {
 	@v.Base.Html() {
 		<div>
 			if v.Err == dusk.ErrDoesNotExist {
-				@shared.NotFound()
+				@partials.NotFound()
 			} else {
 				<div class="tag__details">
 					<div class="header">

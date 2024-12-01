@@ -1,11 +1,10 @@
 package views
 
 import (
-	"path"
-	"strconv"
-
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/ui/partials"
+	"path"
+	"strconv"
 )
 
 templ goodreadsForm() {
@@ -29,12 +28,10 @@ templ goodreadsForm() {
 
 templ GoodreadsError(err error) {
 	if err != nil {
-		<div class="card error">
-			switch err {
-				default:
-					@partials.Error(err)
-			}
-		</div>
+		switch err {
+			default:
+				@partials.Error(err)
+		}
 	}
 }
 
