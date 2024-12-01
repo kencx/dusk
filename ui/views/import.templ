@@ -1,10 +1,9 @@
 package views
 
 import (
-	"net/http"
-
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
+	"net/http"
 )
 
 var (
@@ -63,6 +62,7 @@ func (v *ImportIndex) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *ImportIndex) Html() {
 	@v.Base.Html() {
 		<h2>Add Books</h2>
+		@partials.HtmxError()
 		@partials.Tabs(v.Tabs, v.defaultTab)
 	}
 }
@@ -79,11 +79,9 @@ templ calibreForm() {
 
 templ ImportError(err error) {
 	if err != nil {
-		<div class="card error">
-			switch err {
-				default:
-					<p>An error occurred. Please check the logs for more information.</p>
-			}
-		</div>
+		switch err {
+			default:
+				@partials.DefaultError()
+		}
 	}
 }

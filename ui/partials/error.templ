@@ -1,11 +1,11 @@
 package partials
 
 templ baseError(message string) {
-	<p>{ message }</p>
+	<div class="error">{ message }</div>
 }
 
 templ DefaultError() {
-	@baseError("An error occurred. Please check the logs for more information.")
+	@baseError("An unexpected error occurred, please try again later.")
 }
 
 templ ErrorFromString(message string) {
@@ -14,4 +14,8 @@ templ ErrorFromString(message string) {
 
 templ Error(err error) {
 	@baseError(err.Error())
+}
+
+templ HtmxError() {
+	<div id="htmx-alert" class="error" hidden></div>
 }

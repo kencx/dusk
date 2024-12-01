@@ -9,10 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"net/http"
-
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
+	"net/http"
 )
 
 var (
@@ -105,6 +104,14 @@ func (v *ImportIndex) Html() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = partials.HtmxError().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = partials.Tabs(v.Tabs, v.defaultTab).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -170,20 +177,12 @@ func ImportError(err error) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if err != nil {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card error\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 			switch err {
 			default:
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>An error occurred. Please check the logs for more information.</p>")
+				templ_7745c5c3_Err = partials.DefaultError().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
 			}
 		}
 		return templ_7745c5c3_Err
