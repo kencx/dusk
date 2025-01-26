@@ -231,6 +231,10 @@ func parseBookForm(r *http.Request, b *dusk.Book) *dusk.Book {
 		b.Tag = tags
 	}
 
+	if request.HasOptionalValue(r.Form, "series") {
+		b.Series = null.StringFrom(r.FormValue("series"))
+	}
+
 	if request.HasOptionalValue(r.Form, "numOfPages") {
 		pages, _ := strconv.Atoi(r.FormValue("numOfPages"))
 		b.NumOfPages = pages

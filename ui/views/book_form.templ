@@ -81,6 +81,10 @@ templ (v *BookForm) Html() {
 								Tags should be comma-separated.
 							</small>
 						</label>
+						<label>
+							Series
+							<input type="text" name="series" value={ v.book.Series.ValueOrZero() }/>
+						</label>
 					</fieldset>
 					<fieldset class="grid">
 						<label>
