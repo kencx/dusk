@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"time"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/file"
+	"github.com/kencx/dusk/null"
 )
 
 func ReadCSV(payload *file.Payload) (dusk.Books, error) {
@@ -38,6 +40,7 @@ func ReadCSV(payload *file.Payload) (dusk.Books, error) {
 			failed += 1
 			continue
 		}
+		book.DateAdded = null.TimeFrom(time.Now())
 		books = append(books, book)
 		success += 1
 	}
