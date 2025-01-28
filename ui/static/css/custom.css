@@ -2,6 +2,10 @@
   --icon-size: 1.75rem;
 }
 
+a {
+	--pico-text-decoration: none !important;
+}
+
 .container {
   max-width: 50rem !important;
 }
@@ -73,6 +77,7 @@ details.dropdown[data-tooltip]:has(> summary[role="button"].icon) {
 /* LIBRARY CARD VIEW */
 
 .search__metadata {
+  margin-top: calc(var(--pico-spacing)/2);
   margin-bottom: var(--pico-spacing);
   color: var(--pico-secondary);
 	display: flex;
@@ -249,7 +254,7 @@ details.dropdown[data-tooltip]:has(> summary[role="button"].icon) {
   }
 
   .desc-excerpt {
-    width: max-content;
+    /* width: max-content; */
     min-width: 12rem;
     font-size: 0.65rem;
 
