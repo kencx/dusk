@@ -28,20 +28,31 @@ func (s *Handler) goodreads(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO run as background job OR show load bar and prevent user from navigating away
+	// TODO download book covers
 	var errMap = make(map[int]error)
 
-	// TODO run as background job OR show load bar and prevent user from navigating away
+	// handling duplicates
+	for _, book := range books {
+		// TODO when re-importing csvs, books without any isbn will NOT fail the isbn
+		// constraint requirement and be imported twice
 
-	// TODO when re-importing csvs, books without any isbn will NOT fail the isbn
-	// constraint requirement and be imported twice
+		_, err := s.db.GetBookEqual(book)
+		if err != nil {
+			slog.Error("[goodreads] failed to get duplicates", slog.Any("err", err))
+		}
+
+		// if len(dups) > 0 { }
+	}
+
 	for i, book := range books {
-		_, err := s.db.CreateBook(book)
+		b, err := s.db.CreateBook(book)
 		if err != nil {
 			slog.Error("[goodreads] failed to create book", slog.Any("err", err))
 			errMap[i] = err
 		}
+		book.Id = b.Id
 	}
 
-	// TODO download book covers
 	views.GoodreadsResults(books, errMap).Render(r.Context(), rw)
 }
