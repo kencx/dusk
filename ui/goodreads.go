@@ -33,17 +33,17 @@ func (s *Handler) goodreads(rw http.ResponseWriter, r *http.Request) {
 	var errMap = make(map[int]error)
 
 	// handling duplicates
-	for _, book := range books {
-		// TODO when re-importing csvs, books without any isbn will NOT fail the isbn
-		// constraint requirement and be imported twice
+	// for _, book := range books {
+	// TODO when re-importing csvs, books without any isbn will NOT fail the isbn
+	// constraint requirement and be imported twice
 
-		_, err := s.db.GetBookEqual(book)
-		if err != nil {
-			slog.Error("[goodreads] failed to get duplicates", slog.Any("err", err))
-		}
+	// _, err := s.db.GetBookEqual(book)
+	// if err != nil {
+	// 	slog.Error("[goodreads] failed to get duplicates", slog.Any("err", err))
+	// }
 
-		// if len(dups) > 0 { }
-	}
+	// if len(dups) > 0 { }
+	// }
 
 	for i, book := range books {
 		b, err := s.db.CreateBook(book)
