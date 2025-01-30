@@ -269,18 +269,20 @@ func (s *Store) UpdateBook(id int64, b *dusk.Book) (*dusk.Book, error) {
 			}
 		}
 
-		if current_series == nil && b.Series.Valid {
-			if _, err = insertSeries(tx, b.Id, b.Series.ValueOrZero()); err != nil {
-				return nil, fmt.Errorf("[db] failed to insert series for book %d: %w", b.Id, err)
-			}
-		} else {
-			if current_series.Name != b.Series.ValueOrZero() {
+		if b.Series.Valid {
+			if current_series == nil {
 				if _, err = insertSeries(tx, b.Id, b.Series.ValueOrZero()); err != nil {
-					return nil, fmt.Errorf("[db] failed to update series for book %d: %w", b.Id, err)
+					return nil, fmt.Errorf("[db] failed to insert series for book %d: %w", b.Id, err)
 				}
+			} else {
+				if current_series.Name != b.Series.ValueOrZero() {
+					if _, err = insertSeries(tx, b.Id, b.Series.ValueOrZero()); err != nil {
+						return nil, fmt.Errorf("[db] failed to update series for book %d: %w", b.Id, err)
+					}
 
-				if err := deleteBookFromSeries(tx, b.Id, current_series.Id); err != nil {
-					return nil, fmt.Errorf("[db] failed to delete book %d from series %d: %w", b.Id, current_series.Id, err)
+					if err := deleteBookFromSeries(tx, b.Id, current_series.Id); err != nil {
+						return nil, fmt.Errorf("[db] failed to delete book %d from series %d: %w", b.Id, current_series.Id, err)
+					}
 				}
 			}
 		}
