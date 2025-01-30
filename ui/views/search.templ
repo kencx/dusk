@@ -73,7 +73,6 @@ templ searchResult(r *integration.Metadata) {
 		hx-swap="beforeend"
 		hx-trigger="change"
 		hx-include="this"
-		hx-indicator="#add-result-spinner"
 	>
 		<div class="search__result">
 			<img alt="" src={ r.CoverUrl }/>
@@ -113,40 +112,17 @@ templ searchResult(r *integration.Metadata) {
 			if len(r.Isbn13) > 0 {
 				<input type="hidden" name="result" value={ r.Isbn13[0] }/>
 			}
-			@searchAddAction()
+			<div class="actions">
+				<select name="read-status" hx-indicator="this.closest('form').querySelector('#add-result-spinner')">
+					<option selected disabled value="">Add book</option>
+					<option value="unread">To read</option>
+					<option value="reading">Reading</option>
+					<option value="read">Read</option>
+				</select>
+				<label>
+					<div id="add-result-spinner" class="spinner" aria-busy="true"></div>
+				</label>
+			</div>
 		</div>
 	</form>
-}
-
-templ searchAddAction() {
-	<div class="actions">
-		<details class="dropdown">
-			<summary>Add book</summary>
-			<ul>
-				<li>
-					<label>
-						<input type="radio" id="unread" name="read-status" value="unread"/>
-						To read
-					</label>
-				</li>
-				<li>
-					<label>
-						<input type="radio" id="reading" name="read-status" value="reading"/>
-						Reading
-					</label>
-				</li>
-				<li>
-					<label>
-						<input type="radio" id="read" name="read-status" value="read"/>
-						Read
-					</label>
-				</li>
-				<li>
-					<label>
-						<div id="add-result-spinner" class="spinner" aria-busy="true"></div>
-					</label>
-				</li>
-			</ul>
-		</details>
-	</div>
 }
