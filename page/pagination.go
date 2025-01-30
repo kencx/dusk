@@ -53,6 +53,19 @@ func New[T any](total, first, last int, filters *filters.Base, items []T) *Page[
 	}
 }
 
+func Single[T any](filters *filters.Base, item T) *Page[T] {
+	return &Page[T]{
+		Info: &Info{
+			Limit:       1,
+			TotalCount:  1,
+			FirstRowNo:  1,
+			LastRowNo:   1,
+			QueryParams: nil,
+		},
+		Items: []T{item},
+	}
+}
+
 func NewEmpty[T any]() *Page[T] {
 	return &Page[T]{}
 }

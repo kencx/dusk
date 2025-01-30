@@ -8,7 +8,10 @@ import (
 	"github.com/kencx/dusk/integration"
 )
 
-type GbQueryResults []*integration.Metadata
+type GbQueryResults struct {
+	TotalCount int
+	Items      []integration.Metadata
+}
 
 func (q *GbQueryResults) UnmarshalJSON(buf []byte) error {
 	var qj QueryJson
@@ -18,6 +21,8 @@ func (q *GbQueryResults) UnmarshalJSON(buf []byte) error {
 	}
 
 	slog.Debug(fmt.Sprintf("[googlebooks] Found %d items", qj.TotalItems))
+
+	var items []integration.Metadata
 	for _, item := range qj.Items {
 		vol := item.VolumeInfo
 
@@ -46,7 +51,12 @@ func (q *GbQueryResults) UnmarshalJSON(buf []byte) error {
 		}
 
 		m.getIdentifiers(vol)
-		*q = append(*q, &m.Metadata)
+		items = append(items, m.Metadata)
+	}
+
+	*q = GbQueryResults{
+		TotalCount: qj.TotalItems,
+		Items:      items,
 	}
 	return nil
 }

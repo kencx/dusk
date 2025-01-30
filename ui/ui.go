@@ -66,9 +66,7 @@ func Router(revision string, db dusk.Store, fs *file.Service, f integration.Fetc
 
 	ui.Route("/search", func(c chi.Router) {
 		c.Get("/", s.searchPage)
-		c.Post("/", s.search)
-		// TODO with pagination
-		// c.Get("/results/{page:[0-9]+}", s.searchResultsPage)
+		c.Get("/import", s.search)
 		c.Post("/add", s.searchAddResult)
 	})
 

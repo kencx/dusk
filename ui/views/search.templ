@@ -2,20 +2,20 @@ package views
 
 import (
 	"github.com/kencx/dusk/integration"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/util"
-	"strconv"
 )
 
 templ searchForm() {
 	<form
-		hx-post="/search"
+		hx-get="/search/import"
 		hx-target="#search__result_list"
 		hx-swap="innerHTML"
 		hx-indicator="#search-spinner"
 	>
 		<fieldset role="group">
-			<input id="search" name="search" placeholder="Search for an ISBN, title or author"/>
+			<input id="search" name="q" placeholder="Search for an ISBN, title or author"/>
 			<button type="submit">Submit</button>
 		</fieldset>
 		<small>
@@ -51,18 +51,18 @@ templ SearchError(err error) {
 	}
 }
 
-templ SearchResults(results integration.QueryResults, pagesize ...int) {
+templ SearchResults(page *page.Page[integration.Metadata], pagesize ...int) {
 	<hgroup>
 		<h2>
 			Results
 		</h2>
-		<small>Showing { strconv.Itoa(len(results)) } of 1000 results</small>
 	</hgroup>
-	if len(results) == 0 {
-		No results found!
-	}
-	for _, r := range results {
-		@searchResult(r)
+	@partials.ItemSearchResults(*page, "/search/import", "#search__results", nil) {
+		<div id="search__results">
+			for _, r := range page.Items {
+				@searchResult(&r)
+			}
+		</div>
 	}
 }
 

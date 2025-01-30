@@ -11,7 +11,6 @@ import (
 
 var ErrInvalidMetadata = errors.New("invalid metadata")
 
-// TODO pagination for metadata
 type Metadata struct {
 	Title         string
 	Subtitle      string
@@ -25,8 +24,6 @@ type Metadata struct {
 	Publishers    []string
 	CoverUrl      string
 }
-
-type QueryResults []*Metadata
 
 func (m *Metadata) ToBook() *dusk.Book {
 	var (

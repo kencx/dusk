@@ -39,7 +39,10 @@ type QueryJson struct {
 	} `json:"docs"`
 }
 
-type OlQueryResults []*integration.Metadata
+type OlQueryResults struct {
+	TotalCount int
+	Items      []integration.Metadata
+}
 
 func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 	var qj QueryJson
@@ -53,6 +56,8 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 	}
 
 	slog.Debug(fmt.Sprintf("[openlibrary] Found %d results", qj.NumFound))
+
+	var items []integration.Metadata
 	for _, work := range qj.Results {
 		for _, r := range work.Editions.Results {
 			m := &integration.Metadata{
@@ -120,8 +125,13 @@ func (q *OlQueryResults) UnmarshalJSON(buf []byte) error {
 					}
 				}
 			}
-			*q = append(*q, m)
+			items = append(items, *m)
 		}
+	}
+
+	*q = OlQueryResults{
+		TotalCount: qj.NumFound,
+		Items:      items,
 	}
 	return nil
 }

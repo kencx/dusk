@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/integration"
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
@@ -21,8 +20,14 @@ func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
 
 // TODO handle timeouts, 5XX errors
 func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
-	value := r.FormValue("search")
+	filters := initSearchFilters(r)
+	if errMap := validator.Validate(filters); errMap != nil {
+		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
+		views.SearchError(errors.New("validate error")).Render(r.Context(), rw)
+		return
+	}
 
+	value := filters.Search
 	isbnValid, err := util.IsbnCheck(value)
 	if err != nil {
 		slog.Error("[search] invalid isbn", slog.String("isbn", value), slog.Any("err", err))
@@ -37,20 +42,18 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
-
-		results := integration.QueryResults{metadata}
-		views.SearchResults(results).Render(r.Context(), rw)
+		views.SearchResults(metadata).Render(r.Context(), rw)
 
 	} else {
-		results, err := s.f.FetchByQuery(value)
+		results, err := s.f.FetchByQuery(filters, value)
 		if err != nil {
 			slog.Error("[search] Failed to fetch by query", slog.String("query", value), slog.Any("err", err))
 			views.SearchError(err).Render(r.Context(), rw)
 			return
 		}
 
-		slog.Debug("[search] Search successful", slog.Int("total", len(*results)), slog.String("query", value), slog.String("fetcher", ""))
-		views.SearchResults(*results).Render(r.Context(), rw)
+		slog.Debug("[search] Search successful", slog.Int("total", len(results.Items)), slog.String("query", value), slog.String("fetcher", ""))
+		views.SearchResults(results).Render(r.Context(), rw)
 	}
 }
 
@@ -80,7 +83,7 @@ func (s *Handler) searchAddResult(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b := metadata.ToBook()
+	b := metadata.Items[0].ToBook()
 	b.DateAdded = null.TimeFrom(time.Now())
 	b.Status = readStatus
 

@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/kencx/dusk/integration"
+	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/util"
-	"strconv"
 )
 
 func searchForm() templ.Component {
@@ -36,7 +36,7 @@ func searchForm() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/search\" hx-target=\"#search__result_list\" hx-swap=\"innerHTML\" hx-indicator=\"#search-spinner\"><fieldset role=\"group\"><input id=\"search\" name=\"search\" placeholder=\"Search for an ISBN, title or author\"> <button type=\"submit\">Submit</button></fieldset><small><a href=\"https://www.isbn-13.info/example\">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.</small><div id=\"search-spinner\" class=\"spinner\" aria-busy=\"true\"></div></form><div id=\"search__result_list\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/search/import\" hx-target=\"#search__result_list\" hx-swap=\"innerHTML\" hx-indicator=\"#search-spinner\"><fieldset role=\"group\"><input id=\"search\" name=\"q\" placeholder=\"Search for an ISBN, title or author\"> <button type=\"submit\">Submit</button></fieldset><small><a href=\"https://www.isbn-13.info/example\">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.</small><div id=\"search-spinner\" class=\"spinner\" aria-busy=\"true\"></div></form><div id=\"search__result_list\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -101,7 +101,7 @@ func SearchError(err error) templ.Component {
 	})
 }
 
-func SearchResults(results integration.QueryResults, pagesize ...int) templ.Component {
+func SearchResults(page *page.Page[integration.Metadata], pagesize ...int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -122,34 +122,41 @@ func SearchResults(results integration.QueryResults, pagesize ...int) templ.Comp
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hgroup><h2>Results</h2><small>Showing ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<hgroup><h2>Results</h2></hgroup>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(len(results)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 59, Col: 45}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" of 1000 results</small></hgroup> ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(results) == 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("No results found! ")
+		templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"search__results\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		}
-		for _, r := range results {
-			templ_7745c5c3_Err = searchResult(r).Render(ctx, templ_7745c5c3_Buffer)
+			for _, r := range page.Items {
+				templ_7745c5c3_Err = searchResult(&r).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			return templ_7745c5c3_Err
+		})
+		templ_7745c5c3_Err = partials.ItemSearchResults(*page, "/search/import", "#search__results", nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
 		return templ_7745c5c3_Err
 	})

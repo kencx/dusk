@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/integration"
+	"github.com/kencx/dusk/page"
 )
 
 const (
@@ -17,7 +20,7 @@ const (
 
 	searchEndpoint = "https://openlibrary.org/search.json?q=%s&%s&%s"
 	searchFields   = "fields=key,title,editions,editions.title,editions.subtitle,editions.author_name,editions.isbn,editions.publisher,editions.cover_i,editions.publish_date,editions.number_of_pages_median"
-	searchLimit    = "limit=5&offset=0"
+	searchLimit    = "limit=%d&offset=%d"
 
 	coverIdEndpoint   = "https://covers.openlibrary.org/b/id/%s-%s.jpg"
 	coverIsbnEndpoint = "https://covers.openlibrary.org/b/isbn/%s-%s.jpg"
@@ -31,7 +34,7 @@ func (f *Fetcher) GetName() string {
 	return "Openlibrary"
 }
 
-func (f *Fetcher) FetchByIsbn(isbn string) (*integration.Metadata, error) {
+func (f *Fetcher) FetchByIsbn(isbn string) (*page.Page[integration.Metadata], error) {
 	url := fmt.Sprintf(isbnEndpoint, isbn)
 	var m OlMetadata
 
@@ -40,30 +43,33 @@ func (f *Fetcher) FetchByIsbn(isbn string) (*integration.Metadata, error) {
 		return nil, fmt.Errorf("failed to fetch by isbn: %w", err)
 	}
 
-	return &m.Metadata, nil
+	final := page.Single(nil, m.Metadata)
+	return final, nil
 }
 
-func (f *Fetcher) FetchByQuery(query string) (*integration.QueryResults, error) {
+func (f *Fetcher) FetchByQuery(filters *filters.Search, query string) (*page.Page[integration.Metadata], error) {
 	query = url.QueryEscape(query)
-	url := fmt.Sprintf(searchEndpoint, query, searchFields, searchLimit)
-	var q OlQueryResults
+	searchPage := fmt.Sprintf(searchLimit, 30, filters.AfterId)
+	url := fmt.Sprintf(searchEndpoint, query, searchFields, searchPage)
+	var results OlQueryResults
 
-	err := fetch(url, &q)
+	slog.Debug("[openlibrary] Fetching query", slog.String("url", url))
+
+	err := fetch(url, &results)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch by query: %w", err)
 	}
 
-	var res integration.QueryResults
-	for _, qr := range q {
-		res = append(res, qr)
+	final := page.New(results.TotalCount, filters.AfterId, filters.AfterId+len(results.Items), &filters.Base, results.Items)
+	if filters.Search != "" {
+		final.QueryParams.Add("q", filters.Search)
 	}
-
-	return &res, nil
+	return final, nil
 }
 
 // TODO FetchByWork
-func (f *Fetcher) FetchByWork() error {
-	return nil
+func (f *Fetcher) FetchByWork() (*page.Page[integration.Metadata], error) {
+	return nil, nil
 }
 
 func fetch(url string, dest interface{}) error {
