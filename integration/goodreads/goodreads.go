@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/araddon/dateparse"
 	"github.com/kencx/dusk"
@@ -77,7 +78,7 @@ func RecordToBook(record []string) (*dusk.Book, error) {
 		[]string{isbn10}, []string{isbn13},
 		numOfPages, 0, rating, status,
 		record[9], series, "", record[21], "",
-		datePublished, dateAdded, dateRead,
+		datePublished, dateAdded, time.Time{}, dateRead,
 	)
 
 	errMap := b.Valid()

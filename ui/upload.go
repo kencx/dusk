@@ -4,10 +4,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/kencx/dusk"
 	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/http/response"
+	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/views"
 )
 
@@ -31,6 +33,7 @@ func (s *Handler) upload(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	b.DateAdded = null.TimeFrom(time.Now())
 	res, err := s.db.CreateBook(b)
 	if err != nil {
 		if errors.Is(err, dusk.ErrIsbnExists) {

@@ -23,11 +23,16 @@ func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
 	filters := initSearchFilters(r)
 	if errMap := validator.Validate(filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
-		views.SearchError(errors.New("validate error")).Render(r.Context(), rw)
+		views.SearchError(errors.New("Invalid parameters")).Render(r.Context(), rw)
 		return
 	}
 
 	value := filters.Search
+	if value == "" {
+		views.SearchError(errors.New("Please enter a query")).Render(r.Context(), rw)
+		return
+	}
+
 	isbnValid, err := util.IsbnCheck(value)
 	if err != nil {
 		slog.Error("[search] invalid isbn", slog.String("isbn", value), slog.Any("err", err))

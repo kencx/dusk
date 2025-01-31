@@ -168,7 +168,7 @@ func (e *Epub) ToBook() *dusk.Book {
 		isbn10, isbn13,
 		0, 0, 0, 0,
 		e.Publisher, "", e.Description, "", "",
-		datePublished, time.Time{}, time.Time{},
+		datePublished, time.Time{}, time.Time{}, time.Time{},
 	)
 }
 

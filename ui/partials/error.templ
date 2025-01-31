@@ -20,7 +20,7 @@ templ ErrorFromString(message string) {
 
 templ Error(err error) {
 	@baseError() {
-		err.Error()
+		{ err.Error() }
 	}
 }
 

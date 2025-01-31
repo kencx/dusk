@@ -67,7 +67,7 @@ func NewBook(
 	numOfPages, progress, rating int,
 	status ReadStatus,
 	publisher, series, description, notes, cover string,
-	datePublished, dateStarted, dateCompleted time.Time,
+	datePublished, dateAdded, dateStarted, dateCompleted time.Time,
 ) *Book {
 	var titleAuthor []string
 	for _, a := range author {
@@ -114,6 +114,7 @@ func NewBook(
 		Formats: formats,
 		Cover:   null.StringFrom(cover),
 
+		DateAdded:     null.TimeFrom(dateAdded),
 		DateStarted:   null.TimeFrom(dateStarted),
 		DateCompleted: null.TimeFrom(dateCompleted),
 	}

@@ -40,7 +40,10 @@ func ReadCSV(payload *file.Payload) (dusk.Books, error) {
 			failed += 1
 			continue
 		}
-		book.DateAdded = null.TimeFrom(time.Now())
+
+		if !book.DateAdded.Valid {
+			book.DateAdded = null.TimeFrom(time.Now())
+		}
 		books = append(books, book)
 		success += 1
 	}
