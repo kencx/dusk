@@ -5,7 +5,7 @@ type Search struct {
 	Base
 }
 
-func (sf *Search) Empty() bool {
+func (sf Search) Empty() bool {
 	return sf.Base.Empty() &&
 		sf.Search == ""
 }

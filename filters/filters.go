@@ -29,7 +29,7 @@ func (b Base) Valid() validator.ErrMap {
 	return errMap
 }
 
-func (b *Base) Empty() bool {
+func (b Base) Empty() bool {
 	return b.Sort == ""
 }
 

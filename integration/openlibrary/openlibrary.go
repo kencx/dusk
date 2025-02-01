@@ -38,6 +38,8 @@ func (f *Fetcher) FetchByIsbn(isbn string) (*page.Page[integration.Metadata], er
 	url := fmt.Sprintf(isbnEndpoint, isbn)
 	var m OlMetadata
 
+	slog.Debug("[openlibrary] Fetching isbn", slog.String("url", url))
+
 	err := fetch(url, &m)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch by isbn: %w", err)

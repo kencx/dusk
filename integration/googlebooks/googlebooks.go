@@ -39,6 +39,8 @@ func (f *Fetcher) FetchByIsbn(isbn string) (*page.Page[integration.Metadata], er
 	url := fmt.Sprintf(isbnEndpoint, isbn)
 	var m GbMetadata
 
+	slog.Debug("[googlebooks] Fetching isbn", slog.String("url", url))
+
 	err := fetch(url, &m)
 	if err != nil {
 		return nil, fmt.Errorf("[googlebooks] failed to fetch by isbn: %w", err)

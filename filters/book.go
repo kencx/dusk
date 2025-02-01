@@ -8,7 +8,7 @@ type Book struct {
 	Search
 }
 
-func (bf *Book) Empty() bool {
+func (bf Book) Empty() bool {
 	return bf.Search.Empty() &&
 		bf.Title == "" &&
 		bf.Author == "" &&

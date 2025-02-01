@@ -25,7 +25,7 @@ type Metadata struct {
 	CoverUrl      string
 }
 
-func (m *Metadata) ToBook() *dusk.Book {
+func (m Metadata) ToBook() *dusk.Book {
 	var (
 		isbn, isbn13      []string
 		publisher, series string

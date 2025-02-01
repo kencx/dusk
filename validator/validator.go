@@ -39,7 +39,7 @@ func (e ErrMap) Check(ok bool, key, message string) {
 }
 
 func (e ErrMap) EitherOr(either, or bool, key1, key2, message string) {
-	if !(either || or) {
+	if !either && !or {
 		e.Add(fmt.Sprintf("%s or %s", key1, key2), message)
 	}
 }
