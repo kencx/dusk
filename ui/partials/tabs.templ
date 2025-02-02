@@ -10,11 +10,10 @@ type Tab struct {
 
 type TabGroup struct {
 	RootPath string
+	Tabs     []Tab
 
 	// order of tabs in tab group by link
 	Order []string
-
-	Tabs []Tab
 }
 
 templ Tabs(t TabGroup, defaultTab string) {
@@ -27,24 +26,16 @@ templ Tabs(t TabGroup, defaultTab string) {
 templ (t TabGroup) Select(selected string) {
 	<div class="tabs" role="tablist">
 		for i, link := range t.Order {
-			if link == selected {
-				<button
-					hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
-					hx-push-url="true"
-					class="selected"
-					role="tab"
+			<button
+				class={ templ.KV("selected", link == selected) }
+				role="tab"
+				if link == selected {
 					aria-selected="true"
-					aria-controls={ "tab-content-" + link }
-				>{ t.Tabs[i].Name }</button>
-			} else {
-				<button
-					hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
-					hx-push-url="true"
-					role="tab"
-					aria-selected="false"
-					aria-controls={ "tab-content-" + link }
-				>{ t.Tabs[i].Name }</button>
-			}
+				}
+				aria-controls={ "tab-content-" + link }
+				hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
+				hx-push-url="true"
+			>{ t.Tabs[i].Name }</button>
 		}
 	</div>
 	// cannot fetch from map as templ does not seem to support slice/map indexing
