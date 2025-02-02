@@ -279,22 +279,25 @@ details.dropdown[data-tooltip]:has(> summary[role="button"].icon) {
     }
   }
 
-  .metadata {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: min-content;
-    column-gap: 4rem;
-    line-height: 1.25rem;
-    font-size: 0.65rem;
-    color: var(--pico-muted-color);
-  }
-
   .actions {
     display: inline-flex;
     gap: 0.5rem;
   }
 
 }
+
+.metadata {
+	width: 30%;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: min-content;
+	column-gap: 4rem;
+	line-height: 1.25rem;
+	font-size: 0.65rem;
+	color: var(--pico-muted-color);
+}
+
+.links {}
 
 .notes {
   margin: 1.5rem 0;

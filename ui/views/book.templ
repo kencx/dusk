@@ -19,12 +19,52 @@ type Book struct {
 	book    *dusk.Book
 	authors []dusk.Author
 	tags    []dusk.Tag
+
+	Tabs       partials.TabGroup
+	defaultTab string
+
 	shared.Base
 }
 
-func NewBook(base shared.Base, book *dusk.Book, authors []dusk.Author, tags []dusk.Tag, err error) *Book {
+func NewBook(base shared.Base, book *dusk.Book, authors []dusk.Author, tags []dusk.Tag, defaultTab string, err error) *Book {
 	base.Err = err
-	return &Book{book, authors, tags, base}
+	return &Book{
+		book:       book,
+		authors:    authors,
+		tags:       tags,
+		Tabs:       BookTabs(book),
+		defaultTab: defaultTab,
+		Base:       base,
+	}
+}
+
+func BookTabs(book *dusk.Book) partials.TabGroup {
+	return partials.TabGroup{
+		RootPath: fmt.Sprintf("/b/%s", book.Slugify()),
+		Order:    []string{"metadata", "progress", "links", "notes"},
+		Tabs: []partials.Tab{
+			{
+				Name:      "Metadata",
+				Link:      "metadata",
+				Component: bookMetadata(book),
+			},
+			{
+				Name:      "Progress",
+				Link:      "progress",
+				Component: bookProgress(book),
+			},
+			{
+				Name:      "Links",
+				Link:      "links",
+				Component: bookLinks(book),
+			},
+			{
+				Name:      "Notes",
+				Link:      "notes",
+				Component: bookNotes(book),
+			},
+		},
+	}
 }
 
 func (v *Book) Render(rw http.ResponseWriter, r *http.Request) {
@@ -51,12 +91,11 @@ templ (v *Book) Html() {
 						@v.bookAuthors()
 						@bookRating(v.book.Rating)
 						@v.bookTags()
-						@bookDetails(v.book)
+						@bookDescription(v.book)
 						@bookActions(v.book)
 					</div>
 				</div>
-				<hr/>
-				<div class="notes">{ v.book.Notes.ValueOrZero() }</div>
+				@partials.Tabs(v.Tabs, v.defaultTab)
 			} else {
 				<p>Something went wrong, please try again.</p>
 			}
@@ -76,7 +115,7 @@ templ bookCover(cover null.String) {
 	</div>
 }
 
-templ (v *Book) bookAuthors() {
+templ (v Book) bookAuthors() {
 	<p>
 		for _, a := range v.authors {
 			<span class="author"><a href={ templ.URL(path.Join("/a", a.Slugify())) }>{ a.Name }</a></span>
@@ -84,7 +123,7 @@ templ (v *Book) bookAuthors() {
 	</p>
 }
 
-templ (v *Book) bookTags() {
+templ (v Book) bookTags() {
 	<div class="tags">
 		for _, tag := range v.tags {
 			<span class="tag">
@@ -117,7 +156,7 @@ templ bookRating(rating int) {
 	</div>
 }
 
-templ bookDetails(book *dusk.Book) {
+templ bookDescription(book *dusk.Book) {
 	<details class="desc-excerpt">
 		if book.Description.Valid {
 			<summary>
@@ -135,49 +174,7 @@ templ bookDetails(book *dusk.Book) {
 				<span>Show details...</span>
 			</summary>
 		}
-		@bookMetadata(book)
 	</details>
-}
-
-templ bookMetadata(book *dusk.Book) {
-	<div class="metadata">
-		if book.Series.Valid {
-			<div>Series</div>
-			{ book.Series.String }
-		}
-		if book.NumOfPages > 0 {
-			<div>Pages</div>
-			{ strconv.Itoa(book.NumOfPages) }
-		}
-		if book.Publisher.Valid {
-			<div>Publisher</div>
-			{ book.Publisher.String }
-		}
-		if book.DatePublished.Valid {
-			<div>Published</div>
-			{ util.PrintDateMonthYear(book.DatePublished) }
-		}
-		if len(book.Isbn10) > 0 {
-			<div>ISBN</div>
-			for _, i := range book.Isbn10 {
-				{ i }
-			}
-		}
-		if len(book.Isbn13) > 0 {
-			<div>ISBN13</div>
-			for _, i := range book.Isbn13 {
-				{ i }
-			}
-		}
-		if book.DateAdded.Valid {
-			<div>Date Added</div>
-			{ util.PrintDateFull(book.DateAdded) }
-		}
-		if book.DateCompleted.Valid {
-			<div>Date Completed</div>
-			{ util.PrintDateFull(book.DateCompleted) }
-		}
-	</div>
 }
 
 templ bookActions(book *dusk.Book) {
@@ -301,4 +298,76 @@ templ DeleteBookModal(book *dusk.Book) {
 func halfRating(rating int) bool {
 	rating5 := float64(rating) / 2
 	return rating5 != float64(int64(rating5))
+}
+
+templ bookMetadata(book *dusk.Book) {
+	<div class="metadata">
+		if book.Series.Valid {
+			<div>Series</div>
+			{ book.Series.String }
+		}
+		if book.NumOfPages > 0 {
+			<div>Pages</div>
+			{ strconv.Itoa(book.NumOfPages) }
+		}
+		if book.Publisher.Valid {
+			<div>Publisher</div>
+			{ book.Publisher.String }
+		}
+		if book.DatePublished.Valid {
+			<div>Published</div>
+			{ util.PrintDateMonthYear(book.DatePublished) }
+		}
+		if len(book.Isbn10) > 0 {
+			<div>ISBN</div>
+			for _, i := range book.Isbn10 {
+				{ i }
+			}
+		}
+		if len(book.Isbn13) > 0 {
+			<div>ISBN13</div>
+			for _, i := range book.Isbn13 {
+				{ i }
+			}
+		}
+		if book.DateAdded.Valid {
+			<div>Date Added</div>
+			{ util.PrintDateFull(book.DateAdded) }
+		}
+		if book.DateCompleted.Valid {
+			<div>Date Completed</div>
+			{ util.PrintDateFull(book.DateCompleted) }
+		}
+	</div>
+}
+
+templ bookProgress(book *dusk.Book) {
+	<progress value={ strconv.Itoa(book.Progress) } max="100"></progress>
+}
+
+var bookLinkMap = map[string]string{
+	"GoogleBooks":    "https://google.com/search?tbm=bks&q=isbn:%s",
+	"OpenLibrary":    "https://openlibrary.org/search?isbn=%s",
+	"WorldCat":       "https://www.worldcat.org/search?q=isbn:%s",
+	"Goodreads":      "https://www.goodreads.com/search?search[query]=%s&commit=Search&search_type=books",
+	"LibraryThing":   "https://www.librarything.com/isbn/%s",
+	"Wikipedia":      "https://wikipedia.org/wiki/Special:BookSources?isbn=%s",
+	"NLB":            "https://search.nlb.gov.sg/onesearch/Search?query=%s",
+	"Anna's Archive": "https://annas-archive.org/search?q=%s",
+}
+
+templ bookLinks(book *dusk.Book) {
+	<div class="links">
+		<ul>
+			for k, v := range bookLinkMap {
+				<li>
+					<a href={ templ.SafeURL(fmt.Sprintf(v, book.Isbn10[0])) }>{ k }</a>
+				</li>
+			}
+		</ul>
+	</div>
+}
+
+templ bookNotes(book *dusk.Book) {
+	<div class="notes">{ book.Notes.ValueOrZero() }</div>
 }

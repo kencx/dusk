@@ -7,12 +7,14 @@ import (
 	"github.com/kencx/dusk/ui/views"
 )
 
+var defaultImportTab = "search"
+
 func (s *Handler) importIndex(rw http.ResponseWriter, r *http.Request) {
 	tab := r.URL.Query().Get("tab")
 
 	// default tab
 	if tab == "" {
-		views.NewImportIndex(s.base, "search", nil).Render(rw, r)
+		views.NewImportIndex(s.base, defaultImportTab, nil).Render(rw, r)
 		return
 	}
 

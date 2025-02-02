@@ -50,6 +50,8 @@ func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
 	partials.BookSearchResults(*p, filters.Base, nil).Render(r.Context(), rw)
 }
 
+var defaultBookTab = "metadata"
+
 // Render details of book
 func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 	id := request.FetchIdFromSlug(rw, r)
@@ -57,10 +59,12 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tab := r.URL.Query().Get("tab")
+
 	book, err := s.db.GetBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to find book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 
@@ -73,18 +77,29 @@ func (s *Handler) bookPage(rw http.ResponseWriter, r *http.Request) {
 	authors, err := s.db.GetAuthorsFromBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to fetch authors of book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 
 	tags, err := s.db.GetTagsFromBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to fetch tags of book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 
-	views.NewBook(s.base, book, authors, tags, nil).Render(rw, r)
+	// default tab
+	if tab == "" {
+		views.NewBook(s.base, book, authors, tags, defaultBookTab, nil).Render(rw, r)
+		return
+	}
+
+	if request.IsHtmxRequest(r) {
+		views.NewBook(s.base, book, authors, tags, tab, nil).Render(rw, r)
+		return
+	}
+
+	views.BookTabs(book).Select(tab).Render(r.Context(), rw)
 }
 
 func (s *Handler) editBookForm(rw http.ResponseWriter, r *http.Request) {
@@ -133,7 +148,7 @@ func (s *Handler) updateBook(rw http.ResponseWriter, r *http.Request) {
 	new_book, err := s.db.UpdateBook(id, book)
 	if err != nil {
 		slog.Error("[ui] failed to update book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 	// redirect to book page
@@ -172,7 +187,7 @@ func (s *Handler) updateBookStatus(rw http.ResponseWriter, r *http.Request) {
 	new_book, err := s.db.UpdateBook(id, book)
 	if err != nil {
 		slog.Error("[ui] failed to update book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 
@@ -188,14 +203,14 @@ func (s *Handler) deleteBook(rw http.ResponseWriter, r *http.Request) {
 	book, err := s.db.GetBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to get book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 
 	err = s.db.DeleteBook(id)
 	if err != nil {
 		slog.Error("[ui] failed to delete book", slog.Int64("id", id), slog.Any("err", err))
-		views.NewBook(s.base, nil, nil, nil, err).Render(rw, r)
+		views.NewBook(s.base, nil, nil, nil, defaultBookTab, err).Render(rw, r)
 		return
 	}
 

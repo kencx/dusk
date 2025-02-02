@@ -130,6 +130,11 @@ func (b Book) Slugify() string {
 	return sanitize.Path(fmt.Sprintf("%s-%d", title, b.Id))
 }
 
+func (b Book) UrlEncode() string {
+	title := strings.ReplaceAll(b.Title, ".", "")
+	return sanitize.Path(title)
+}
+
 func (b Book) Valid() validator.ErrMap {
 	errMap := validator.New()
 
