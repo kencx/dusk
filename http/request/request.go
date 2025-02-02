@@ -97,3 +97,7 @@ func ReadFile(rw http.ResponseWriter, r *http.Request, key, mimetype string) (*f
 	}
 	return file.NewPayload(f, fh, mimetype)
 }
+
+func IsHtmxRequest(r *http.Request) bool {
+	return r.Header.Get("HX-Request") == ""
+}

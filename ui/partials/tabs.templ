@@ -1,8 +1,6 @@
 package partials
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Tab struct {
 	Name      string
@@ -32,6 +30,7 @@ templ (t TabGroup) Select(selected string) {
 			if link == selected {
 				<button
 					hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
+					hx-push-url="true"
 					class="selected"
 					role="tab"
 					aria-selected="true"
@@ -40,6 +39,7 @@ templ (t TabGroup) Select(selected string) {
 			} else {
 				<button
 					hx-get={ fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link) }
+					hx-push-url="true"
 					role="tab"
 					aria-selected="false"
 					aria-controls={ "tab-content-" + link }

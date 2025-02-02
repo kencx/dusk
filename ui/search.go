@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/views"
 	"github.com/kencx/dusk/util"
@@ -20,6 +21,12 @@ func (s *Handler) searchPage(rw http.ResponseWriter, r *http.Request) {
 
 // TODO handle timeouts, 5XX errors
 func (s *Handler) search(rw http.ResponseWriter, r *http.Request) {
+	// TODO handle hx-push-url for search result pages
+	if request.IsHtmxRequest(r) {
+		s.searchPage(rw, r)
+		return
+	}
+
 	filters := initSearchFilters(r)
 	if errMap := validator.Validate(filters); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))

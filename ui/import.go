@@ -3,15 +3,23 @@ package ui
 import (
 	"net/http"
 
+	"github.com/kencx/dusk/http/request"
 	"github.com/kencx/dusk/ui/views"
 )
 
 func (s *Handler) importIndex(rw http.ResponseWriter, r *http.Request) {
-	// handle htmx tabs
-	if r.URL.Query().Has("tab") {
-		tab := r.URL.Query().Get("tab")
-		views.ImportTabs.Select(tab).Render(r.Context(), rw)
+	tab := r.URL.Query().Get("tab")
+
+	// default tab
+	if tab == "" {
+		views.NewImportIndex(s.base, "search", nil).Render(rw, r)
 		return
 	}
-	views.NewImportIndex(s.base, "search", nil).Render(rw, r)
+
+	if request.IsHtmxRequest(r) {
+		views.NewImportIndex(s.base, tab, nil).Render(rw, r)
+		return
+	}
+
+	views.ImportTabs.Select(tab).Render(r.Context(), rw)
 }

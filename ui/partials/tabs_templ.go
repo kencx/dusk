@@ -8,9 +8,7 @@ package partials
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Tab struct {
 	Name      string
@@ -99,20 +97,20 @@ func (t TabGroup) Select(selected string) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 34, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 32, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"selected\" role=\"tab\" aria-selected=\"true\" aria-controls=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-push-url=\"true\" class=\"selected\" role=\"tab\" aria-selected=\"true\" aria-controls=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("tab-content-" + link)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 38, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 37, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -125,7 +123,7 @@ func (t TabGroup) Select(selected string) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(t.Tabs[i].Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 39, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 38, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -143,13 +141,13 @@ func (t TabGroup) Select(selected string) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s?tab=%s", t.RootPath, t.Tabs[i].Link))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 42, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/tabs.templ`, Line: 41, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" role=\"tab\" aria-selected=\"false\" aria-controls=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-push-url=\"true\" role=\"tab\" aria-selected=\"false\" aria-controls=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
