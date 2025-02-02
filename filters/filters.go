@@ -1,20 +1,29 @@
 package filters
 
 import (
-	"strings"
-
 	"github.com/kencx/dusk/validator"
 )
 
 type Base struct {
-	AfterId      int
-	Limit        int
-	Sort         string
-	SortSafeList []string
+	AfterId       int
+	Limit         int
+	Sort          string
+	SortDirection string
+	SortSafeList  []string
 }
 
 func DefaultSafeList() []string {
-	return []string{"title", "-title", "name", "-name"}
+	return []string{
+		// books
+		"title",
+		"rating",
+		"numOfPages",
+		"dateAdded",
+		"dateCompleted",
+
+		// authors, tags, series
+		"name", "-name",
+	}
 }
 
 func (b Base) Valid() validator.ErrMap {
@@ -36,16 +45,9 @@ func (b Base) Empty() bool {
 func (b Base) SortColumn() string {
 	for _, sv := range b.SortSafeList {
 		if b.Sort == sv {
-			return strings.TrimPrefix(b.Sort, "-")
+			return b.Sort
 		}
 	}
 	// panic in case of SQL injection
 	panic("unsafe sort parameter: " + b.Sort)
-}
-
-func (b Base) SortDirection() string {
-	if strings.HasPrefix(b.Sort, "-") {
-		return "DESC"
-	}
-	return "ASC"
 }

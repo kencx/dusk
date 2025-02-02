@@ -39,7 +39,7 @@ func buildBaseStmt(sortColumn, sortDirection, table, conditional string) string 
 func buildPagedStmt(f *filters.Base, table, conditional string) string {
 	data := map[string]interface{}{
 		"SortColumn":    f.SortColumn(),
-		"SortDirection": f.SortDirection(),
+		"SortDirection": f.SortDirection,
 		"Table":         table,
 		"Conditional":   conditional,
 	}

@@ -1,22 +1,23 @@
 package views
 
 import (
-	"net/http"
-
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
+	"net/http"
 )
 
 type Index struct {
-	page page.Page[dusk.Book]
+	page    page.Page[dusk.Book]
+	filters filters.Base
 	shared.Base
 }
 
-func NewIndex(base shared.Base, page page.Page[dusk.Book], err error) *Index {
+func NewIndex(base shared.Base, page page.Page[dusk.Book], filters filters.Base, err error) *Index {
 	base.Err = err
-	return &Index{page, base}
+	return &Index{page, filters, base}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -26,6 +27,8 @@ func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
 templ (v *Index) Html() {
 	@v.Base.Html() {
 		<h2>Books</h2>
-		@partials.Library(v.page, v.Err)
+		<div class="library">
+			@partials.Library(v.page, v.filters, v.Err)
+		</div>
 	}
 }

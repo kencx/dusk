@@ -13,19 +13,21 @@ import (
 	"path"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type AuthorList struct {
-	page page.Page[dusk.Author]
+	page    page.Page[dusk.Author]
+	filters filters.Base
 	shared.Base
 }
 
-func NewAuthorList(base shared.Base, page page.Page[dusk.Author], err error) *AuthorList {
+func NewAuthorList(base shared.Base, page page.Page[dusk.Author], filters filters.Base, err error) *AuthorList {
 	base.Err = err
-	return &AuthorList{page, base}
+	return &AuthorList{page, filters, base}
 }
 
 func (v *AuthorList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -75,7 +77,7 @@ func (v *AuthorList) Html() templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = partials.ItemSearch("/a/search", ".list").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = partials.ItemSearch("/a/search", ".list", v.filters).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -196,7 +198,7 @@ func listAuthor(author dusk.Author) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(author.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/author_list.templ`, Line: 56, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/author_list.templ`, Line: 58, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {

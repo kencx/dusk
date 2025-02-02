@@ -21,20 +21,33 @@ import (
 
 // Perform FTS on library (with pagination)
 func (s *Handler) bookSearch(rw http.ResponseWriter, r *http.Request) {
+	// If not htmx request, return the full page instead of partial.
+	// Required to support hx-push-urls
+	if request.IsHtmxRequest(r) {
+		s.index(rw, r)
+		return
+	}
+
 	filters := initBookFilters(r)
 	if errMap := validator.Validate(filters.Base); errMap != nil {
 		slog.Error("[ui] failed to validate query params", slog.Any("err", errMap.Error()))
-		partials.BookSearchResults(page.Page[dusk.Book]{}, errors.New("validate error")).Render(r.Context(), rw)
+		partials.BookSearchResults(page.Page[dusk.Book]{}, filters.Base, errors.New("validate error")).Render(r.Context(), rw)
 		return
 	}
 
 	p, err := s.db.GetAllBooks(filters)
 	if err != nil {
 		slog.Error("failed to query books", slog.Any("err", err))
-		partials.BookSearchResults(page.Page[dusk.Book]{}, err).Render(r.Context(), rw)
+		partials.BookSearchResults(page.Page[dusk.Book]{}, filters.Base, err).Render(r.Context(), rw)
 		return
 	}
-	partials.BookSearchResults(*p, nil).Render(r.Context(), rw)
+
+	// handle OOB swaps in partials when performing sorting, filtering or changing views
+	if request.HasValue(r.URL.Query(), "sort-direction") {
+		partials.BookSearchResultsWithOOB(*p, filters.Base, nil).Render(r.Context(), rw)
+		return
+	}
+	partials.BookSearchResults(*p, filters.Base, nil).Render(r.Context(), rw)
 }
 
 // Render details of book

@@ -9,22 +9,23 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"net/http"
-
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
+	"net/http"
 )
 
 type Index struct {
-	page page.Page[dusk.Book]
+	page    page.Page[dusk.Book]
+	filters filters.Base
 	shared.Base
 }
 
-func NewIndex(base shared.Base, page page.Page[dusk.Book], err error) *Index {
+func NewIndex(base shared.Base, page page.Page[dusk.Book], filters filters.Base, err error) *Index {
 	base.Err = err
-	return &Index{page, base}
+	return &Index{page, filters, base}
 }
 
 func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
@@ -64,11 +65,15 @@ func (v *Index) Html() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Books</h2>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Books</h2><div class=\"library\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = partials.Library(v.page, v.Err).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = partials.Library(v.page, v.filters, v.Err).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

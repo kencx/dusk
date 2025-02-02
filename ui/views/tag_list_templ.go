@@ -13,19 +13,21 @@ import (
 	"path"
 
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
 )
 
 type TagList struct {
-	page page.Page[dusk.Tag]
+	page    page.Page[dusk.Tag]
+	filters filters.Base
 	shared.Base
 }
 
-func NewTagList(base shared.Base, page page.Page[dusk.Tag], err error) *TagList {
+func NewTagList(base shared.Base, page page.Page[dusk.Tag], filters filters.Base, err error) *TagList {
 	base.Err = err
-	return &TagList{page, base}
+	return &TagList{page, filters, base}
 }
 
 func (v *TagList) Render(rw http.ResponseWriter, r *http.Request) {
@@ -75,7 +77,7 @@ func (v *TagList) Html() templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = partials.ItemSearch("/t/search", ".list").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = partials.ItemSearch("/t/search", ".list", v.filters).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -196,7 +198,7 @@ func listTag(tag dusk.Tag) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(tag.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag_list.templ`, Line: 56, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag_list.templ`, Line: 58, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -239,7 +241,7 @@ func TagDataList(page page.Page[dusk.Tag]) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(tag.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag_list.templ`, Line: 63, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag_list.templ`, Line: 65, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {

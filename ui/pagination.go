@@ -10,10 +10,11 @@ import (
 
 var (
 	defaultFilters = &filters.Base{
-		AfterId:      0,
-		Limit:        30,
-		Sort:         "name",
-		SortSafeList: filters.DefaultSafeList(),
+		AfterId:       0,
+		Limit:         30,
+		Sort:          "name",
+		SortDirection: "ASC",
+		SortSafeList:  filters.DefaultSafeList(),
 	}
 	defaultBookSort = "title"
 )
@@ -41,10 +42,11 @@ func initSearchFilters(r *http.Request) *filters.Search {
 	return &filters.Search{
 		Search: request.QueryString(qs, "q", ""),
 		Base: filters.Base{
-			AfterId:      request.QueryInt(qs, page.After, defaultFilters.AfterId),
-			Limit:        request.QueryInt(qs, page.Limit, defaultFilters.Limit),
-			Sort:         request.QueryString(qs, page.Sort, defaultFilters.Sort),
-			SortSafeList: filters.DefaultSafeList(),
+			AfterId:       request.QueryInt(qs, page.After, defaultFilters.AfterId),
+			Limit:         request.QueryInt(qs, page.Limit, defaultFilters.Limit),
+			Sort:          request.QueryString(qs, page.Sort, defaultFilters.Sort),
+			SortDirection: request.QueryString(qs, page.SortDirection, defaultFilters.SortDirection),
+			SortSafeList:  filters.DefaultSafeList(),
 		},
 	}
 }
@@ -61,10 +63,11 @@ func initBookFilters(r *http.Request) *filters.Book {
 		Search: filters.Search{
 			Search: request.QueryString(qs, "q", ""),
 			Base: filters.Base{
-				AfterId:      request.QueryInt(qs, page.After, defaultFilters.AfterId),
-				Limit:        request.QueryInt(qs, page.Limit, defaultFilters.Limit),
-				Sort:         request.QueryString(qs, page.Sort, defaultBookSort),
-				SortSafeList: filters.DefaultSafeList(),
+				AfterId:       request.QueryInt(qs, page.After, defaultFilters.AfterId),
+				Limit:         request.QueryInt(qs, page.Limit, defaultFilters.Limit),
+				Sort:          request.QueryString(qs, page.Sort, defaultBookSort),
+				SortDirection: request.QueryString(qs, page.SortDirection, defaultFilters.SortDirection),
+				SortSafeList:  filters.DefaultSafeList(),
 			},
 		},
 	}

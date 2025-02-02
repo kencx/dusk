@@ -9,9 +9,10 @@ import (
 
 const (
 	// query parameters
-	After = "after"
-	Limit = "limit"
-	Sort  = "sort"
+	After         = "after"
+	Limit         = "limit"
+	Sort          = "sort"
+	SortDirection = "sort-direction"
 )
 
 type Pager interface {

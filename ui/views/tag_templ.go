@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
@@ -17,14 +18,15 @@ import (
 )
 
 type Tag struct {
-	tag  dusk.Tag
-	page page.Page[dusk.Book]
+	tag     dusk.Tag
+	page    page.Page[dusk.Book]
+	filters filters.Base
 	shared.Base
 }
 
-func NewTag(base shared.Base, tag dusk.Tag, page page.Page[dusk.Book], err error) *Tag {
+func NewTag(base shared.Base, tag dusk.Tag, page page.Page[dusk.Book], filters filters.Base, err error) *Tag {
 	base.Err = err
-	return &Tag{tag, page, base}
+	return &Tag{tag, page, filters, base}
 }
 
 func (v *Tag) Render(rw http.ResponseWriter, r *http.Request) {
@@ -81,7 +83,7 @@ func (v *Tag) Html() templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(v.tag.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag.templ`, Line: 34, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/tag.templ`, Line: 36, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -91,7 +93,7 @@ func (v *Tag) Html() templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = partials.Library(v.page, v.Err).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = partials.Library(v.page, v.filters, v.Err).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

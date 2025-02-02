@@ -2,12 +2,13 @@ package partials
 
 import (
 	"fmt"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials/icons"
 	"strconv"
 )
 
-templ ItemSearch(path, target string) {
+templ ItemSearch(path, target string, filters filters.Base) {
 	@HtmxError()
 	<div class="search__toolbar">
 		<input
@@ -22,38 +23,119 @@ templ ItemSearch(path, target string) {
 			hx-trigger="input changed delay:500ms, search"
 			hx-indicator=".spinner"
 		/>
-		@filterButtons(path, target)
+		@filterButtons(path, target, filters)
 	</div>
 	<div class="spinner" aria-busy="true"></div>
 }
 
-templ filterButtons(path, target string) {
+templ filterButtons(path, target string, filters filters.Base) {
 	<div class="actions">
-		<button
-			class="icon"
-			hx-get={ path }
-			hx-target={ target }
-			data-tooltip="Table view"
-		>
-			@icons.Table()
-		</button>
-		<button
-			class="icon"
-			hx-get={ path }
-			hx-target={ target }
-			data-tooltip="Sort"
-		>
-			@icons.SortAsc()
-		</button>
-		<button
-			class="icon"
-			hx-get={ path }
-			hx-target={ target }
-			data-tooltip="Filter"
-		>
-			@icons.Filter()
-		</button>
+		@viewButton(path, target)
+		@sortDirectionButton(path, target, filters)
+		@sortKeyButton(path, target, filters)
+		@filterButton(path, target)
+		@editButton(path, target)
+		@clearButton(path, target)
 	</div>
+}
+
+templ viewButton(path, target string) {
+	<button
+		id="view"
+		class="icon"
+		hx-get={ path }
+		hx-target={ target }
+		hx-trigger="click"
+		hx-push-url="true"
+		data-tooltip="Table view"
+		hx-swap-oob="true"
+	>
+		@icons.Table()
+	</button>
+}
+
+templ sortDirectionButton(path, target string, filters filters.Base) {
+	<button
+		class="icon"
+		data-tooltip="Sort"
+		id="sort-direction"
+		name="sort-direction"
+		if filters.SortDirection == "ASC" {
+			value="DESC"
+		} else {
+			value="ASC"
+		}
+		hx-get={ path }
+		hx-include="this, #sort, #search"
+		hx-target={ target }
+		hx-trigger="click"
+		hx-push-url="true"
+		hx-swap-oob="true"
+	>
+		if filters.SortDirection == "ASC" {
+			@icons.SortAsc()
+		} else {
+			@icons.SortDesc()
+		}
+	</button>
+}
+
+templ sortKeyButton(path, target string, filters filters.Base) {
+	<select
+		id="sort"
+		name="sort"
+		hx-get={ path }
+		hx-include="this, #sort-direction, #search"
+		hx-target={ target }
+		hx-trigger="change"
+		hx-push-url="true"
+	>
+		<option value="title" selected?={ filters.Sort == "title" }>Title</option>
+		<option value="dateAdded" selected?={ filters.Sort == "dateAdded" }>Date Added</option>
+		<option value="numOfPages" selected?={ filters.Sort == "numOfPages" }>Num of Pages</option>
+		<option value="rating" selected?={ filters.Sort == "rating" }>Rating</option>
+	</select>
+}
+
+templ filterButton(path, target string) {
+	<button
+		class="icon"
+		id="filter"
+		data-tooltip="Filter"
+		hx-get={ path }
+		hx-target={ target }
+		hx-trigger="click"
+	>
+		@icons.Filter()
+	</button>
+}
+
+templ editButton(path, target string) {
+	<button
+		class="icon"
+		id="edit"
+		data-tooltip="Batch edit"
+		hx-get={ path }
+		hx-target={ target }
+		hx-trigger="click"
+	>
+		@icons.Edit()
+	</button>
+}
+
+// clear all filters
+templ clearButton(path, target string) {
+	<button
+		class="icon"
+		id="clear"
+		data-tooltip="Clear"
+		hx-get={ path }
+		hx-target={ target }
+		hx-trigger="click"
+		hx-replace-url="true"
+	>
+		@icons.Delete()
+	</button>
 }
 
 templ ItemSearchResults[T any](page page.Page[T], path, target string, err error) {
@@ -100,6 +182,7 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-push-url="true"
 		>
 			{ "<<" }
 		</button>
@@ -110,6 +193,7 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-push-url="true"
 		>
 			// @icons.Previous()
 			{ "<" }
@@ -123,6 +207,7 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-push-url="true"
 		>
 			// @icons.Next()
 			{ ">" }
@@ -134,6 +219,7 @@ templ pageButtons[T any](page page.Page[T], path, target string) {
 			hx-target={ target }
 			hx-select={ target }
 			hx-select-oob="#search__page_buttons,#item-counter"
+			hx-push-url="true"
 		>
 			{ ">>" }
 		</button>

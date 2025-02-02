@@ -2,21 +2,22 @@ package partials
 
 import (
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 )
 
-templ Library(page page.Page[dusk.Book], err error) {
+templ Library(page page.Page[dusk.Book], filters filters.Base, err error) {
 	if page.Empty() {
 		@Empty()
 	} else {
-		@ItemSearch("/b/search", ".library")
-		<div class="library">
-			@BookSearchResults(page, err)
+		@ItemSearch("/b/search", ".library__results", filters)
+		<div class="library__results">
+			@BookSearchResults(page, filters, err)
 		</div>
 	}
 }
 
-templ BookSearchResults(page page.Page[dusk.Book], err error) {
+templ BookSearchResults(page page.Page[dusk.Book], filters filters.Base, err error) {
 	@ItemSearchResults(page, "/b/search", ".library__card-view", err) {
 		<div class="library__card-view">
 			for _, book := range page.Items {
@@ -24,4 +25,10 @@ templ BookSearchResults(page page.Page[dusk.Book], err error) {
 			}
 		</div>
 	}
+}
+
+// partial with OOB swaps to handle sort direction, filters, view mode etc.
+templ BookSearchResultsWithOOB(page page.Page[dusk.Book], filters filters.Base, err error) {
+	@BookSearchResults(page, filters, err)
+	@sortDirectionButton("/b/search", ".library__results", filters)
 }

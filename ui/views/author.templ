@@ -2,6 +2,7 @@ package views
 
 import (
 	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/filters"
 	"github.com/kencx/dusk/page"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/shared"
@@ -9,14 +10,15 @@ import (
 )
 
 type Author struct {
-	author dusk.Author
-	page   page.Page[dusk.Book]
+	author  dusk.Author
+	page    page.Page[dusk.Book]
+	filters filters.Base
 	shared.Base
 }
 
-func NewAuthor(base shared.Base, author dusk.Author, page page.Page[dusk.Book], err error) *Author {
+func NewAuthor(base shared.Base, author dusk.Author, page page.Page[dusk.Book], filters filters.Base, err error) *Author {
 	base.Err = err
-	return &Author{author, page, base}
+	return &Author{author, page, filters, base}
 }
 
 func (v *Author) Render(rw http.ResponseWriter, r *http.Request) {
@@ -34,7 +36,7 @@ templ (v *Author) Html() {
 						<h2>{ v.author.Name }</h2>
 					</div>
 				</div>
-				@partials.Library(v.page, v.Err)
+				@partials.Library(v.page, v.filters, v.Err)
 			}
 		</div>
 	}
