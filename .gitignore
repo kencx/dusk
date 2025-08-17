@@ -12,3 +12,4 @@ cover.out
 *.css
 !custom.css
 !*.min.css
+!base.css

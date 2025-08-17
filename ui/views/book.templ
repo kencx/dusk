@@ -79,20 +79,13 @@ templ (v *Book) Html() {
 			} else if v.book != nil {
 				<div class="book__details">
 					@bookCover(v.book.Cover)
+					@v.bookAuthors()
 					<div class="header">
-						<hgroup>
-							<h3>
-								{ v.book.Title }
-							</h3>
-							if v.book.Subtitle.Valid {
-								<small class="subtitle">{ v.book.Subtitle.String }</small>
-							}
-						</hgroup>
-						@v.bookAuthors()
-						@bookRating(v.book.Rating)
-						@v.bookTags()
-						@bookDescription(v.book)
-						@bookActions(v.book)
+						@v.title()
+						@v.rating()
+						@v.tagsRender()
+						@v.description()
+						@v.actions()
 					</div>
 				</div>
 				@partials.Tabs(v.Tabs, v.defaultTab)
@@ -101,6 +94,17 @@ templ (v *Book) Html() {
 			}
 		</div>
 	}
+}
+
+templ (v Book) title() {
+	<hgroup>
+		<h3>
+			{ v.book.Title }
+		</h3>
+		if v.book.Subtitle.Valid {
+			<small class="subtitle">{ v.book.Subtitle.String }</small>
+		}
+	</hgroup>
 }
 
 templ bookCover(cover null.String) {
@@ -123,7 +127,7 @@ templ (v Book) bookAuthors() {
 	</p>
 }
 
-templ (v Book) bookTags() {
+templ (v Book) tagsRender() {
 	<div class="tags">
 		for _, tag := range v.tags {
 			<span class="tag">
@@ -137,56 +141,54 @@ templ (v Book) bookTags() {
 	</div>
 }
 
-templ bookRating(rating int) {
+templ (v Book) rating() {
+  {{ rate := v.book.Rating }}
 	<div class="rating">
-		if rating == 0 {
+		if rate == 0 {
 			for range 5 {
 				@icons.StarEmpty()
 			}
-		} else if halfRating(rating) {
-			for range (rating/2) {
+		} else if halfRating(rate) {
+			for range (rate/2) {
 				@icons.StarFilled()
 			}
 			@icons.StarHalf()
 		} else {
-			for range (rating/2) {
+			for range (rate/2) {
 				@icons.StarFilled()
 			}
 		}
 	</div>
 }
 
-templ bookDescription(book *dusk.Book) {
-	<details class="desc-excerpt">
-		if book.Description.Valid {
-			<summary>
-				<span>
-					if len(book.Description.String) > 200 {
-						{ book.Description.String[:200] + "..." }
-					} else {
-						{ book.Description.String + "..." }
-					}
-				</span>
-			</summary>
-			<div class="desc">{ book.Description.String }</div>
-		} else {
-			<summary>
-				<span>Show details...</span>
-			</summary>
-		}
-	</details>
+templ (v Book) description() {
+  if v.book.Description.Valid {
+    {{ desc := v.book.Description.String }}
+    <details class="desc-excerpt">
+        <summary>
+          <span>
+            if len(desc) > 200 {
+              { desc[:200] + "..." }
+            } else {
+              { desc + "..." }
+            }
+          </span>
+        </summary>
+        <div class="desc">{ desc }</div>
+    </details>
+  }
 }
 
-templ bookActions(book *dusk.Book) {
+templ (v Book) actions() {
 	<div class="actions">
-		@BookStatus(book)
+		@BookStatus(v.book)
 		<details class="dropdown">
-			if len(book.Formats) > 0 {
+			if len(v.book.Formats) > 0 {
 				<summary role="button" class="icon">
 					@icons.Download()
 				</summary>
 				<ul>
-					for _, format := range book.Formats {
+					for _, format := range v.book.Formats {
 						<li><a href="#">{ format }</a></li>
 					}
 				</ul>
@@ -200,7 +202,7 @@ templ bookActions(book *dusk.Book) {
 			role="button"
 			class="icon"
 			data-tooltip="Edit details"
-			href={ templ.SafeURL(fmt.Sprintf("/b/%s/edit", book.Slugify())) }
+			href={ templ.SafeURL(fmt.Sprintf("/b/%s/edit", v.book.Slugify())) }
 		>
 			@icons.Edit()
 		</a>
@@ -210,7 +212,7 @@ templ bookActions(book *dusk.Book) {
 		@partials.ModalButton(templ.Attributes{
 			"class":        "icon",
 			"data-tooltip": "Delete book",
-			"hx-get":       fmt.Sprintf("/b/%s?delete", book.Slugify()),
+			"hx-get":       fmt.Sprintf("/b/%s?delete", v.book.Slugify()),
 		}) {
 			@icons.Delete()
 		}
@@ -219,34 +221,37 @@ templ bookActions(book *dusk.Book) {
 }
 
 templ BookStatus(book *dusk.Book) {
+}
+
+templ (v Book) status() {
 	<form
-		hx-put={ fmt.Sprintf("/b/%s/status", book.Slugify()) }
+		hx-put={ fmt.Sprintf("/b/%s/status", v.book.Slugify()) }
 		hx-target="this"
 		hx-swap="outerHTML"
 		hx-trigger="change"
 		hx-include="this"
 	>
-		switch book.Status {
+		switch v.book.Status {
 			case dusk.Unread:
 				<details class="dropdown" data-tooltip="Unread">
 					<summary role="button" class="icon">
 						@icons.CheckBoxEmpty()
 					</summary>
-					@bookStatusRadio(book.Status)
+					@bookStatusRadio(v.book.Status)
 				</details>
 			case dusk.Reading:
 				<details class="dropdown" data-tooltip="Reading">
 					<summary role="button" class="icon">
 						@icons.CheckBoxIndeterminate()
 					</summary>
-					@bookStatusRadio(book.Status)
+					@bookStatusRadio(v.book.Status)
 				</details>
 			case dusk.Read:
 				<details class="dropdown" data-tooltip="Read">
 					<summary role="button" class="icon">
 						@icons.CheckBoxFilled()
 					</summary>
-					@bookStatusRadio(book.Status)
+					@bookStatusRadio(v.book.Status)
 				</details>
 		}
 	</form>

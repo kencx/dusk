@@ -26,7 +26,7 @@ func (v *Index) Render(rw http.ResponseWriter, r *http.Request) {
 
 templ (v *Index) Html() {
 	@v.Base.Html() {
-		<h2>Books</h2>
+		<h2>Library</h2>
 		<div class="library">
 			@partials.Library(v.page, v.filters, v.Err)
 		</div>

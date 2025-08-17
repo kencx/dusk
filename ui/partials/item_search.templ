@@ -10,20 +10,31 @@ import (
 
 templ ItemSearch(path, target string, filters filters.Base) {
 	@HtmxError()
-	<div class="search__toolbar">
-		<input
-			class="search"
-			id="search"
-			name="q"
-			placeholder="Search"
-			hx-get={ path }
-			hx-target={ target }
-			hx-params="*"
-			hx-swap="innerHTML"
-			hx-trigger="input changed delay:500ms, search"
-			hx-indicator=".spinner"
-		/>
-		@filterButtons(path, target, filters)
+	<div class="controls">
+		<div class="search">
+			<input
+				type="text"
+				class="search__input"
+				placeholder="Search by title, author, or genre..."
+				id="search"
+				name="q"
+				hx-get={ path }
+				hx-target={ target }
+				hx-params="*"
+				hx-swap="innerHTML"
+				hx-trigger="input changed delay:500ms, search"
+				hx-indicator=".spinner"
+			/>
+		</div>
+		<div class="controls__actions">
+			<button class="btn">
+				@icons.Filter()
+			</button>
+			<button class="btn">Sort</button>
+			<button class="btn" id="viewToggle">
+				@icons.Table()
+			</button>
+		</div>
 	</div>
 	<div class="spinner" aria-busy="true"></div>
 }
@@ -156,9 +167,8 @@ templ pageMetadata[T any](page page.Page[T], path, target string) {
 	<div id="search__metadata" class="search__metadata">
 		<div class="search__page_counter">
 			if page.TotalCount == 1 {
-				Showing 1 item
+				1 item
 			} else {
-				Showing
 				<span id="item-counter">
 					{ fmt.Sprintf("%s - %s",
           strconv.Itoa(page.FirstRowNo),

@@ -9,21 +9,25 @@ import (
 
 templ searchForm() {
 	<form
+		class="controls"
 		hx-get="/search/import"
 		hx-target="#search__result_list"
 		hx-swap="innerHTML"
 		hx-indicator="#search-spinner"
 	>
-		<fieldset role="group">
-			<input id="search" name="q" placeholder="Search for an ISBN, title or author"/>
-			<button type="submit">Submit</button>
-		</fieldset>
-		<small>
-			<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
-		</small>
-		<div id="search-spinner" class="spinner" aria-busy="true"></div>
+		<div class="search">
+			<input class="search__input" id="search" name="q" placeholder="Search for an ISBN, title or author"/>
+			<small class="search__input-info">
+				<a href="https://www.isbn-13.info/example">ISBNs</a> must contain 10 or 13 characters, excluding dashes and spaces.
+			</small>
+		</div>
+		<div class="controls__actions">
+			<button class="btn" type="submit">Submit</button>
+		</div>
 	</form>
-	<div id="search__result_list"></div>
+	<div id="search__result_list">
+		<div id="search-spinner" class="spinner"></div>
+	</div>
 }
 
 templ SearchError(err error) {

@@ -31,18 +31,19 @@ templ (b Base) Html() {
 			<title>dusk</title>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta name="language" content="English"/>
-			<link rel="stylesheet" href="/static/css/custom.css"/>
-			<link rel="stylesheet" href="/static/css/pico/pico.slate.min.css"/>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize.css/8.0.1/normalize.min.css"/>
+			<link rel="stylesheet" href="/static/css/base.css"/>
 			<script src="/static/js/htmx.min.js"></script>
 			<script src="/static/js/actions.js" defer></script>
 		</head>
 		<body>
-			@partials.Navbar()
-			<main class="container">
-				{ children... }
-			</main>
-			@partials.Footer(b.Revision)
-			<div id="toast-container"></div>
+			<div class="layout">
+				@partials.Sidebar(b.Revision)
+				<main class="main">
+					{ children... }
+				</main>
+				<div id="toast-container"></div>
+			</div>
 		</body>
 	</html>
 }

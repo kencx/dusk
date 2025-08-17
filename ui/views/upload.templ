@@ -15,15 +15,17 @@ templ uploadForm() {
 		hx-swap="innerHTML"
 		enctype="multipart/form-data"
 	>
-		<div class="filedrop-container">
+		<div class="fileinput">
 			<input type="file" name="upload" accept=".epub,.mobi,.pdf,.txt,.html" required/>
-			<small>Supported file types: epub, mobi, pdf, text, html</small>
-			<label>
+			<small class="fileinput__info">Supported file types: epub, mobi, pdf, text, html</small>
+			<label class="fileinput__another">
 				<input type="checkbox" name="multiple" checked/>
 				Add another?
 			</label>
 		</div>
-		<button type="submit">Submit</button>
+		<div class="controls__actions">
+			<button class="btn" type="submit">Submit</button>
+		</div>
 	</form>
 	<div id="upload__results"></div>
 }

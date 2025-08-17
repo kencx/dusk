@@ -1,12 +1,10 @@
 package partials
 
 templ Empty() {
-	<div class="empty">
+	<div class="books-empty">
 		<p>No items found!</p>
-		<div>
-			<form action="/import">
-				<input type="submit" class="contrast" value="Add a book"/>
-			</form>
-		</div>
+		<a class="books-empty__btn" href="/import">
+			Add a book
+		</a>
 	</div>
 }

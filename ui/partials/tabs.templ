@@ -24,10 +24,10 @@ templ Tabs(t TabGroup, defaultTab string) {
 
 // Select tab from tab group and render component
 templ (t TabGroup) Select(selected string) {
-	<div class="tabs" role="tablist">
+	<div class="tab-navigation" role="tablist">
 		for i, link := range t.Order {
 			<button
-				class={ templ.KV("selected", link == selected) }
+				class={ "tab-navigation__tab", templ.KV("tab-navigation__tab--selected", link == selected) }
 				role="tab"
 				if link == selected {
 					aria-selected="true"
@@ -41,7 +41,7 @@ templ (t TabGroup) Select(selected string) {
 	// cannot fetch from map as templ does not seem to support slice/map indexing
 	for _, tab := range t.Tabs {
 		if tab.Link == selected {
-			<div role="tabpanel" id={ "tab-content-" + tab.Link }>
+			<div class="tab-content" role="tabpanel" id={ "tab-content-" + tab.Link }>
 				@tab.Component
 			</div>
 		}

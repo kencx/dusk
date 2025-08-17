@@ -1,0 +1,63 @@
+package partials
+
+templ Sidebar(revision string) {
+	<aside class="sidebar">
+		<div class="sidebar__header">
+			<h1 class="sidebar__title">
+				<a href="/" class="sidebar__title-link">
+					<div class="sidebar__icon">D</div>
+					Dusk
+				</a>
+			</h1>
+			<p class="sidebar__subtitle"></p>
+		</div>
+		<nav>
+			<ul class="sidebar__nav">
+				<li class="sidebar__nav-item">
+					<a href="/" class="sidebar__nav-link sidebar__nav-link--active">Library</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="/import" class="sidebar__nav-link">Add a book</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="/authors" class="sidebar__nav-link">Authors</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="/tags" class="sidebar__nav-link">Tags</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="#" class="sidebar__nav-link">Currently Reading</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="#" class="sidebar__nav-link">Want to Read</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="#" class="sidebar__nav-link">Finished</a>
+				</li>
+				<li class="sidebar__nav-item">
+					<a href="#" class="sidebar__nav-link">Options</a>
+				</li>
+			</ul>
+		</nav>
+		<div class="sidebar__stats">
+			<div class="sidebar__stat">
+				<span class="sidebar__stat-label">Total Books</span>
+				<span class="sidebar__stat-value">127</span>
+			</div>
+			<div class="sidebar__stat">
+				<span class="sidebar__stat-label">Read This Year</span>
+				<span class="sidebar__stat-value">23</span>
+			</div>
+			<div class="sidebar__stat">
+				<span class="sidebar__stat-label">Currently Reading</span>
+				<span class="sidebar__stat-value">3</span>
+			</div>
+		</div>
+		<div class="sidebar__footer">
+			{ revision } •
+			<a class="sidebar__footer-link" href="https://github.com/kencx/dusk">
+				GitHub
+			</a>
+		</div>
+	</aside>
+}

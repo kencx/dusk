@@ -16,12 +16,13 @@ templ goodreadsForm() {
 		hx-swap="innerHTML"
 		hx-indicator=".spinner"
 	>
-		<div class="filedrop-container">
+		<div class="fileinput">
 			<input type="file" name="goodreads" accept=".csv" required/>
-			<small>Supported file types: csv</small>
+			<small class="fileinput__info">Supported file types: csv</small>
 		</div>
-		<button type="submit">Submit</button>
-		<div class="spinner" aria-busy="true"></div>
+		<div class="controls__actions">
+			<button class="btn" type="submit">Submit</button>
+		</div>
 	</form>
 	<div id="goodreads__result_list"></div>
 }
