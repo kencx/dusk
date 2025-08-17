@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/kencx/dusk"
-	"github.com/kencx/dusk/null"
 	"github.com/kencx/dusk/ui/partials"
 	"github.com/kencx/dusk/ui/partials/icons"
 	"github.com/kencx/dusk/ui/shared"
@@ -77,10 +76,10 @@ templ (v *Book) Html() {
 			if v.Err == dusk.ErrDoesNotExist {
 				@partials.NotFound()
 			} else if v.book != nil {
-				<div class="book__details">
-					@bookCover(v.book.Cover)
+				<div class="book-detail">
+					@v.cover()
 					@v.bookAuthors()
-					<div class="header">
+					<div class="book-header">
 						@v.title()
 						@v.rating()
 						@v.tagsRender()
@@ -107,14 +106,15 @@ templ (v Book) title() {
 	</hgroup>
 }
 
-templ bookCover(cover null.String) {
-	<div class="cover">
-		if !cover.Valid {
-			<img alt="" src="/static/img/default_cover.jpg"/>
-		} else if strings.HasPrefix(cover.String, "http://") || strings.HasPrefix(cover.String, "https://") {
-			<img alt="" src={ cover.String }/>
+templ (v Book) cover() {
+	{{ cov := v.book.Cover }}
+	<div class="book-cover">
+		if !cov.Valid {
+			{ v.book.Title }
+		} else if strings.HasPrefix(cov.String, "http://") || strings.HasPrefix(cov.String, "https://") {
+			<img alt="" src={ cov.String }/>
 		} else {
-			<img alt="" src={ path.Join("/files", cover.String) }/>
+			<img alt="" src={ path.Join("/files", cov.String) }/>
 		}
 	</div>
 }
@@ -142,7 +142,7 @@ templ (v Book) tagsRender() {
 }
 
 templ (v Book) rating() {
-  {{ rate := v.book.Rating }}
+	{{ rate := v.book.Rating }}
 	<div class="rating">
 		if rate == 0 {
 			for range 5 {
@@ -162,21 +162,21 @@ templ (v Book) rating() {
 }
 
 templ (v Book) description() {
-  if v.book.Description.Valid {
-    {{ desc := v.book.Description.String }}
-    <details class="desc-excerpt">
-        <summary>
-          <span>
-            if len(desc) > 200 {
-              { desc[:200] + "..." }
-            } else {
-              { desc + "..." }
-            }
-          </span>
-        </summary>
-        <div class="desc">{ desc }</div>
-    </details>
-  }
+	if v.book.Description.Valid {
+		{{ desc := v.book.Description.String }}
+		<details class="desc-excerpt">
+			<summary>
+				<span>
+					if len(desc) > 200 {
+						{ desc[:200] + "..." }
+					} else {
+						{ desc + "..." }
+					}
+				</span>
+			</summary>
+			<div class="desc">{ desc }</div>
+		</details>
+	}
 }
 
 templ (v Book) actions() {

@@ -13,16 +13,20 @@ func bookPath(b *dusk.Book) string {
 templ bookCard(b *dusk.Book) {
 	<article class="book-card">
 		<a href={ templ.URL(bookPath(b)) }>
-			<div class="book-card__cover">
-				if b.Cover.Valid {
+			if b.Cover.Valid {
+				<div class="book-card__cover">
 					<img alt="" src={ path.Join("/files", b.Cover.String) }/>
-				} else if strings.HasPrefix(b.Cover.String, "http://") ||
-          strings.HasPrefix(b.Cover.String, "https://") {
+				</div>
+			} else if strings.HasPrefix(b.Cover.String, "http://") ||
+        strings.HasPrefix(b.Cover.String, "https://") {
+				<div class="book-card__cover">
 					<img alt="" src={ b.Cover.String }/>
-				} else {
+				</div>
+			} else {
+				<div class="book-card__cover--empty">
 					{ b.Title }
-				}
-			</div>
+				</div>
+			}
 			<h3 class="book-card__title">{ b.Title }</h3>
 			<p class="book-card__author">{ strings.Join(b.Author, ", ") }</p>
 		</a>

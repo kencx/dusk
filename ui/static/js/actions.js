@@ -31,7 +31,7 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
 	const errorTarget = document.getElementById("htmx-alert")
 	if (evt.detail.successful) {
 		// Successful request, clear out alert
-		errorTarget.setAttribute("hidden")
+		errorTarget.setAttribute("hidden", "")
 		errorTarget.innerText = "";
 	} else if (evt.detail.failed && evt.detail.xhr) {
 		// Server error with response contents, equivalent to htmx:responseError

@@ -10,48 +10,40 @@ const (
 templ toastSkeleton(level toastLevel) {
 	if level == info {
 		<div
-			class="toast hide"
+			class="toast toast__hide"
 			role="status"
 			aria-live="polite"
 			aria-atomic="true"
 		>
-			<div class="toast-content">
-				{ children... }
-			</div>
-			<button aria-label="close" rel="prev"></button>
+			{ children... }
 		</div>
 	} else {
 		<div
-			class="toast hide error"
+			class="toast toast__hide toast__error"
 			role="alert"
 			aria-live="assertive"
 			aria-atomic="true"
 		>
-			<div class="toast-content">
-				{ children... }
-			</div>
-			<button aria-label="close" rel="prev"></button>
+			{ children... }
 		</div>
 	}
 }
 
-templ toast(level toastLevel, title, message, button string) {
+templ toast(level toastLevel, title, message string) {
 	@toastSkeleton(level) {
-		<div class="toast-body">
+		<div class="toast-content">
 			<p>{ title }</p>
 			if message != "" {
 				<small>{ message }</small>
 			}
 		</div>
-		if button != "" {
-			<button class="outline secondary">{ button }</button>
-		}
+		<button class="toast__close-button" aria-label="close" rel="prev"></button>
 	}
 }
 
-templ toastRaw(level toastLevel, title, message, button string) {
+templ toastRaw(level toastLevel, title, message string) {
 	@toastSkeleton(level) {
-		<div class="toast-body">
+		<div class="toast-content">
 			<p>
 				@templ.Raw(title)
 			</p>
@@ -61,18 +53,16 @@ templ toastRaw(level toastLevel, title, message, button string) {
 				</small>
 			}
 		</div>
-		if button != "" {
-			<button class="outline secondary">{ button }</button>
-		}
+		<button class="toast__close-button" aria-label="close" rel="prev"></button>
 	}
 }
 
-templ ToastInfo(title, message, button string) {
-	@toast(info, title, message, button)
+templ ToastInfo(title, message string) {
+	@toast(info, title, message)
 }
 
-templ ToastRawInfo(title, message, button string) {
-	@toastRaw(info, title, message, button)
+templ ToastRawInfo(title, message string) {
+	@toastRaw(info, title, message)
 }
 
 templ ToastOOBSwap() {

@@ -498,9 +498,20 @@ body {
     transform: translateY(4px);
 }
 
-.book-card__cover {
+.book-card__cover > img {
+    aspect-ratio: 5/8;
+    margin-bottom: var(--spacing-md);
+    border-radius: 0.2rem;
+    width: 0;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    max-height: 100%;
+}
+
+.book-card__cover--empty {
     width: 100%;
-    aspect-ratio: 2/3;
+    aspect-ratio: 5/8;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-md);
@@ -516,7 +527,8 @@ body {
     overflow: hidden;
 }
 
-.book-card__cover:hover {
+.book-card__cover:hover,
+.book-card__cover--empty:hover {
     transform: scale3d(1.02, 1.02, 1.02);
     opacity: 0.6;
 }
@@ -551,74 +563,54 @@ body {
   flex-direction: column;
   row-gap: 1rem;
   justify-content: center;
+}
 
-  .toast {
+.toast {
     display: flex;
-    padding: calc(0.65 * var(--pico-spacing));
-    background: var(--pico-background-color);
-    color: var(--pico-primary);
-    border: var(--pico-border-width) solid var(--pico-primary-border);
-    border-radius: var(--pico-border-radius);
+    padding: var(--spacing-md);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-surface);
+    border-radius: var(--radius-md);
     cursor: pointer;
     overflow: hidden;
     opacity: 100%;
-
-    .toast-content {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 75% 25%;
-      align-items: center;
-
-      .toast-body * {
-        margin-bottom: 0;
-      }
-
-      .toast-body > p:has(+ small) {
-        font-weight: 800;
-      }
-
-      button:not(button[rel=prev]) {
-        padding: 0.25rem 0.5rem;
-        margin-left: auto;
-        font-size: unset;
-      }
-    }
-
-    &.error {
-      background: maroon;
-      color: var(--pico-contrast);
-      border: var(--pico-border-width) solid maroon;
-      opacity: 0.85;
-
-      button:not(button[rel=prev]) {
-        color: var(--pico-contrast);
-        border-color: var(--pico-contrast-border);
-      }
-    }
-
-    & :is(a, button)[rel=prev] {
-      display: block;
-      float: right;
-      width: 1rem;
-      height: 1rem;
-      margin-left: auto;
-      border: none;
-      background-image: var(--pico-icon-close);
-      background-position: center;
-      background-size: auto 1rem;
-      background-repeat: no-repeat;
-      background-color: transparent;
-      opacity: 0.5;
-      transition: opacity var(--pico-transition);
-    }
-
-    & :is(a, button)[rel=prev]:is([aria-current]:not([aria-current=false]), :hover, :active, :focus) {
-      opacity: 1;
-    }
-  }
 }
 
-.hide {
+.toast-content {}
+
+.toast__error {
+    background: maroon;
+    color: var(--color-text-primary);
+    border: 2x solid maroon;
+    opacity: 0.85;
+
+    button:not(button[rel=prev]) {
+      color: var(--color-text-primary);
+      border-color: var(--color-accent);
+    }
+}
+
+.toast__close-button {
+    width: 1rem;
+    margin-left: auto;
+    border: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(136, 145, 164)' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
+    background-position: center;
+    background-size: auto 1rem;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    opacity: 0.5;
+    transition: opacity 0.5s;
+}
+
+.toast__close-button:hover,
+.toast__close-button:active,
+.toast__close-button:focus {
+  opacity: 1;
+}
+
+.toast__hide {
   will-change: transform;
   animation:
     fadeOut 3s ease 5s forwards,
