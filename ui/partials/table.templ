@@ -1,0 +1,49 @@
+package partials
+
+import (
+	"github.com/kencx/dusk"
+	"github.com/kencx/dusk/page"
+	"path"
+	"strings"
+)
+
+templ Table(page page.Page[dusk.Book]) {
+	<table class="books-table__table">
+		<thead class="books-table__header">
+			<tr>
+				<th class="books-table__header-cell">Title</th>
+				<th class="books-table__header-cell">Author(s)</th>
+				<th class="books-table__header-cell">Status</th>
+				<th class="books-table__header-cell">Date Added</th>
+				<th class="books-table__header-cell">Rating</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, book := range page.Items {
+				<tr
+					class="books-table__row"
+					hx-get={ templ.URL(path.Join("/b", book.Slugify())) }
+					hx-target="body"
+					hx-swap="outerHTML"
+					hx-push-url="true"
+				>
+					<td class="books-table__cell">
+						<div class="books-table__title">{ book.Title }</div>
+					</td>
+					<td class="books-table__cell">
+						<div class="books-table__author">{ strings.Join(book.Author, ", ") }</div>
+					</td>
+					<td class="books-table__cell">
+						<span class="books-table__status books-table__status--finished">{ book.Status }</span>
+					</td>
+					<td class="books-table__cell">
+						<div class="books-table__date"></div>
+					</td>
+					<td class="books-table__cell">
+						<div class="books-table__rating">{ book.Rating }</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

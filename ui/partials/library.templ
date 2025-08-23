@@ -18,12 +18,20 @@ templ Library(page page.Page[dusk.Book], filters filters.Base, err error) {
 }
 
 templ BookSearchResults(page page.Page[dusk.Book], filters filters.Base, err error) {
-	@ItemSearchResults(page, "/b/search", ".books-grid", err) {
-		<div class="books-grid" id="booksGrid">
-			for _, book := range page.Items {
-				@bookCard(&book)
-			}
-		</div>
+	if ! filters.Empty() {
+		@ItemSearchResults(page, "/b/search", ".books-grid", err) {
+			<div class="books-grid" id="booksGrid">
+				for _, book := range page.Items {
+					@bookCard(&book)
+				}
+			</div>
+		}
+	} else {
+		@ItemSearchResults(page, "/b/search", ".books-table", err) {
+			<div class="books-table active" id="booksTable">
+				@Table(page)
+			</div>
+		}
 	}
 }
 
